@@ -1,19 +1,43 @@
 package org.example;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import imgui.ImGui;
+import imgui.flag.ImGuiConfigFlags;
+
+
+
+import imgui.gl3.ImGuiImplGl3;
+import imgui.glfw.ImGuiImplGlfw;
 import org.example.render.*;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
+import org.lwjgl.nuklear.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.Platform;
 
 import javax.swing.*;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL20.glCreateProgram;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL14.*;
+import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.nuklear.Nuklear.*;
 
 
 public class WindowManager {
@@ -25,20 +49,50 @@ public class WindowManager {
     public render renderer;
     public LightSource source;
 
+    //Imgui
+    private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
+    private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
+    private String glslVersion = null;
+    private ImGuiLayer imguilayer;
+
+    public WindowManager(ImGuiLayer layer){
+        imguilayer = layer;
+    }
+
 
 
     public void run(){
         init();
+        initImGui();
         loop();
+        destroy();
 
+        /*
         Callbacks.glfwFreeCallbacks(window);
         GLFW.glfwDestroyWindow(window);
 
         GLFW.glfwTerminate();
         GLFW.glfwSetErrorCallback(null).free();
+        */
+
     }
 
     public void init(){
+        glslVersion = "#version 330";
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+        //Imgui
+        /*
+        initImGui();
+        imGuiGlfw.init(window, true);
+        imGuiGl3.init(glslVersion);
+
+         */
+        //
+
+        System.out.println(GLFW.glfwGetVersionString());
+
+
         GLFWErrorCallback.createPrint(System.err).set();
 
         if(!GLFW.glfwInit()){
@@ -76,18 +130,22 @@ public class WindowManager {
                         GLFW.glfwMakeContextCurrent(window);
                         GLFW.glfwSwapInterval(1);
                         GLFW.glfwShowWindow(window);
+
+
         }
 
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-
-
+        GL.createCapabilities();
 
 
 
     }
+
+
+
     public void loop(){
 
-        GL.createCapabilities();
+        //GL.createCapabilities();
 
         float[] vertices = {-0.5f, 0.5f, 0.5f, //0
                 -0.5f, -0.5f, 0.5f, //1
@@ -380,6 +438,32 @@ public class WindowManager {
             GLFW.glfwSetWindowTitle(window, "OpenEngine: "+WindowManager.FPS);
             }
 
+            //imgui
+            /*
+
+            imGuiGlfw.newFrame();
+            ImGui.newFrame();
+
+            imguilayer.imgui();
+
+            ImGui.render();
+            imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+            if(ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)){
+                final long backupWindowPtr = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
+                ImGui.updatePlatformWindows();
+                ImGui.renderPlatformWindowsDefault();
+                GLFW.glfwMakeContextCurrent(backupWindowPtr);
+            }
+
+            GLFW.glfwSwapBuffers(window);
+            GLFW.glfwPollEvents();
+
+             */
+
+
+            //
+
 
             renderer.cleanup();
 
@@ -397,8 +481,30 @@ public class WindowManager {
 
 
 
-            //renderer.draw(Tris);
-            //System.out.println(GL11.glGetError());
+            //imgui
+
+            imGuiGlfw.newFrame();
+            ImGui.newFrame();
+
+            imguilayer.imgui();
+
+            ImGui.render();
+            imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+            if(ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)){
+                final long backupWindowPtr = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
+                ImGui.updatePlatformWindows();
+                ImGui.renderPlatformWindowsDefault();
+                GLFW.glfwMakeContextCurrent(backupWindowPtr);
+            }
+
+            GLFW.glfwSwapBuffers(window);
+            GLFW.glfwPollEvents();
+
+
+            //
+
+
 
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
@@ -432,6 +538,21 @@ public class WindowManager {
 
     }
 
+    public void destroy(){
+        imGuiGl3.dispose();
+        imGuiGlfw.dispose();
+        ImGui.destroyContext();
+        Callbacks.glfwFreeCallbacks(window);
+        GLFW.glfwDestroyWindow(window);
+        GLFW.glfwTerminate();
+        GLFW.glfwSetErrorCallback(null).free();
+    }
+
+    private void initImGui(){
+        ImGui.createContext();
+        imGuiGlfw.init(window, true);
+        imGuiGl3.init(glslVersion);
+    }
 
 
 

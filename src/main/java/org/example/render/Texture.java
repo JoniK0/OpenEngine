@@ -37,7 +37,7 @@ public class Texture {
             URL url = Texture.class.getResource("res/"+resourceName);
             File file = new File("res/"+resourceName);
             String filepath = file.getAbsolutePath();
-            buffer = STBImage.stbi_load("D:\\Java_projects\\OpenEngine v.0.3\\res\\textures\\"+texture, w, h, channels, 4);
+            buffer = STBImage.stbi_load("/home/joni/IdeaProjects/Github/OpenEngine/res/textures/"+texture, w, h, channels, 4);
             if(buffer==null){
                 throw new Exception("Can't load file"+texture+" "+STBImage.stbi_failure_reason());
             }

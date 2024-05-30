@@ -128,7 +128,7 @@ public class WindowManager {
                         GLFW.glfwSetWindowPos(window,(vidmode.width() - pWidth.get(0)) / 2,(vidmode.height() - pHeight.get(0)) / 2);
 
                         GLFW.glfwMakeContextCurrent(window);
-                        GLFW.glfwSwapInterval(1);
+                        GLFW.glfwSwapInterval(0);
                         GLFW.glfwShowWindow(window);
 
 
@@ -426,6 +426,9 @@ public class WindowManager {
         double lastTime = glfwGetTime();
         int Frames = 0;
 
+        double TickHZ = 60;
+        int tickCounter = 0;
+
         while(!GLFW.glfwWindowShouldClose(window)){
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
 
@@ -475,12 +478,16 @@ public class WindowManager {
             renderer.draw(sphere, 0.0f, 0.0f, -15f, false, 0);
             renderer.draw(SkyBox, 0.0f, 0.0f, 0.0f, true, 0);
             renderer.draw(cube, 20f, 2f, -2f, false, 0);
-            renderer.input();
-            source.rotate(angle);
-            angle += 0.01;
+
+            if(tickCounter >= (FPS/TickHZ)) {
+                renderer.input();
+                source.rotate(angle);
+                angle += 0.01;
+                System.out.println(tickCounter);
+                tickCounter = 0;
+            }
             //System.out.println(source.getLightPosition());
-
-
+            tickCounter += 1;
 
             //imgui
 
@@ -499,8 +506,8 @@ public class WindowManager {
                 GLFW.glfwMakeContextCurrent(backupWindowPtr);
             }
 
-            GLFW.glfwSwapBuffers(window);
-            GLFW.glfwPollEvents();
+            //GLFW.glfwSwapBuffers(window);
+            //GLFW.glfwPollEvents();
 
 
             //

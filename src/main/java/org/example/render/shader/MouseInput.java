@@ -35,13 +35,16 @@ public class MouseInput {
             y = curPos.y - prevPos.y;
         }
 
-        curPos.x = WindowManager.width/2;
-        curPos.y = WindowManager.height/2;
 
-        Camera.yaw += x * Sensitivity;
-        Camera.pitch += y * Sensitivity;
+            curPos.x = WindowManager.width/2;
+            curPos.y = WindowManager.height/2;
 
-        GLFW.glfwSetCursorPos(Main.getWindowManager().getWindow(), WindowManager.width/2, WindowManager.height/2);
+        if(!Camera.isMouseEscape){
+            Camera.yaw += x * Sensitivity;
+            Camera.pitch += y * Sensitivity;
+            GLFW.glfwSetCursorPos(Main.getWindowManager().getWindow(), WindowManager.width/2, WindowManager.height/2);
+        }
+
     }
 
 

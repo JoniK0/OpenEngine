@@ -135,6 +135,7 @@ public class WindowManager {
         }
 
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
         GL.createCapabilities();
 
 
@@ -535,7 +536,14 @@ public class WindowManager {
         else {
             return false;
         }
-
+    }
+    public boolean isKeyReleased(int keycode){
+        if(GLFW.glfwGetKey(window, keycode) == GLFW_RELEASE){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public void destroy(){

@@ -25,6 +25,7 @@ public class Camera {
     private final WindowManager windowmanager;
     public static float yaw = 90;
     public static float pitch = 0;
+    public static boolean isMouseEscape = false;
     public MouseInput mouseInput = new MouseInput();
 
 
@@ -160,6 +161,16 @@ public class Camera {
         if(windowmanager.isKeyPressed(GLFW_KEY_O))
         {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+        }
+        if(windowmanager.isKeyPressed(GLFW_KEY_K))
+        {
+            isMouseEscape = false;
+            GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        if(windowmanager.isKeyPressed(GLFW_KEY_L))
+        {
+            isMouseEscape = true;
+            GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
         mouseInput.input();
         TargetVectorTransformation();

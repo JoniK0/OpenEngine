@@ -1,5 +1,7 @@
 package org.example.render;
 
+import imgui.ImGui;
+import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.shader.ShaderTextured;
@@ -22,6 +24,13 @@ public class render {
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
 
+        if(ImGuiLayer.polygonmode){
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+        }
+        else{
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+        }
+
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_MIRRORED_REPEAT);
         shader.start();
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -30,13 +39,18 @@ public class render {
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
+        //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
 
         //cam.keyListener();
 
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0));
+
         shader.loadVector("camPos", cam.m_pos);
+        shader.loadVector("camDirection", cam.m_target);
+
+        //System.out.println(cam.m_target);
+
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);
         shader.loadVector("lightSource", windowmanager.getLightSource().getLightPosition());
@@ -46,12 +60,31 @@ public class render {
 
         shader.setUniform("CameraTransform", cam.getMatrix());
 
-        //shader.setUniform("Translation", transform.TranslationMatrix(0f,0f,-2));
-        //shader.setUniform("Rotation", transform.RotationMatrix(Transformations.scale));
 
-        //shader.setUniform("Final", transform.getFinalMatrix());
-        //System.out.println(Transformations.scale);
-        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+
+
+        if(mesh.getMultextures().size() > 1){
+            for(int i=0; i<mesh.getMultextures().size(); i++){
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
+                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, 13);
+
+                System.out.println(mesh.getMultextures().get(i));
+
+                //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount()/mesh.getMultextures().size(), GL11.GL_UNSIGNED_INT, 0);
+            }
+
+        }
+        else{
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
+
+            GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+        }
+        /////
+        //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
+
+        //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+        /////
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);

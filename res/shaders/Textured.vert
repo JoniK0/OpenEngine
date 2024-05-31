@@ -12,6 +12,7 @@ layout (location = 4) out int fullbright;
 layout (location = 5) out int globalFull;
 layout (location = 6) out vec3 LightSource;
 layout (location = 7) out vec3 LightColor;
+layout (location = 8) out vec3 camDir;
 
 uniform mat4 Projection;
 uniform mat4 Translation;
@@ -20,6 +21,7 @@ uniform mat4 Final;
 uniform mat4 WorldTransform;
 uniform mat4 CameraTransform;
 uniform vec3 camPos;
+uniform vec3 camDirection;
 uniform int Fullbright;
 uniform int globalFullbright;
 uniform vec3 lightSource;
@@ -31,7 +33,7 @@ void main(){
 
 	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
 
-	FragPos = vec3(WorldTransform * vec4(position.x, position.y, position.z, 1.0));
+	FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
 	pass_uvs = uvs;
 	Normals = normal;
 	campos = camPos;
@@ -39,4 +41,5 @@ void main(){
 	globalFull = globalFullbright;
 	LightSource = lightSource;
 	LightColor = lightColor;
+	camDir = -camDirection;
 }

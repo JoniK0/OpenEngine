@@ -1,4 +1,5 @@
 package org.example.render;
+import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.shader.MouseInput;
@@ -21,7 +22,7 @@ public class Camera {
     public float m_speed = 0.5f;
     public Vector3f m_pos;
     private final Vector3f m_up;
-    private final Vector3f m_target;
+    public Vector3f m_target;
     private final WindowManager windowmanager;
     public static float yaw = 90;
     public static float pitch = 0;

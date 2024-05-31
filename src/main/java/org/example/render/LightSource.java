@@ -9,7 +9,8 @@ public class LightSource {
     public Transformations transform = new Transformations();
     public Vector3f lightColor = new Vector3f();
 
-    public LightSource(float x, float y, float z, float R, float G, float B){
+    public LightSource(Vector3f position, Vector3f color){
+    /*
         this.light.x = x;
         this.light.y = y;
         this.light.z = z;
@@ -18,9 +19,14 @@ public class LightSource {
         this.origin.y = y;
         this.origin.z = z;
 
-        this.lightColor.x = R;
-        this.lightColor.y = G;
-        this.lightColor.z = B;
+     */
+
+        this.light = position;
+        this.origin.x = position.x;
+        this.origin.y = position.y;
+        this.origin.z = position.z;
+
+        this.lightColor = color;
     }
 
     public Vector3f getLightPosition(){

@@ -3,6 +3,7 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Vector;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
@@ -45,9 +46,10 @@ public class WindowManager {
     private long window;
     public static int width = 900;
     public static int height = 600;
-    public static double FPS = 0;
+    public static double FPS = 1000;
     public render renderer;
     public LightSource source;
+    private double TickHZ = 144;
 
     //Imgui
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
@@ -412,7 +414,11 @@ public class WindowManager {
         //int texture = Texture.loadTexture("texture.png");
         renderer = new render();
         ObjectLoader objectLoader = new ObjectLoader();
-        source = new LightSource(20, 8, 5, 1, 1, 1);
+        //source = new LightSource(20, 8, 5, 1, 1, 1);
+
+        Vector3f sourcepos = new Vector3f(20, 8, 5);
+        Vector3f sourcecolor = new Vector3f(1,1,1);
+        source = new LightSource(sourcepos,sourcecolor);
         float angle = 0.1f;
 
         Mesh SkyBox = objectLoader.createSkyBox(800f, "Galaxy.png");
@@ -420,13 +426,14 @@ public class WindowManager {
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
         Mesh Cube = objectLoader.createCube(1).addTexture("orange.png");
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
+        //Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png").addTexture("texture.png");
 
 
 
         double lastTime = glfwGetTime();
         int Frames = 0;
 
-        double TickHZ = 60;
+        //double TickHZ = 60;
         int tickCounter = 0;
 
         while(!GLFW.glfwWindowShouldClose(window)){
@@ -483,7 +490,7 @@ public class WindowManager {
                 renderer.input();
                 source.rotate(angle);
                 angle += 0.01;
-                System.out.println(tickCounter);
+                //System.out.println(tickCounter);
                 tickCounter = 0;
             }
             //System.out.println(source.getLightPosition());

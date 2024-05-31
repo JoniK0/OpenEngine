@@ -81,8 +81,6 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 	//
 	vec4 specular = phongspecular * spec * lightcolor*intens;
 
-	//vec4 test = vec4(0.0, 0.0, 1.0, 0.0) * lightcolor;
-
 	vec4 lighting = ambient*attenuation + diffuse*attenuation + specular*attenuation;
 
 	return lighting;
@@ -111,12 +109,14 @@ vec4 specular = specularStrength * spec * lightcolor;
 
 vec4 lighting = ambient + diffuse + specular;
 */
+//vec3 testpos = vec3(27.8, 7.5, -27);
 //Sun
 vec3 lightDir = normalize(lightPos - FragPos);
 vec4 Sunlight = Phong(sonne.direction, sonne.ambient, vec4(1,1,1,1), sonne.shininess, sonne.specular, 1, 1);
 //
 
 //pointlight
+//vec3 testpos = vec3(27.8, 7.5, -27);
 pointlight point = pointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1f, 0.014f, 0.0007f);
 float distance = length(point.lightpos - FragPos);
 float atten = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
@@ -128,6 +128,7 @@ vec3 spotlightdirection = normalize(camPos - FragPos);
 Spotlight spot = Spotlight(camPos, camDir, cos(radians(12.5)), cos(radians(17.5)));
 float theta = dot(spotlightdirection, normalize(-spot.direction));
 float epsilon = (spot.cutOff - spot.outerCutoff);
+//
 
 vec3 dir = vec3(0.2, -1, 0);
 Spotlight lamp = Spotlight(lightPos, dir, cos(radians(1.5)), cos(radians(17.5)));
@@ -153,7 +154,7 @@ void main(){
 
 	if(theta > spot.cutOff)
 	{
-		spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength, 1, 1);
+		spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength, 1, intensity);
 	}
 	else{
 		spotlight = vec4(lightcolor * ambientStrength);
@@ -171,8 +172,8 @@ void main(){
 
 	//out_Color = texture(textureSampler, pass_uvs) * lighting;
 	//out_Color = texture(textureSampler, pass_uvs) * Sunlight;
-	 out_Color = texture(textureSampler, pass_uvs) * Pointlight;
-	//out_Color = texture(textureSampler, pass_uvs) * spotlight;
+	//out_Color = texture(textureSampler, pass_uvs) * Pointlight;
+	out_Color = texture(textureSampler, pass_uvs) * spotlight;
 	//out_Color = texture(textureSampler, pass_uvs) * lamplight;
 
 

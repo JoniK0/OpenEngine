@@ -49,8 +49,8 @@ public class render {
         shader.loadVector("camPos", cam.m_pos);
         shader.loadVector("camDirection", cam.m_target);
 
-        System.out.println("target: " + cam.m_target);
-        System.out.println("pos" + cam.m_pos);
+        //System.out.println("target: " + cam.m_target);
+        //System.out.println("pos" + cam.m_pos);
 
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);

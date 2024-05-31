@@ -117,7 +117,7 @@ vec4 Sunlight = Phong(sonne.direction, sonne.ambient, vec4(1,1,1,1), sonne.shini
 
 //pointlight
 //vec3 testpos = vec3(27.8, 7.5, -27);
-pointlight point = pointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1f, 0.014f, 0.0007f);
+pointlight point = pointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.014f, 0.0007f);
 float distance = length(point.lightpos - FragPos);
 float atten = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
 vec4 Pointlight = Phong(lightDir, ambientStrength, lightcolor, shininess, specularStrength, atten, 1);
@@ -128,6 +128,8 @@ vec3 spotlightdirection = normalize(camPos - FragPos);
 Spotlight spot = Spotlight(camPos, camDir, cos(radians(12.5)), cos(radians(17.5)));
 float theta = dot(spotlightdirection, normalize(-spot.direction));
 float epsilon = (spot.cutOff - spot.outerCutoff);
+
+float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff));
 //
 
 vec3 dir = vec3(0.2, -1, 0);
@@ -150,14 +152,17 @@ void main(){
 	{
 		Sunlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		Pointlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		//spotlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	if(theta > spot.cutOff)
 	{
 		spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength, 1, intensity);
+		spotlight *= flashlightintensity;
 	}
 	else{
 		spotlight = vec4(lightcolor * ambientStrength);
+		spotlight = vec4(0, 0,0,0);
 	}
 	//
 
@@ -167,6 +172,13 @@ void main(){
 	}
 	else{
 		lamplight = vec4(lightcolor * ambientStrength);
+	}
+
+	if (fullbright == 1 || globalFullbright == 1)
+	{
+		Sunlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		Pointlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		spotlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.example.render.LightSource;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -85,9 +87,6 @@ public abstract class Shader {
         value.get(matrix);
         //matrix.flip();
         GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-        //System.out.println(value);
-        //System.out.println("Matrixlocation: "+name+": "+ getUniformLocation(name));
-        //System.out.println(matrix.get());
     }
 
     protected void bindAttribute(int attribute, String variableName) {
@@ -108,6 +107,34 @@ public abstract class Shader {
         }
         //GL20.glUniform1f(getUniformLocation(name), tovec);
         GL20.glUniform1i(getUniformLocation(name), tovec);
+    }
+
+    public void loadList(String name, ArrayList<Float> list){
+        float[] array = new float[list.size()];
+        for(int i = 0; i < list.size(); i++){
+            array[i] = list.get(i);
+        }
+        GL20.glUniform1fv(getUniformLocation(name), array);
+    }
+
+    public void loadLights(LightSource list[]){
+        int numLights = list.length;
+        for(int i = 0; i < numLights; i++) {
+
+            //System.out.println("i:"+i+" pos: "+list[i].getLightPosition());
+            //System.out.println("i: "+i+" color: "+list[i].getLightColor());
+
+            GL20.glUniform3f(getUniformLocation("pointlightlist["+i+"].lightpos"), list[i].getLightPosition().x, list[i].getLightPosition().y, list[i].getLightPosition().z);
+            GL20.glUniform4f(getUniformLocation("pointlightlist["+i+"].color"), list[i].getLightColor().x, list[i].getLightColor().y, list[i].getLightColor().z, 1);
+
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].ambient"), 0.2f);
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].specular"), 0.5f);
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].shininess"), 128f);
+
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].constant"), 1f);
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].linear"), 0.03f);
+            GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].quadratic"), 0.0014f);
+        }
     }
 
     protected void loadMatrix(int location, Matrix4f value){

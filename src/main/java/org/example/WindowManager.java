@@ -3,6 +3,7 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import imgui.ImGui;
@@ -49,6 +50,9 @@ public class WindowManager {
     public static double FPS = 1000;
     public render renderer;
     public LightSource source;
+    public LightSource sourcetwo;
+    public LightSource[] lightSources;
+    public ArrayList<LightSource> lightSourcesList = new ArrayList<LightSource>();
     private double TickHZ = 144;
 
     //Imgui
@@ -416,15 +420,23 @@ public class WindowManager {
         ObjectLoader objectLoader = new ObjectLoader();
         //source = new LightSource(20, 8, 5, 1, 1, 1);
 
-        Vector3f sourcepos = new Vector3f(20, 8, 5);
-        Vector3f sourcecolor = new Vector3f(1,1,1);
-        source = new LightSource(sourcepos,sourcecolor);
+        source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
+        sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
+
+        lightSourcesList.add(source);
+        lightSourcesList.add(sourcetwo);
+        //lightSourcesList.add(source);
+
+
+
+
         float angle = 0.1f;
 
         Mesh SkyBox = objectLoader.createSkyBox(800f, "Galaxy.png");
-        Mesh sphere = objectLoader.Sphere(5,50,50).addTexture("orange.png");
+        Mesh sphere = objectLoader.Sphere(5,50,50).addTexture("white.jpg");//
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
-        Mesh Cube = objectLoader.createCube(1).addTexture("orange.png");
+        Mesh pointlight = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
+        Mesh Cube = objectLoader.createCube(1).addTexture("white.jpg");//
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
         //Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png").addTexture("texture.png");
 
@@ -449,30 +461,6 @@ public class WindowManager {
             GLFW.glfwSetWindowTitle(window, "OpenEngine: "+WindowManager.FPS);
             }
 
-            //imgui
-            /*
-
-            imGuiGlfw.newFrame();
-            ImGui.newFrame();
-
-            imguilayer.imgui();
-
-            ImGui.render();
-            imGuiGl3.renderDrawData(ImGui.getDrawData());
-
-            if(ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)){
-                final long backupWindowPtr = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
-                ImGui.updatePlatformWindows();
-                ImGui.renderPlatformWindowsDefault();
-                GLFW.glfwMakeContextCurrent(backupWindowPtr);
-            }
-
-            GLFW.glfwSwapBuffers(window);
-            GLFW.glfwPollEvents();
-
-             */
-
-
             //
 
 
@@ -480,6 +468,7 @@ public class WindowManager {
 
 
             renderer.draw(lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0);
+            renderer.draw(pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0);
             renderer.draw(Cube,-20f, 0.0f, 3.0f, false, 0);
             renderer.draw(sphere, -2, -5.0f, 10.0f, false, 0);
             renderer.draw(sphere, 0.0f, 0.0f, -15f, false, 0);
@@ -539,6 +528,31 @@ public class WindowManager {
 
     public LightSource getLightSource(){
         return source;
+    }
+    public ArrayList<Float> getLightSourcesPos(){
+        ArrayList list = new ArrayList<>();
+        for (LightSource lightSource : lightSourcesList) {
+            list.add(lightSource.getLightPosition().x);
+            list.add(lightSource.getLightPosition().y);
+            list.add(lightSource.getLightPosition().z);
+        }
+        return list;
+    }
+
+    public ArrayList<Float> getLightSourceColor(){
+        ArrayList list = new ArrayList<>();
+        for (LightSource lightSource : lightSourcesList) {
+            list.add(lightSource.getLightColor().x);
+            list.add(lightSource.getLightColor().y);
+            list.add(lightSource.getLightColor().z);
+        }
+        return list;
+    }
+
+    public LightSource[] getLightSourceArray(){
+        LightSource[] array = new LightSource[lightSourcesList.size()];
+        //System.out.println(lightSourcesList.toArray(array).length);
+        return array = lightSourcesList.toArray(array);
     }
 
 

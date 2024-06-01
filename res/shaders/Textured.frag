@@ -10,6 +10,9 @@ layout (location = 6) in vec3 lightPos;
 layout (location = 7) in vec3 lightSourceColor;
 layout (location = 8) in vec3 camDir;
 
+layout (location = 9) in float[] LightPos;
+layout (location = 10) in float[] LightCols;
+
 out vec4 out_Color;
 out vec4 FragColor;
 
@@ -32,6 +35,11 @@ struct pointlight{
 	float linear;
 	float quadratic;
 };
+
+uniform pointlight pointlightlist[10];
+
+
+
 
 struct Light{
 	vec3 lightpos;
@@ -63,8 +71,7 @@ struct Spotlight{
 	float outerCutoff;
 };
 
-uniform pointlight gpointlights[MAX_POINT_LIGHTS];
-uniform int numpointslights;
+
 
 Sun sonne = Sun(vec3(-0.2f, 0.5f, -0.3f), 0.2, 0.5, 128);
 
@@ -129,17 +136,28 @@ vec4 CalcSpotlight(vec3 position, vec3 direction, float cutoff){
 }
 
 vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
+
+
 vec4 pointl = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
 vec4 flash = CalcSpotlight(camPos, camDir, 12.5);
 
-vec4 lighting = sun;
+vec4 lighting = vec4(0,0,0,0);
+
+
 
 
 
 void main(){
+
+	for(int i = 0; i < 2; i++){
+		lighting += CalcPointlight(pointlightlist[i].lightpos, pointlightlist[i].ambient, pointlightlist[i].specular, pointlightlist[i].shininess, pointlightlist[i].color, pointlightlist[i].constant, pointlightlist[i].linear, pointlightlist[i].quadratic);
+		//lighting = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
+	}
+
 	if (fullbright == 1 || globalFullbright == 1)
 	{
 		lighting = vec4(1.0f,1.0f,1.0f,1.0f);
+		pointl = vec4(1,1,1,1);
 	}
 
 	out_Color = texture(textureSampler, pass_uvs) * lighting;

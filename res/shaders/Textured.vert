@@ -14,6 +14,9 @@ layout (location = 6) out vec3 LightSource;
 layout (location = 7) out vec3 LightColor;
 layout (location = 8) out vec3 camDir;
 
+layout (location = 9) out float[] LightPos;
+layout (location = 10) out float[] LightCols;
+
 uniform mat4 Projection;
 uniform mat4 Translation;
 uniform mat4 Rotation;
@@ -27,6 +30,9 @@ uniform int globalFullbright;
 uniform vec3 lightSource;
 uniform mat4 AxisRotation;
 uniform vec3 lightColor;
+
+uniform float[] LightPositions;
+uniform float[] LightColors;
 
 void main(){
 	gl_Position = Projection * CameraTransform * AxisRotation * WorldTransform * vec4(position.x, position.y, position.z , 1.0);
@@ -42,4 +48,7 @@ void main(){
 	LightSource = lightSource;
 	LightColor = lightColor;
 	camDir = -camDirection;
+
+	LightPos = LightPositions;
+	LightCols = LightColors;
 }

@@ -1,4 +1,5 @@
 package org.example.render;
+import org.example.render.shader.Shader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Math;
@@ -9,8 +10,8 @@ public class LightSource {
     public Transformations transform = new Transformations();
     public Vector3f lightColor = new Vector3f();
 
-    public LightSource(Vector3f position, Vector3f color){
-    /*
+    public LightSource(float x, float y, float z, float r, float g, float b){
+
         this.light.x = x;
         this.light.y = y;
         this.light.z = z;
@@ -19,21 +20,18 @@ public class LightSource {
         this.origin.y = y;
         this.origin.z = z;
 
-     */
-
-        this.light = position;
-        this.origin.x = position.x;
-        this.origin.y = position.y;
-        this.origin.z = position.z;
-
-        this.lightColor = color;
+        this.lightColor.x = r;
+        this.lightColor.y = g;
+        this.lightColor.z = b;
     }
+
+
 
     public Vector3f getLightPosition(){
-        return light;
+        return this.light;
     }
     public Vector3f getLightColor(){
-        return lightColor;
+        return this.lightColor;
     }
     public void rotate(float angle){
         light.x = (origin.x*Math.cos(angle)) - (origin.z*Math.sin(angle));

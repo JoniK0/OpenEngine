@@ -55,6 +55,12 @@ public class render {
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);
         shader.loadVector("lightSource", windowmanager.getLightSource().getLightPosition());
+
+        shader.loadList("LightPositions", windowmanager.getLightSourcesPos());
+        shader.loadList("LightColors", windowmanager.getLightSourceColor());
+
+        shader.loadLights(windowmanager.getLightSourceArray());
+
         shader.setUniform("AxisRotation", transform.RotationMatrix(scale));
         shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
         //shader.setUniform("CameraTransform", transform.getCameraTransformation());

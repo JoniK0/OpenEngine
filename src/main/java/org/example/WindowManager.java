@@ -14,6 +14,7 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import org.example.render.*;
+import org.example.render.Map.Map;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
 import org.lwjgl.nuklear.*;
@@ -61,6 +62,9 @@ public class WindowManager {
     private String glslVersion = null;
     private ImGuiLayer imguilayer;
 
+    Map map = new Map();
+
+
     public WindowManager(ImGuiLayer layer){
         imguilayer = layer;
     }
@@ -69,6 +73,7 @@ public class WindowManager {
 
     public void run(){
         init();
+        map.initMap();
         initImGui();
         loop();
         destroy();
@@ -84,6 +89,7 @@ public class WindowManager {
     }
 
     public void init(){
+
         glslVersion = "#version 330";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
@@ -466,7 +472,7 @@ public class WindowManager {
 
             renderer.cleanup();
 
-
+            /*
             renderer.draw(lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0);
             renderer.draw(pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0);
             renderer.draw(Cube,-20f, 0.0f, 3.0f, false, 0);
@@ -475,9 +481,18 @@ public class WindowManager {
             renderer.draw(SkyBox, 0.0f, 0.0f, 0.0f, true, 0);
             renderer.draw(cube, 20f, 2f, -2f, false, 0);
 
+             */
+            //map.dynamic();
+            for(Map.object object : map.getObjects()){
+                renderer.draw(object.element(), object.x(), object.y(), object.z(), object.fullbright(), object.scale());
+            }
+            //map.getObjects().removeLast();
+
+
             if(tickCounter >= (FPS/TickHZ)) {
                 renderer.input();
                 source.rotate(angle);
+                //map.getLights().getFirst().rotate(angle);
                 angle += 0.01;
                 //System.out.println(tickCounter);
                 tickCounter = 0;
@@ -550,9 +565,13 @@ public class WindowManager {
     }
 
     public LightSource[] getLightSourceArray(){
+        /*
         LightSource[] array = new LightSource[lightSourcesList.size()];
-        //System.out.println(lightSourcesList.toArray(array).length);
         return array = lightSourcesList.toArray(array);
+
+         */
+        LightSource[] array = new LightSource[map.getLights().size()];
+        return array = map.getLights().toArray(array);
     }
 
 
@@ -588,6 +607,9 @@ public class WindowManager {
         ImGui.createContext();
         imGuiGlfw.init(window, true);
         imGuiGl3.init(glslVersion);
+    }
+    public Map getMap(){
+        return map;
     }
 
 

@@ -10,12 +10,12 @@ import java.io.*;
 import java.util.List;
 
 public class ObjectLoader {
-    private final WindowManager manager;
-    private final render renderer;
+    //private final WindowManager manager;
+    //private final render renderer;
 
     public ObjectLoader(){
-        this.manager = Main.getWindowManager();
-        this.renderer = manager.getRender();
+        //this.manager = Main.getWindowManager();
+        //this.renderer = manager.getRender();
     }
 
     public Mesh createSkyBox(float length, String CubeMap)

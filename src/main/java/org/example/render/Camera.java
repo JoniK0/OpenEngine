@@ -2,6 +2,7 @@ package org.example.render;
 import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
+import org.example.render.Map.Map;
 import org.example.render.shader.MouseInput;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -27,6 +28,7 @@ public class Camera {
     public static float yaw = 90;
     public static float pitch = 0;
     public static boolean isMouseEscape = false;
+    public ObjectLoader objectLoader = new ObjectLoader();
     public MouseInput mouseInput = new MouseInput();
 
 
@@ -86,6 +88,12 @@ public class Camera {
     }
 
     public void keyListener(){
+        if(windowmanager.isKeyPressed(GLFW_KEY_T))
+        {
+            Mesh def = objectLoader.createCube(1).addTexture("white.jpg");
+            Map.object cube = new Map.object(def, m_pos.x-m_target.x*3, m_pos.y-m_target.y*3,m_pos.z-m_target.z*3, false, 0);
+            windowmanager.getMap().getObjects().add(cube);
+        }
         if(windowmanager.isKeyPressed(GLFW_KEY_W))//up
         {
             Vector3f Add = new Vector3f();

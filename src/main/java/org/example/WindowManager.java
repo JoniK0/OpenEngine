@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import imgui.ImGui;
+import imgui.ImGuiIO;
 import imgui.flag.ImGuiConfigFlags;
 
 
@@ -605,6 +606,8 @@ public class WindowManager {
 
     private void initImGui(){
         ImGui.createContext();
+        ImGuiIO io = ImGui.getIO();
+        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
         imGuiGlfw.init(window, true);
         imGuiGl3.init(glslVersion);
     }

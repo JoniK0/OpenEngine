@@ -13,6 +13,8 @@ layout (location = 8) in vec3 camDir;
 out vec4 out_Color;
 out vec4 FragColor;
 
+int MAX_POINT_LIGHTS = 10;
+
 uniform sampler2D textureSampler;
 
 float ambientStrength = 0.2;
@@ -61,15 +63,18 @@ struct Spotlight{
 	float outerCutoff;
 };
 
+uniform pointlight gpointlights[MAX_POINT_LIGHTS];
+uniform int numpointslights;
+
 Sun sonne = Sun(vec3(-0.2f, 0.5f, -0.3f), 0.2, 0.5, 128);
 
-vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular, float attenuation, float intens){
+vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular){
 
 	vec4 ambient = phongambient * lightcolor;
 
 	vec3 norm = normalize(Normals);
 	float diff = max(dot(norm, direction), 0.0);
-	vec4 diffuse = diff * lightcolor*intens;
+	vec4 diffuse = diff * lightcolor;
 
 	vec3 viewDir = normalize(camPos - FragPos);
 	vec3 reflectDir = reflect(-direction, norm);
@@ -79,118 +84,65 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 	// phong
 	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 	//
-	vec4 specular = phongspecular * spec * lightcolor*intens;
+	vec4 specular = phongspecular * spec * lightcolor;
 
-	vec4 lighting = ambient*attenuation + diffuse*attenuation + specular*attenuation;
+	vec4 lighting = ambient+ diffuse + specular;
 
 	return lighting;
 }
 
-/*
-
-vec4 ambient = ambientStrength * lightcolor;
-
-vec3 norm = normalize(Normals);
-vec3 lightDir = normalize(lightPos - FragPos);
-float diff = max(dot(norm, lightDir), 0.0);
-vec4 diffuse = diff * lightcolor;
-
-vec3 viewDir = normalize(camPos - FragPos);
-vec3 reflectDir = reflect(-lightDir, norm);
-// Blinn-phong
-vec3 halfwayDir = normalize(lightDir + viewDir);
-float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
-// phong
-//float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-//
-vec4 specular = specularStrength * spec * lightcolor;
-
-//vec4 test = vec4(0.0, 0.0, 1.0, 0.0) * lightcolor;
-
-vec4 lighting = ambient + diffuse + specular;
-*/
-//vec3 testpos = vec3(27.8, 7.5, -27);
-//Sun
-vec3 lightDir = normalize(lightPos - FragPos);
-vec4 Sunlight = Phong(sonne.direction, sonne.ambient, vec4(1,1,1,1), sonne.shininess, sonne.specular, 1, 1);
+//calculate sun
+vec4 CalcSun(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular){
+	vec4 lighting = Phong(direction, phongambient, lightcolor, phongshininess, phongspecular);
+	return lighting;
+}
 //
 
-//pointlight
-//vec3 testpos = vec3(27.8, 7.5, -27);
-pointlight point = pointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.014f, 0.0007f);
-float distance = length(point.lightpos - FragPos);
-float atten = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
-vec4 Pointlight = Phong(lightDir, ambientStrength, lightcolor, shininess, specularStrength, atten, 1);
+//calculate pointlights
+vec4 CalcPointlight(vec3 pos, float ambient, float specular, float shininess, vec4 color, float constant, float linear, float quadratic){
+	pointlight point = pointlight(pos, ambient,specular, shininess, color, 1.0f, 0.03f, 0.0014f);
+	float distance = length(point.lightpos - FragPos);
+	vec3 lightdirection = normalize(point.lightpos - FragPos);
+	float atten = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
+	vec4 Pointlight = Phong(lightdirection, ambient, color, shininess, specular) * atten;
+	return Pointlight;
+}
 //
 
-//spotlight (flahslight)
-vec3 spotlightdirection = normalize(camPos - FragPos);
-Spotlight spot = Spotlight(camPos, camDir, cos(radians(12.5)), cos(radians(17.5)));
-float theta = dot(spotlightdirection, normalize(-spot.direction));
-float epsilon = (spot.cutOff - spot.outerCutoff);
+vec4 CalcSpotlight(vec3 position, vec3 direction, float cutoff){
+	vec3 spotlightdirection = normalize(position - FragPos);
+	Spotlight spot = Spotlight(position, direction, cos(radians(cutoff)), cos(radians(17.5)));
+	float theta = dot(spotlightdirection, normalize(-spot.direction));
+	//float epsilon = (spot.cutOff - spot.outerCutoff);
+	float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff));
+	if(theta > spot.cutOff)
+	{
+		vec4 spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength);
+		spotlight *= flashlightintensity;
+		return spotlight;
+	}
+	else
+	{
+		vec4 spotlight = vec4(0,0,0,0);
+		return spotlight;
+	}
+}
 
-float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff));
-//
+vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
+vec4 pointl = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
+vec4 flash = CalcSpotlight(camPos, camDir, 12.5);
 
-vec3 dir = vec3(0.2, -1, 0);
-Spotlight lamp = Spotlight(lightPos, dir, cos(radians(1.5)), cos(radians(17.5)));
-float teta = dot(lightDir, normalize(-lamp.direction));
-float eps = (lamp.cutOff - lamp.outerCutoff);
-float lampintensity = clamp((teta - lamp.outerCutoff) / eps, 0.0, 1.0);
-vec4 lamplight = vec4(1,1,1,1);
+vec4 lighting = sun;
 
-//float epsilon = 0.09;
 
-float intensity = clamp((theta - spot.outerCutoff) / epsilon, 0.0, 1.0);
-//float intensity = 0.56;
-vec4 spotlight = vec4(1,1,1,1);
-
-//
 
 void main(){
 	if (fullbright == 1 || globalFullbright == 1)
 	{
-		Sunlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Pointlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		//spotlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		lighting = vec4(1.0f,1.0f,1.0f,1.0f);
 	}
 
-	if(theta > spot.cutOff)
-	{
-		spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength, 1, intensity);
-		spotlight *= flashlightintensity;
-	}
-	else{
-		spotlight = vec4(lightcolor * ambientStrength);
-		spotlight = vec4(0, 0,0,0);
-	}
-	//
-
-	if(teta > lamp.cutOff)
-	{
-		lamplight = Phong(lightDir, ambientStrength, lightcolor, shininess, specularStrength,1,lampintensity);
-	}
-	else{
-		lamplight = vec4(lightcolor * ambientStrength);
-	}
-
-	if (fullbright == 1 || globalFullbright == 1)
-	{
-		Sunlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Pointlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		spotlight = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	}
+	out_Color = texture(textureSampler, pass_uvs) * lighting;
 
 
-	//out_Color = texture(textureSampler, pass_uvs) * lighting;
-	//out_Color = texture(textureSampler, pass_uvs) * Sunlight;
-	//out_Color = texture(textureSampler, pass_uvs) * Pointlight;
-	out_Color = texture(textureSampler, pass_uvs) * spotlight;
-	//out_Color = texture(textureSampler, pass_uvs) * lamplight;
-
-
-
-
-
-	//FragColor =  texture(textureSampler, pass_uvs) * vec4(1,0.5,0.5,1);
 }

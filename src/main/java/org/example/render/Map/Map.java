@@ -1,9 +1,6 @@
 package org.example.render.Map;
 
-import org.example.render.LightSource;
-import org.example.render.Mesh;
-import org.example.render.MeshLoader;
-import org.example.render.ObjectLoader;
+import org.example.render.*;
 
 import java.util.ArrayList;
 
@@ -22,7 +19,27 @@ public class Map {
     LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
     LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
 
-    public void initMap(){
+    public void initMap() {
+
+
+
+        try {
+            Mesh[] model = StaticModelLoader.load("/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/source/Fireaxe.fbx", "/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/textures/");
+            for (Mesh mesh:model){
+                objects.add(new object(mesh, 3, 3, 3, false, 0));
+                if(mesh == null){
+                    System.out.println("stooopid");
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+
+
+
         Mesh SkyBox = objectLoader.createSkyBox(800f, "Galaxy.png");
         Mesh sphere = objectLoader.Sphere(5,50,50).addTexture("white.jpg");//
         //Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
@@ -43,6 +60,8 @@ public class Map {
         object Pointlight = new object(pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0);
         object Kubus = new object(Cube,-20f, 0.0f, 3.0f, false, 0);
         object kubus = new object(cube, 20f, 2f, -2f, false, 0);
+
+
 
         objects.add(Skybox);
         objects.add(Sphere);

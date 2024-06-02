@@ -10,11 +10,6 @@ public class ImGuiLayer {
     public void imgui(){
         ImGui.begin("test window");
 
-        ImGui.beginTabBar("Settings#left_tabs_bar");
-
-
-
-        ImGui.endTabBar();
 
 
 

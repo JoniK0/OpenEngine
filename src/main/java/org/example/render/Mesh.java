@@ -22,8 +22,8 @@ public class Mesh {
     }
 
     public Mesh addTexture(String texture){
-        this.texture  = Texture.loadTexture(texture);
-        this.multextures.add(Texture.loadTexture(texture));
+        this.texture = Texture.loadTexture(texture);
+        //this.multextures.add(Texture.loadTexture(texture));
         return this;
     }
 

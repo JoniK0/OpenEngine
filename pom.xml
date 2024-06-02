@@ -19,6 +19,20 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-assimp</artifactId>
+            <version>${lwjgl.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-assimp</artifactId>
+            <version>${lwjgl.version}</version>
+            <classifier>${lwjgl.natives}</classifier>
+            <scope>runtime</scope>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/io.github.spair/imgui-java-binding -->
         <dependency>

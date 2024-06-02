@@ -141,7 +141,7 @@ public class WindowManager {
                         GLFW.glfwSetWindowPos(window,(vidmode.width() - pWidth.get(0)) / 2,(vidmode.height() - pHeight.get(0)) / 2);
 
                         GLFW.glfwMakeContextCurrent(window);
-                        GLFW.glfwSwapInterval(0);
+                        GLFW.glfwSwapInterval(1);
                         GLFW.glfwShowWindow(window);
 
 

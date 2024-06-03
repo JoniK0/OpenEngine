@@ -26,6 +26,10 @@ public class Mesh {
         //this.multextures.add(Texture.loadTexture(texture));
         return this;
     }
+    public Mesh addTexture(String texture, String path){
+        this.texture = Texture.loadTextureAbsolutePath(texture, path);
+        return this;
+    }
 
     public int getTexture(){
         return this.texture;

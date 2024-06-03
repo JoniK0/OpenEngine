@@ -3,6 +3,7 @@ package org.example.render;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
 
+import java.io.File;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +13,14 @@ import static org.lwjgl.assimp.AIMaterial.*;
 
 
 public class StaticModelLoader {
-    public static Mesh[] load(String resourcePath, String textureDir) throws Exception{
-        return load(resourcePath, textureDir, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals);
+    public static Mesh[] load(String modelDirName) throws Exception{
+        File file = new File("res/textures/models/source/"+modelDirName+"/scene.gltf");
+        String filepath = file.getAbsolutePath();
+        //String resourcePath = "/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/source/"+modelName;
+        return load(filepath, modelDirName, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals);
     }
 
-    public static Mesh[] load(String resourcePath, String textureDir, int flags) throws Exception{
+    public static Mesh[] load(String resourcePath, String modelDirName, int flags) throws Exception{
         AIScene aiScene = aiImportFile(resourcePath, flags);
         //Assimp.aiReleaseImport(aiScene);
         if(aiScene == null){
@@ -32,7 +36,7 @@ public class StaticModelLoader {
         for(int i = 0; i < numMaterials; i++){
             AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
             System.out.println("aiMaterial.create:  "+aiMaterial);
-            processMaterial(aiMaterial, textures, textureDir);
+            processMaterial(aiMaterial, textures, modelDirName);
         }
         //
 
@@ -45,7 +49,7 @@ public class StaticModelLoader {
 
         for(int i = 0; i < numMeshes; i++){
             AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-            Mesh mesh = processMeshes(aiMesh, textures);
+            Mesh mesh = processMeshes(aiMesh, textures, modelDirName);
             meshes[i] = mesh;
             System.out.println("meshes loaded: "+i);
         }
@@ -58,20 +62,27 @@ public class StaticModelLoader {
 
 
 
+
     private static void processMaterial(AIMaterial aiMaterial, List<String> textures, String textureDir){
+
         AIString path = AIString.calloc();
-        Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, null, null, null, null, null);
+        Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_BASE_COLOR, 0, path, (IntBuffer) null, null, null, null, null, null);
         String textPath = path.dataString();
         //Texture texture = null;
         if(textPath != null && textPath.length() > 0){
-            System.out.println("hey im here"+textPath);
+            //System.out.println("hey im here "+textPath);
+            File tex = new File(textPath);
+            String texture = tex.getName();
+            System.out.println("texture: "+texture);
+            textures.add(texture);
         }
         //textures.add(textPath);
-        System.out.println("textpath:"+textPath);
+        System.out.println("textpath: "+textPath);
+        System.out.println("test: ");
 
     }
 
-    private static Mesh processMeshes(AIMesh aiMesh, List<String> textures){
+    private static Mesh processMeshes(AIMesh aiMesh, List<String> textures, String modelDirName){
 
         List<Float> vertices = new ArrayList<>();
         List<Float> texture = new ArrayList<>();
@@ -105,7 +116,9 @@ public class StaticModelLoader {
             tex = "white.jpg";
         }
 
-        mesh.addTexture("Fireaxe_BaseColor.jpg");
+        //mesh.addTexture(tex);
+        mesh.addTexture(tex, "res/textures/models/source/"+modelDirName+"/textures");
+
 
         return mesh;
     }
@@ -153,7 +166,7 @@ public class StaticModelLoader {
         while (aiTextCoords.remaining() > 0) {
             AIVector3D aiTextureCoord = aiTextCoords.get();
             texture.add(aiTextureCoord.x());
-            texture.add(aiTextureCoord.y());
+            texture.add(1-aiTextureCoord.y());
             //texture.add(aiTextureCoord.x());
         }
     }

@@ -24,7 +24,7 @@ public class Map {
 
 
         try {
-            Mesh[] model = StaticModelLoader.load("/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/source/Fireaxe.fbx", "/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/textures/");
+            Mesh[] model = StaticModelLoader.load("fire_axe");
             for (Mesh mesh:model){
                 objects.add(new object(mesh, 3, 3, 3, false, 0));
                 if(mesh == null){

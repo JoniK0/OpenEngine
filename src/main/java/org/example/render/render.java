@@ -19,7 +19,7 @@ public class render {
     public void cleanup(){
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
     }
-    public void draw(Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float scale){
+    public void draw(Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale){
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
@@ -44,7 +44,7 @@ public class render {
         //cam.keyListener();
 
         shader.setUniform("Projection", transform.getProjectionMatrix());
-        shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0));
+        shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
 
         shader.loadVector("camPos", cam.m_pos);
         shader.loadVector("camDirection", cam.m_target);
@@ -61,7 +61,7 @@ public class render {
 
         shader.loadLights(windowmanager.getLightSourceArray());
 
-        shader.setUniform("AxisRotation", transform.RotationMatrix(scale));
+        shader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
         shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
         //shader.setUniform("CameraTransform", transform.getCameraTransformation());
 

@@ -9,8 +9,9 @@ public class LightSource {
     public Vector3f origin = new Vector3f();
     public Transformations transform = new Transformations();
     public Vector3f lightColor = new Vector3f();
+    String name;
 
-    public LightSource(float x, float y, float z, float r, float g, float b){
+    public LightSource(String name, float x, float y, float z, float r, float g, float b){
 
         this.light.x = x;
         this.light.y = y;
@@ -23,6 +24,8 @@ public class LightSource {
         this.lightColor.x = r;
         this.lightColor.y = g;
         this.lightColor.z = b;
+
+        this.name = name;
     }
 
 
@@ -33,6 +36,7 @@ public class LightSource {
     public Vector3f getLightColor(){
         return this.lightColor;
     }
+    public String getName(){return this.name; }
     public void rotate(float angle){
         light.x = (origin.x*Math.cos(angle)) - (origin.z*Math.sin(angle));
         light.z = (origin.x*Math.sin(angle)) + (origin.z*Math.cos(angle));

@@ -30,6 +30,7 @@ public class Camera {
     public static boolean isMouseEscape = false;
     public ObjectLoader objectLoader = new ObjectLoader();
     public MouseInput mouseInput = new MouseInput();
+    private static boolean clicked = false;
 
 
 
@@ -88,11 +89,18 @@ public class Camera {
     }
 
     public void keyListener(){
-        if(windowmanager.isKeyPressed(GLFW_KEY_T))
+        if(windowmanager.isKeyPressed(GLFW_KEY_B)){
+            Map.object old = Map.objects.get(0);
+            Map.object obj = new Map.object(old.name(), old.element(), old.x(), old.y(), old.z(), old.fullbright(), old.rotX(), old.rotY()+0.1f, old.rotZ(), old.sizeScale());
+            Map.objects.remove(0);
+            Map.objects.addFirst(obj);
+        }
+        if(windowmanager.isKeyClicked(GLFW_KEY_T))
         {
             Mesh def = objectLoader.createCube(1).addTexture("white.jpg");
-            Map.object cube = new Map.object(def, m_pos.x-m_target.x*3, m_pos.y-m_target.y*3,m_pos.z-m_target.z*3, false, 0);
+            Map.object cube = new Map.object("cube",def, m_pos.x-m_target.x*3, m_pos.y-m_target.y*3,m_pos.z-m_target.z*3, false, 0,0,0, 1);
             windowmanager.getMap().getObjects().add(cube);
+            clicked = true;
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_W))//up
         {

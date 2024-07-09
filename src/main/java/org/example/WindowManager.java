@@ -56,6 +56,7 @@ public class WindowManager {
     public LightSource[] lightSources;
     public ArrayList<LightSource> lightSourcesList = new ArrayList<LightSource>();
     private double TickHZ = 144;
+    private static boolean clicked = false;
 
     //Imgui
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
@@ -427,8 +428,8 @@ public class WindowManager {
         ObjectLoader objectLoader = new ObjectLoader();
         //source = new LightSource(20, 8, 5, 1, 1, 1);
 
-        source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
-        sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
+        source = new LightSource("source", 20, 8, 5, 0.0f, 0.0f, 1.0f);
+        sourcetwo = new LightSource("sourcetwo", 0, 0, 0, 1.0f, 0.0f, 0.0f);
 
         lightSourcesList.add(source);
         lightSourcesList.add(sourcetwo);
@@ -484,8 +485,8 @@ public class WindowManager {
 
              */
             //map.dynamic();
-            for(Map.object object : map.getObjects()){
-                renderer.draw(object.element(), object.x(), object.y(), object.z(), object.fullbright(), object.scale());
+            for(Map.object obj : map.getObjects()){
+                renderer.draw(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
             }
             //map.getObjects().removeLast();
 
@@ -502,7 +503,7 @@ public class WindowManager {
             tickCounter += 1;
 
             //imgui
-
+            ImGui.getIO().addConfigFlags(ImGuiConfigFlags.DockingEnable);
             imGuiGlfw.newFrame();
             ImGui.newFrame();
 
@@ -592,6 +593,21 @@ public class WindowManager {
         else{
             return false;
         }
+    }
+
+    public boolean isKeyClicked(int keycode){
+        if(isKeyPressed(keycode) && !clicked){
+            clicked = true;
+            return true;
+        }
+        else if (isKeyReleased(keycode)){
+            clicked = false;
+            return false;
+        }
+        else{
+            return false;
+        }
+        //return false;
     }
 
     public void destroy(){

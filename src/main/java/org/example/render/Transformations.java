@@ -38,15 +38,39 @@ public Matrix4f TranslationMatrix(float X, float Y, float Z) {
     return Translation;
 }
 
-public Matrix4f RotationMatrix(float scale) {
-    Matrix4f Rotation = new Matrix4f(
-            Math.cos(scale), 0.0f, -(Math.sin(scale)), 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            Math.sin(scale), 0.0f, Math.cos(scale), 0.0f,
+public Matrix4f RotationMatrix(float scaleX, float scaleY, float scaleZ) {
+
+    Matrix4f RotationX = new Matrix4f(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, Math.cos(scaleX), -Math.sin(scaleX), 0.0f,
+            0.0f, Math.sin(scaleX), Math.cos(scaleX), 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
     );
-    Transformations.scale += 0.01;
-    return Rotation;
+
+    Matrix4f RotationZ = new Matrix4f(
+            Math.cos(scaleZ), -Math.sin(scaleZ), 0.0f, 0.0f,
+            Math.sin(scaleZ), Math.cos(scaleZ), 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+    );
+
+    Matrix4f RotationY = new Matrix4f(
+            Math.cos(scaleY), 0.0f, -(Math.sin(scaleY)), 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            Math.sin(scaleY), 0.0f, Math.cos(scaleY), 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+    );
+    //Transformations.scale += 0.01;
+    return RotationX.mul(RotationY).mul(RotationZ);
+}
+
+public Matrix4f ScaleMatrix(float scale){
+    Matrix4f Scale = new Matrix4f(
+            scale, 0.0f, 0.0f, 0.0f,
+            0.0f, scale, 0.0f, 0.0f,
+            0.0f, 0.0f, scale, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+    return Scale;
 }
 
 
@@ -68,9 +92,10 @@ Matrix4f Camera = new Matrix4f(
         return Projection;
     }
 
-    public Matrix4f getWorldTransformation(float TransX, float TransY, float TransZ, float Scale)
+    public Matrix4f getWorldTransformation(float TransX, float TransY, float TransZ, float Scale, float SizeScale)
     {
-        Matrix4f World = RotationMatrix(Scale).mul(TranslationMatrix(TransX, TransY, TransZ));
+        Matrix4f World = ScaleMatrix(SizeScale).mul(TranslationMatrix(TransX, TransY, TransZ));
+
         return World;
     }
 

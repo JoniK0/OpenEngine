@@ -35,7 +35,8 @@ uniform float[] LightPositions;
 uniform float[] LightColors;
 
 void main(){
-	gl_Position = Projection * CameraTransform * AxisRotation * WorldTransform * vec4(position.x, position.y, position.z , 1.0);
+	//gl_Position = Projection * CameraTransform * AxisRotation * WorldTransform * vec4(position.x, position.y, position.z , 1.0);
+	gl_Position = Projection * CameraTransform * WorldTransform * AxisRotation * vec4(position.x, position.y, position.z , 1.0);
 
 	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
 

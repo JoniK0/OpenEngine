@@ -6,18 +6,18 @@ import java.util.ArrayList;
 
 public class Map {
 
-    public static record object(Mesh element, float x, float y, float z, boolean fullbright, float scale){ }
+    public record object(String name, Mesh element, float x, float y, float z, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale){ }
 
     ObjectLoader objectLoader = new ObjectLoader();
     MeshLoader meshLoader = new MeshLoader();
 
-    public ArrayList<object> objects = new ArrayList<object>();
-    public ArrayList<LightSource> lights = new ArrayList<>();
+    public static ArrayList<object> objects = new ArrayList<object>();
+    public static ArrayList<LightSource> lights = new ArrayList<>();
 
 
     //initializes static objects
-    LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
-    LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
+    LightSource source = new LightSource("source",20, 8, 5, 0.0f, 0.0f, 1.0f);
+    LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 0.0f, 0.0f);
 
     public void initMap() {
 
@@ -25,8 +25,9 @@ public class Map {
 
         try {
             Mesh[] model = StaticModelLoader.load("fire_axe");
+            int i = 0;
             for (Mesh mesh:model){
-                objects.add(new object(mesh, 3, 3, 3, false, 0));
+                objects.add(new object("fireaxe", mesh, 10, 1, 10, false, 0, 0, 0, 0.05f));
                 if(mesh == null){
                     System.out.println("stooopid");
                 }
@@ -53,16 +54,17 @@ public class Map {
         //LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
 
 
-        object Skybox = new object(SkyBox, 0, 0, 0, true, 0);
-        object Sphere = new object(sphere, -2, -5, 10, false, 0);
-        object secondSphere = new object(sphere, 0.0f, 0.0f, -15f, false, 0);
-        object Lightbulb = new object(lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0);
-        object Pointlight = new object(pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0);
-        object Kubus = new object(Cube,-20f, 0.0f, 3.0f, false, 0);
-        object kubus = new object(cube, 20f, 2f, -2f, false, 0);
+        object Skybox = new object("SkyBox",SkyBox, 0, 0, 0, true, 0, 0, 0, 1);
+        object Sphere = new object("sphere",sphere, -2, -5, 10, false, 0, 0,0, 1);
+        object secondSphere = new object("sphere2",sphere, 0.0f, 0.0f, -15f, false, 0,0,0,1);
+        object Lightbulb = new object("lightbulb",lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0,0,0, 1);
+        object Pointlight = new object("pointlight",pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0,0,0, 1);
+        object Kubus = new object("Cube",Cube,-20f, 0.0f, 3.0f, false, 0,0,0, 1);
+        object kubus = new object("Cube2",cube, 20f, 2f, -2f, false, 0,0,0, 1);
 
 
 
+        objects.add(secondSphere);
         objects.add(Skybox);
         objects.add(Sphere);
         objects.add(Lightbulb);
@@ -76,7 +78,7 @@ public class Map {
 
     public void dynamic(){
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
-        object Lightbulb = new object(lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0);
+        object Lightbulb = new object("light",lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0,0,0, 1);
         objects.add(Lightbulb);
     }
 

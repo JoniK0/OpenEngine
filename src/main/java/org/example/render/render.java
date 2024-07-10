@@ -4,6 +4,7 @@ import imgui.ImGui;
 import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
+import org.example.render.Map.Map;
 import org.example.render.shader.ShaderTextured;
 import org.lwjgl.opengl.*;
 import org.example.render.shader.Shader;

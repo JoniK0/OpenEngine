@@ -134,6 +134,8 @@ public abstract class Shader {
             GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].constant"), 1f);
             GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].linear"), 0.03f);
             GL20.glUniform1f(getUniformLocation("pointlightlist["+i+"].quadratic"), 0.0014f);
+
+            GL20.glUniform1i(getUniformLocation("pointlightlist_size"), numLights);
         }
     }
 

@@ -16,7 +16,7 @@ layout (location = 10) in float[] LightCols;
 out vec4 out_Color;
 out vec4 FragColor;
 
-int MAX_POINT_LIGHTS = 10;
+const int MAX_POINT_LIGHTS = 1000;
 
 uniform sampler2D textureSampler;
 
@@ -36,7 +36,8 @@ struct pointlight{
 	float quadratic;
 };
 
-uniform pointlight pointlightlist[10];
+uniform pointlight pointlightlist[MAX_POINT_LIGHTS];
+uniform int pointlightlist_size;
 
 
 
@@ -149,7 +150,7 @@ vec4 lighting = vec4(0,0,0,0);
 
 void main(){
 
-	for(int i = 0; i < 2; i++){
+	for(int i = 0; i < pointlightlist_size; i++){
 		lighting += CalcPointlight(pointlightlist[i].lightpos, pointlightlist[i].ambient, pointlightlist[i].specular, pointlightlist[i].shininess, pointlightlist[i].color, pointlightlist[i].constant, pointlightlist[i].linear, pointlightlist[i].quadratic);
 		//lighting = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
 	}

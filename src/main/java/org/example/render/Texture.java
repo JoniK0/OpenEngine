@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryStack;
 
 public class Texture {
 
-    private static HashMap<String, Integer> idMap = new HashMap<String, Integer>();
+    public static HashMap<String, Integer> idMap = new HashMap<String, Integer>();
     public static String resourceName = "textures";
 
     public static int loadTexture(String texture){

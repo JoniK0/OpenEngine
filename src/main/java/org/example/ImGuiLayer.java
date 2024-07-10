@@ -3,15 +3,27 @@ package org.example;
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
+import imgui.type.ImString;
 import org.example.render.LightSource;
 import org.example.render.Map.Map;
+import org.example.render.Texture;
 import org.example.render.render;
+
+import java.io.File;
+import java.security.Key;
+import java.util.HashMap;
 
 
 public class ImGuiLayer {
+    private boolean texture_selection = false;
     private boolean showText = false;
-    Map.object selected;
+    Map.object selected = null;
+    LightSource selected_source;
+    String selected_texture;
     int index;
+    int lightIndex;
+
+    ImString name;
     ImFloat PosX;
     ImFloat PosY;
     ImFloat PosZ;
@@ -19,8 +31,19 @@ public class ImGuiLayer {
     ImFloat RotX;
     ImFloat RotY;
     ImFloat RotZ;
+
+    ImString lightName;
+    ImFloat ColPosX;
+    ImFloat ColPosY;
+    ImFloat ColPosZ;
+
+    ImFloat R;
+    ImFloat G;
+    ImFloat B;
+
     ImFloat Scale;
     private boolean showChange = false;
+    private boolean showSourceChange = false;
     public static boolean polygonmode = false;
     public void imgui() {
         /*
@@ -37,13 +60,84 @@ public class ImGuiLayer {
 
         ImGui.begin("DevConsole");
 
+        if(texture_selection) {
+            ImGui.begin("textures");
+            File Directory = new File("res/textures");
+            File[] textures = Directory.listFiles();
+
+            /*
+            for(File texture : textures){
+                System.out.println(texture.getName());
+            }
+
+             */
+            int numTextures = 1;
+            int id;
+
+            //System.out.println("doggo");
+            for (File texture : textures) {
+                if (!texture.getName().equals("models")) {
+                    id = Texture.loadTexture(texture.getName());
+                    if (ImGui.imageButton(id, 60, 60)) {
+                        selected_texture = texture.getName();
+                        System.out.println(selected_texture);
+                        if (selected != null) {
+                            selected.element().addTexture(texture.getName());
+                            texture_selection = false;
+                        }
+                    }
+                    ImGui.sameLine();
+                    ImGui.text(texture.getName());
+                    if (numTextures % 3 != 0) {
+                        ImGui.sameLine();
+                    }
+                    numTextures += 1;
+                }
+            }
+
+            /*
+            Texture.idMap.forEach(
+                    (key, value)
+                    -> ImGui.image((int) value, 60, 60);
+            );
+
+             */
+
+
+
+
+             /*
+
+            ImGui.image(1, 60, 60);
+            ImGui.sameLine();
+            ImGui.image(2, 60, 60);
+            ImGui.sameLine();
+            ImGui.image(3, 60, 60);
+            ImGui.image(4, 60, 60);
+            ImGui.sameLine();
+            ImGui.image(5, 60, 60);
+
+              */
+
+            ImGui.end();
+        }
+
 
             ImGui.begin("objects");
                 for (Map.object object : Map.objects) {
                     //ImGui.text(object.name());
-                    if(ImGui.button(object.name())){
+                    String buttonName = object.name();
+                    if(buttonName.equals("")){
+                        buttonName = "?";
+                    }
+
+                    //System.out.println(buttonName);
+
+                    if(ImGui.button(buttonName)){
                         selected = object;
                         index = Map.objects.indexOf(object);
+
+                        name = new ImString(selected.name());
 
                         PosX = new ImFloat(selected.x());
                         PosY = new ImFloat(selected.y());
@@ -63,8 +157,18 @@ public class ImGuiLayer {
 
             if(showChange){
                 //float[] flt = new float[1];
-                ImGui.text("trash");
+                //float empty = 0;
+                //flt[0] = empty;
+
+                ImGui.text("");
                 ImGui.text("selected:"+selected.name());
+                ImGui.text("");
+
+                ImGui.inputText("name: ",name);
+
+                if(ImGui.button("texture")){
+                    texture_selection = true;
+                }
 
                 ImGui.inputFloat("X",PosX);
                 ImGui.inputFloat("Y",PosY);
@@ -78,8 +182,11 @@ public class ImGuiLayer {
 
                 ImGui.inputFloat("Scale", Scale);
 
-                Map.object newObj = new Map.object(selected.name(), selected.element(), PosX.get(), PosY.get(), PosZ.get(), selected.fullbright(), RotX.get(), RotY.get(), RotZ.get(), Scale.get());
+
+                Map.object newObj = new Map.object(name.get(), selected.element(), PosX.get(), PosY.get(), PosZ.get(), selected.fullbright(), RotX.get(), RotY.get(), RotZ.get(), Scale.get());
                 Map.objects.set(index, newObj);
+
+
 
 
                 if(ImGui.button("done")){
@@ -90,8 +197,53 @@ public class ImGuiLayer {
 
             ImGui.begin("lightsources");
                 for(LightSource light : Map.lights){
-                    ImGui.text(light.getName());
+                    String buttonname = light.getName();
+                    if(light.getName().equals("")){
+                        buttonname = "?";
+                    }
+                    if(ImGui.button(buttonname)){
+                        selected_source = light;
+                        lightIndex = Map.lights.indexOf(light);
+
+                        lightName = new ImString(selected_source.getName());
+
+                        ColPosX = new ImFloat(selected_source.getLightPosition().x);
+                        ColPosY = new ImFloat(selected_source.getLightPosition().y);
+                        ColPosZ = new ImFloat(selected_source.getLightPosition().z);
+
+                        R = new ImFloat(selected_source.getLightColor().x);
+                        G = new ImFloat(selected_source.getLightColor().y);
+                        B = new ImFloat(selected_source.getLightColor().z);
+
+
+
+                        showSourceChange = true;
+                    }
                 }
+
+                if(showSourceChange){
+                    ImGui.text("");
+                    ImGui.text("selected:"+selected_source.getName());
+                    ImGui.text("");
+
+                    ImGui.inputText("name: ", lightName);
+
+                    ImGui.inputFloat("PosX", ColPosX);
+                    ImGui.inputFloat("PosY", ColPosY);
+                    ImGui.inputFloat("PosZ", ColPosZ);
+
+                    ImGui.inputFloat("R",R);
+                    ImGui.inputFloat("G",G);
+                    ImGui.inputFloat("B",B);
+
+                    LightSource newLight = new LightSource(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), R.get(), G.get(), B.get());
+                    Map.lights.set(lightIndex, newLight);
+
+                    if(ImGui.button("done")){
+                        showSourceChange = false;
+                    }
+                }
+
             ImGui.end();
 
             if (ImGui.button("Button")) {

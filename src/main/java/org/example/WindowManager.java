@@ -8,6 +8,8 @@ import java.util.Vector;
 
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.ImGuiStyle;
+import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiConfigFlags;
 
 
@@ -162,267 +164,6 @@ public class WindowManager {
 
         //GL.createCapabilities();
 
-        float[] vertices = {-0.5f, 0.5f, 0.5f, //0
-                -0.5f, -0.5f, 0.5f, //1
-                0.5f, -0.5f, 0.5f, //2
-                0.5f,0.5f, 0.5f, //3
-                -0.5f,0.5f,-0.5f, //4
-                -0.5f,-0.5f,-0.5f, //5
-                0.5f,-0.5f,-0.5f, //6
-                0.5f,0.5f,-0.5f}; //7
-
-        int[] TestCubeindices = {
-                0,1,3,//Front
-                1,2,3,
-
-                2,6,3,//Right side
-                3,6,7,
-
-                5,1,0,//Left side
-                5,0,4,
-
-                0,3,4, //Top
-                3,7,4,
-
-                5,2,1,//Bottom
-                5,6,2,
-
-                4,7,6,//Back
-                5,4,6
-        };
-
-        float[] CubeVertices = {
-                //Front
-                -0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, 0.5f,
-                0.5f, -0.5f, 0.5f,
-                0.5f,0.5f, 0.5f,
-                //Right side
-                0.5f,0.5f, 0.5f,//3
-                0.5f, -0.5f, 0.5f,//2
-                0.5f,-0.5f,-0.5f,//6
-                0.5f,0.5f,-0.5f,//7
-                //left side
-                -0.5f,0.5f,-0.5f,//4
-                -0.5f,-0.5f,-0.5f,//5
-                -0.5f, -0.5f, 0.5f,//1
-                -0.5f, 0.5f, 0.5f,//0
-                //back side
-                0.5f,0.5f,-0.5f,
-                0.5f,-0.5f,-0.5f,
-                -0.5f,-0.5f,-0.5f,
-                -0.5f,0.5f,-0.5f,
-                //top
-                -0.5f,0.5f,-0.5f,
-                -0.5f, 0.5f, 0.5f,
-                0.5f,0.5f, 0.5f,
-                0.5f,0.5f,-0.5f,
-                //bottom
-                -0.5f, -0.5f, 0.5f,
-                -0.5f,-0.5f,-0.5f,
-                0.5f,-0.5f,-0.5f,
-                0.5f, -0.5f, 0.5f,
-
-        };
-        int[] CubeIndices = {
-                //front
-                0,1,3,
-                1,2,3,
-                //right
-                4,5,7,
-                5,6,7,
-                //left
-                8,9,11,
-                9,10,11,
-                //back
-                12,13,15,
-                13,14,15,
-                //top
-                16,17,19,
-                17,18,19,
-                //bottom
-                20,21,23,
-                21,22,23
-        };
-        float[] CubeUVs = {
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f,
-
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f
-        };
-
-        float[] SkyBoxVerts = {
-                //back
-                -100.5f, 100.5f, 100.5f,
-                -100.5f, -100.5f, 100.5f,
-                100.5f, -100.5f, 100.5f,
-                100.5f,100.5f, 100.5f,
-                //Right side
-                100.5f,100.5f, 100.5f,//3
-                100.5f, -100.5f, 100.5f,//2
-                100.5f,-100.5f,-100.5f,//6
-                100.5f,100.5f,-100.5f,//7
-                //left side
-                -100.5f,100.5f,-100.5f,//4
-                -100.5f,-100.5f,-100.5f,//5
-                -100.5f, -100.5f, 100.5f,//1
-                -100.5f, 100.5f, 100.5f,//0
-                //front side
-                100.5f,100.5f,-100.5f,
-                100.5f,-100.5f,-100.5f,
-                -100.5f,-100.5f,-100.5f,
-                -100.5f,100.5f,-100.5f,
-                //top
-                -100.5f,100.5f,-100.5f,
-                -100.5f, 100.5f, 100.5f,
-                100.5f,100.5f, 100.5f,
-                100.5f,100.5f,-100.5f,
-                //bottom
-                -100.5f, -100.5f, 100.5f,
-                -100.5f,-100.5f,-100.5f,
-                100.5f,-100.5f,-100.5f,
-                100.5f, -100.5f, 100.5f,
-        };
-        int[] SkyBoxIndices = {
-                3,1,0,
-                3,2,1,
-                //right
-                7,5,4,
-                7,6,5,
-                //left
-                11,9,8,
-                11,10,9,
-                //back
-                15,13,12,
-                15,14,13,
-                //top
-                19,17,16,
-                19,18,17,
-                //bottom
-                23,21,20,
-                23,22,21
-        };
-        float[] SkyBoxUVs = {
-                1.0f, 2/3f,
-                1.0f, 1/3f,
-                0.75f, 1/3f,
-                0.75f, 2/3f,
-
-                0.75f, 2/3f,
-                0.75f, 1/3f,
-                0.5f, 1/3f,
-                0.5f, 2/3f,
-
-                0.25f, 2/3f,
-                0.25f, 1/3f,
-                0.0f, 1/3f,
-                0.0f, 2/3f,
-
-                0.5f, 2/3f,
-                0.5f, 1/3f,
-                0.25f, 1/3f,
-                0.25f, 2/3f,
-
-                0.25f, 2/3f,
-                0.25f, 1f,
-                0.5f, 1f,
-                0.5f, 2/3f,
-
-                0.25f, 0f,
-                0.25f, 1/3f,
-                0.5f, 1/3f,
-                0.5f, 0f,
-        };
-
-
-
-
-        int[] indices = {0,1,3,
-                        3,1,2};
-        float[] uvs = {
-                0.0f, 1.0f,//A0 Bottom left
-                0.0f, 0.0f,//A1 Bottom right
-                1.0f, 0.0f,//A2 Top Right
-                1.0f, 1.0f,//A3 Top left
-                1.0f, 1.0f,//A4
-                1.0f, 0.0f,//A5
-                2.0f, 0.0f,//A6
-                2.0f, 1.0f//A7
-            };
-
-        float[] cubeNormals =
-                {
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-        };
-
-
-
-
-        //Mesh Tri = MeshLoader.createMesh(vertices, uvs, indices).addTexture("texture.jpg");
-        //Mesh Cube = MeshLoader.createMesh(CubeVerts, uvs, CubeIndis);
-        //Mesh TestCube = MeshLoader.createMesh(vertices, uvs, TestCubeindices).addTexture("texture.png");
-
-        //Mesh Cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals).addTexture("orange.png");
-
-
-        //Mesh SkyBox = MeshLoader.createMesh(SkyBoxVerts, SkyBoxUVs, SkyBoxIndices).addTexture("SkyBox.png");
-
-
-
-
         //int texture = Texture.loadTexture("texture.png");
         renderer = new render();
         ObjectLoader objectLoader = new ObjectLoader();
@@ -439,16 +180,6 @@ public class WindowManager {
 
 
         float angle = 0.1f;
-
-        Mesh SkyBox = objectLoader.createSkyBox(800f, "Galaxy.png");
-        Mesh sphere = objectLoader.Sphere(5,50,50).addTexture("white.jpg");//
-        Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
-        Mesh pointlight = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
-        Mesh Cube = objectLoader.createCube(1).addTexture("white.jpg");//
-        Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
-        //Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png").addTexture("texture.png");
-
-
 
         double lastTime = glfwGetTime();
         int Frames = 0;
@@ -474,17 +205,8 @@ public class WindowManager {
 
             renderer.cleanup();
 
-            /*
-            renderer.draw(lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0);
-            renderer.draw(pointlight, sourcetwo.getLightPosition().x, sourcetwo.getLightPosition().y, sourcetwo.getLightPosition().z, true, 0);
-            renderer.draw(Cube,-20f, 0.0f, 3.0f, false, 0);
-            renderer.draw(sphere, -2, -5.0f, 10.0f, false, 0);
-            renderer.draw(sphere, 0.0f, 0.0f, -15f, false, 0);
-            renderer.draw(SkyBox, 0.0f, 0.0f, 0.0f, true, 0);
-            renderer.draw(cube, 20f, 2f, -2f, false, 0);
 
-             */
-            //map.dynamic();
+
             for(Map.object obj : map.getObjects()){
                 renderer.draw(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
             }
@@ -624,6 +346,16 @@ public class WindowManager {
         ImGui.createContext();
         ImGuiIO io = ImGui.getIO();
         io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
+
+        ImGuiStyle style = ImGui.getStyle();
+
+        style.setWindowMinSize(160, 20);
+        style.setWindowRounding(4);
+        style.setColor(ImGuiCol.Text, 0.86f, 0.93f, 0.89f, 0.78f);
+
+
+
+
         imGuiGlfw.init(window, true);
         imGuiGl3.init(glslVersion);
     }

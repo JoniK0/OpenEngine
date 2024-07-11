@@ -2,6 +2,7 @@ package org.example.render;
 import java.nio.FloatBuffer; //The buffers that the Vertex data is ultimately stored in
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List; //List and ArrayLists are containers for storing data, in this case the VBO/VAO IDs
 
 import org.lwjgl.BufferUtils; //For creating the FloatBuffer
@@ -40,6 +41,7 @@ public class MeshLoader {
         //System.out.println(data[2]);
     }
 
+
     private static void bindIndices(int[] data){
         int vbo = GL15.glGenBuffers();
         vbos.add(vbo);
@@ -48,17 +50,26 @@ public class MeshLoader {
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
     }
 
-    public static Mesh createMesh(float[] positions,float[] UVs, int[] indices, float[] normals){
+    public static Mesh createMesh(float[] positions,float[] UVs, int[] indices, float[] normals, float[] textureUnit){
         int vao = genVAO();
         storeData(0,3,positions);
         storeData(1,2,UVs);
         storeData(2, 3, normals);
+        storeData(3, 1, textureUnit);
+
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+        GL20.glEnableVertexAttribArray(2);
+        GL20.glEnableVertexAttribArray(3);
+        //System.out.println("size pos: "+positions.length);
+        //System.out.println("size tex: "+textureUnit.length);
+        //System.out.println("texUnit:" + Arrays.toString(textureUnit));
         //System.out.println(normals[2]);
         bindIndices(indices);
         GL30.glBindVertexArray(0);
         //System.out.println("vao: "+vao);
         //System.out.println(vbos);
-        return new Mesh(vao, indices.length);
+        return new Mesh(vao, indices.length, UVs);
     }
 
     private static int genVAO(){

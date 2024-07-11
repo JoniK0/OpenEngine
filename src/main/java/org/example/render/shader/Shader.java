@@ -99,6 +99,9 @@ public abstract class Shader {
     public void loadVector(String name, Vector3f vector){
         GL20.glUniform3f(getUniformLocation(name), vector.x, vector.y, vector.z);
     }
+    public void loadInt(String name, int integer){
+        GL20.glUniform1i(getUniformLocation(name), integer);
+    }
 
     public void loadBoolean(String name, boolean value){
         int tovec = 0;

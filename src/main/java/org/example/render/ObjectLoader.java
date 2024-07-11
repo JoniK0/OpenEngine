@@ -13,6 +13,14 @@ public class ObjectLoader {
     //private final WindowManager manager;
     //private final render renderer;
 
+    float[] texture = {0.0f, 0.0f, 0.0f, 0.0f,
+                        1.0f, 1.0f, 1.0f, 1.0f,
+                        2.0f, 2.0f, 2.0f, 2.0f,
+                        3.0f, 3.0f, 3.0f, 3.0f,
+                        4.0f, 4.0f, 4.0f, 4.0f,
+                        5.0f, 5.0f, 5.0f, 5.0f};
+
+
     public ObjectLoader(){
         //this.manager = Main.getWindowManager();
         //this.renderer = manager.getRender();
@@ -137,7 +145,9 @@ public class ObjectLoader {
                         0.0f, 1.0f, 0.0f,
                 };
 
-        Mesh SkyBox = MeshLoader.createMesh(SkyBoxVertices, SkyBoxUVs, SkyBoxIndices, cubeNormals).addTexture(CubeMap);
+        float[] skyBoxTex = new float[24];
+
+        Mesh SkyBox = MeshLoader.createMesh(SkyBoxVertices, SkyBoxUVs, SkyBoxIndices, cubeNormals, skyBoxTex).addTexture(CubeMap);
         return SkyBox;
     }
 
@@ -233,12 +243,12 @@ public class ObjectLoader {
 
 
 
-
-        Mesh Sphere = MeshLoader.createMesh(vertices,UVs,sphereIndices, vertices);
+        float[] spheretexture = new float[vertices.length];
+        Mesh Sphere = MeshLoader.createMesh(vertices,UVs,sphereIndices, vertices, spheretexture);
         return Sphere;
     }
 
-    public Mesh createCube(float length){
+    public Mesh createCube(float length){// method could be shortened
 
         float[] CubeVertices = {
                 //Front
@@ -293,10 +303,6 @@ public class ObjectLoader {
                 20,21,23,
                 21,22,23
         };
-
-
-
-
 
         float[] cubeNormals =
                 {
@@ -364,7 +370,142 @@ public class ObjectLoader {
                 1.0f, 1.0f
         };
 
-        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals);
+        float[] texUnit = new float[24];
+        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, texUnit);
+        return cube;
+
+    }
+
+    public Mesh createCubeMulTex(float length, float texF1, float texF2, float texF3, float texF4, float texF5, float texF6){
+
+        float[] CubeVertices = {
+                //Front
+                -length/2, length/2f, length/2f,
+                -length/2f, -length/2f, length/2f,
+                length/2f, -length/2f, length/2f,
+                length/2f,length/2f, length/2f,
+                //Right side
+                length/2f,length/2f, length/2f,//3
+                length/2f, -length/2f, length/2f,//2
+                length/2f,-length/2f,-length/2f,//6
+                length/2f,length/2f,-length/2f,//7
+                //left side
+                -length/2f,length/2f,-length/2f,//4
+                -length/2f,-length/2f,-length/2f,//5
+                -length/2f, -length/2f, length/2f,//1
+                -length/2f, length/2f, length/2f,//0
+                //front side
+                length/2f,length/2f,-length/2f,
+                length/2f,-length/2f,-length/2f,
+                -length/2f,-length/2f,-length/2f,
+                -length/2f,length/2f,-length/2f,
+                //top
+                -length/2f,length/2f,-length/2f,
+                -length/2f, length/2f, length/2f,
+                length/2f,length/2f, length/2f,
+                length/2f,length/2f,-length/2f,
+                //bottom
+                -length/2f, -length/2f, length/2f,
+                -length/2f,-length/2f,-length/2f,
+                length/2f,-length/2f,-length/2f,
+                length/2f, -length/2f, length/2f,
+
+        };
+        int[] CubeIndices = {
+                //front
+                0,1,3,
+                1,2,3,
+                //right
+                4,5,7,
+                5,6,7,
+                //left
+                8,9,11,
+                9,10,11,
+                //back
+                12,13,15,
+                13,14,15,
+                //top
+                16,17,19,
+                17,18,19,
+                //bottom
+                20,21,23,
+                21,22,23
+        };
+
+        float[] cubeNormals =
+                {
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f,
+
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f,
+
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f,
+
+                        //
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f,
+                        //
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f,
+
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f,
+                };
+
+        float[] CubeUVs = {
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f
+        };
+
+        float[] textureUnit = {texF1, texF1, texF1, texF1,
+                texF2, texF2, texF2, texF2,
+                texF3, texF3, texF3, texF3,
+                texF4,texF4,texF4,texF4,
+                texF5,texF5,texF5,texF5,
+                texF6,texF6,texF6,texF6};
+
+        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, textureUnit);
         return cube;
 
     }

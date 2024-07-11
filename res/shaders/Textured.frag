@@ -13,12 +13,20 @@ layout (location = 8) in vec3 camDir;
 layout (location = 9) in float[] LightPos;
 layout (location = 10) in float[] LightCols;
 
+layout (location = 11) in float pass_texUnit;
+
 out vec4 out_Color;
 out vec4 FragColor;
 
 const int MAX_POINT_LIGHTS = 1000;
 
 uniform sampler2D textureSampler;
+uniform sampler2D textureSampler1;
+uniform sampler2D textureSampler2;
+uniform sampler2D textureSampler3;
+uniform sampler2D textureSampler4;
+uniform sampler2D textureSampler5;
+uniform sampler2D textureSampler6;
 
 float ambientStrength = 0.2;
 vec4 lightcolor = vec4(lightSourceColor, 1.0);
@@ -161,7 +169,21 @@ void main(){
 		pointl = vec4(1,1,1,1);
 	}
 
-	out_Color = texture(textureSampler, pass_uvs) * lighting;
+
+
+
+
+
+	if(pass_texUnit == 0.0f){out_Color = texture(textureSampler, pass_uvs) * lighting;}
+	else if(pass_texUnit == 1.0f){out_Color = texture(textureSampler1, pass_uvs) * lighting;}
+	else if(pass_texUnit == 2.0f){out_Color = texture(textureSampler2, pass_uvs) * lighting;}
+	else if(pass_texUnit == 3.0f){out_Color = texture(textureSampler3, pass_uvs) * lighting;}
+	else if(pass_texUnit == 4.0f){out_Color = texture(textureSampler4, pass_uvs) * lighting;}
+	else if(pass_texUnit == 5.0f){out_Color = texture(textureSampler5, pass_uvs) * lighting;}
+	else{out_Color = texture(textureSampler2, pass_uvs) * lighting;}
+
+
+	//out_Color = texture(textureSampler, pass_uvs) * lighting;
 
 
 }

@@ -105,7 +105,8 @@ public class StaticModelLoader {
         //System.out.println("indices:"+indices+" count:"+ normals.size());
         //System.out.println("texcoords:"+texture+" count:"+ normals.size());
 
-        Mesh mesh = MeshLoader.createMesh(Vertices, Texture, Indices, Normals);
+        float[] texUnit = new float[Vertices.length];
+        Mesh mesh = MeshLoader.createMesh(Vertices, Texture, Indices, Normals, texUnit);
 
         String tex;
         int materialIdx = aiMesh.mMaterialIndex();

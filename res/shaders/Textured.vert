@@ -3,6 +3,8 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 uvs;
 layout (location = 2) in vec3 normal;
+layout (location = 3) in float texUnit;
+
 
 layout (location = 0) out vec2 pass_uvs;
 layout (location = 1) out vec3 Normals;
@@ -16,6 +18,8 @@ layout (location = 8) out vec3 camDir;
 
 layout (location = 9) out float[] LightPos;
 layout (location = 10) out float[] LightCols;
+
+layout (location = 11) out float pass_texUnit;
 
 uniform mat4 Projection;
 uniform mat4 Translation;
@@ -41,6 +45,7 @@ void main(){
 	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
 
 	FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
+
 	pass_uvs = uvs;
 	Normals = normal;
 	campos = camPos;
@@ -52,4 +57,6 @@ void main(){
 
 	LightPos = LightPositions;
 	LightCols = LightColors;
+
+	pass_texUnit = texUnit;
 }

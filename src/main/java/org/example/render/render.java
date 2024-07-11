@@ -39,7 +39,10 @@ public class render {
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
+        GL20.glEnableVertexAttribArray(3);
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        //GL13.glActiveTexture(GL13.GL_TEXTURE1);
+
         //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
 
         //cam.keyListener();
@@ -71,16 +74,27 @@ public class render {
 
 
 
-        if(mesh.getMultextures().size() > 1){
+        if(mesh.isMultex()){
+
+            //System.out.println("hiii");
+
+            //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(0));
+            shader.loadInt("textureSampler", 0);
+            shader.loadInt("textureSampler1", 1);
+            shader.loadInt("textureSampler2", 2);
+            shader.loadInt("textureSampler3", 3);
+            shader.loadInt("textureSampler4", 4);
+            shader.loadInt("textureSampler5", 5);
+
             for(int i=0; i<mesh.getMultextures().size(); i++){
+
+                GL13.glActiveTexture(GL13.GL_TEXTURE0+i);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
-                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, 13);
 
-                System.out.println(mesh.getMultextures().get(i));
 
-                //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-                GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount()/mesh.getMultextures().size(), GL11.GL_UNSIGNED_INT, 0);
+                //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount()/mesh.getMultextures().size(), GL11.GL_UNSIGNED_INT, 0);
             }
+            GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
         }
         else{

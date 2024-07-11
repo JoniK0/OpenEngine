@@ -49,6 +49,8 @@ public class Map {
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
 
+        Mesh multiCube = objectLoader.createCubeMulTex(5, 0f, 1f,2f,3f,4f,5f).addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
+
 
         //LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
         //LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
@@ -62,6 +64,8 @@ public class Map {
         object Kubus = new object("Cube",Cube,-20f, 0.0f, 3.0f, false, 0,0,0, 1);
         object kubus = new object("Cube2",cube, 20f, 2f, -2f, false, 0,0,0, 1);
 
+        object multCube = new object("multiCube", multiCube, 0, 0, 0, false, 0, 0, 0, 1);
+
 
 
         objects.add(secondSphere);
@@ -71,6 +75,7 @@ public class Map {
         objects.add(Pointlight);
         objects.add(Kubus);
         objects.add(kubus);
+        objects.add(multCube);
 
         lights.add(source);
         lights.add(sourcetwo);

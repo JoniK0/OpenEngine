@@ -142,6 +142,7 @@ public abstract class Shader {
         }
     }
 
+
     protected void loadMatrix(int location, Matrix4f value){
         value.get(matrix);
         matrix.flip();

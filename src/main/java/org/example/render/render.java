@@ -32,7 +32,10 @@ public class render {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_MIRRORED_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+
         shader.start();
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL30.glBindVertexArray(mesh.getVaoID());
@@ -78,29 +81,48 @@ public class render {
 
             //System.out.println("hiii");
 
-            //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(0));
-            shader.loadInt("textureSampler", 0);
+            /*
+            shader.loadInt("textureSampler0", 0);
             shader.loadInt("textureSampler1", 1);
             shader.loadInt("textureSampler2", 2);
             shader.loadInt("textureSampler3", 3);
             shader.loadInt("textureSampler4", 4);
             shader.loadInt("textureSampler5", 5);
-
+             */
+            for(int i=0; i <= 5; i++){
+                //shader.loadInt("textureSampler"+Integer.toString(i), i);
+                shader.loadInt("textureSamplers["+Integer.toString(i)+"]", i);
+            }
             for(int i=0; i<mesh.getMultextures().size(); i++){
 
+                //System.out.println("size:"+mesh.getMultextures().size());
                 GL13.glActiveTexture(GL13.GL_TEXTURE0+i);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
-
-
-                //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount()/mesh.getMultextures().size(), GL11.GL_UNSIGNED_INT, 0);
             }
+
+            for(int i = 0; i <= 5; i++){
+                shader.loadInt("normalMaps["+Integer.toString(i)+"]", i+6);
+            }
+            for(int i=0; i<mesh.getNormalMaps().size(); i++){
+                GL13.glActiveTexture(GL13.GL_TEXTURE0+6+i);
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
+
+                //System.out.println("id"+mesh.getVaoID());
+                //System.out.println("normal"+mesh.getNormalMaps().get(i));
+            }
+
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
         }
         else{
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
+            shader.loadInt("textureSampler", 0);
+            shader.loadInt("normalMap0", 6);
 
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
+            GL13.glActiveTexture(GL13.GL_TEXTURE6);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMap());
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+
         }
         /////
         //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());

@@ -35,10 +35,20 @@ public class MeshLoader {
         vbos.add(vbo);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
         FloatBuffer buffer = createFloatBuffer(data);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_DYNAMIC_DRAW);
         GL20.glVertexAttribPointer(attribute, dimensions, GL11.GL_FLOAT, false, 0, 0);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
         //System.out.println(data[2]);
+    }
+
+    public static void subData(Mesh mesh, int attribute, float[] data){
+        GL30.glBindVertexArray(mesh.getVaoID());
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos.get((attribute-1)+5*(mesh.getVaoID()-1)));
+        FloatBuffer buffer = createFloatBuffer(data);
+        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buffer);
+        //GL20.glVertexAttribPointer(attribute, 1, GL11.GL_FLOAT, false, 0,0);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        GL30.glBindVertexArray(0);
     }
 
 
@@ -65,6 +75,10 @@ public class MeshLoader {
         //System.out.println("size tex: "+textureUnit.length);
         //System.out.println("texUnit:" + Arrays.toString(textureUnit));
         //System.out.println(normals[2]);
+
+        //System.out.println(vaos.toString());
+        //System.out.println(vbos.toString());
+
         bindIndices(indices);
         GL30.glBindVertexArray(0);
         //System.out.println("vao: "+vao);

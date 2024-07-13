@@ -44,10 +44,13 @@ void main(){
 
 	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
 
-	FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
+	//FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
+	FragPos = vec3(WorldTransform * AxisRotation * vec4(position.x, position.y, position.z, 1.0));
 
 	pass_uvs = uvs;
-	Normals = normal;
+
+	vec4 norm = AxisRotation * vec4(normal.x, normal.y, normal.z, 1);
+	Normals = vec3(norm.x, norm.y, norm.z);
 	campos = camPos;
 	fullbright = Fullbright;
 	globalFull = globalFullbright;

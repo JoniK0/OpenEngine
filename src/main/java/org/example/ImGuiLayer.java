@@ -3,10 +3,12 @@ package org.example;
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
+import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.example.render.LightSource;
 import org.example.render.Map.Map;
 import org.example.render.Texture;
+import org.example.render.Transformations;
 import org.example.render.render;
 
 import java.io.File;
@@ -16,12 +18,16 @@ import java.util.HashMap;
 
 public class ImGuiLayer {
     private boolean texture_selection = false;
+    private boolean normal = true;
+    private boolean texture_viewer = false;
     private boolean showText = false;
     Map.object selected = null;
     LightSource selected_source;
     String selected_texture;
     int index;
     int lightIndex;
+
+    ImFloat FOV = new ImFloat(Transformations.FOV);
 
     ImString name;
     ImFloat PosX;
@@ -42,6 +48,7 @@ public class ImGuiLayer {
     ImFloat B;
 
     ImFloat Scale;
+    ImInt faceindex = new ImInt(0);
     private boolean showChange = false;
     private boolean showSourceChange = false;
     public static boolean polygonmode = false;
@@ -82,7 +89,8 @@ public class ImGuiLayer {
                         selected_texture = texture.getName();
                         System.out.println(selected_texture);
                         if (selected != null) {
-                            selected.element().addTexture(texture.getName());
+                            selected.element().setMulTextureAtInd(faceindex.get(), texture.getName());
+                            //selected.element().addTexture(texture.getName());
                             texture_selection = false;
                         }
                     }
@@ -95,30 +103,31 @@ public class ImGuiLayer {
                 }
             }
 
-            /*
-            Texture.idMap.forEach(
-                    (key, value)
-                    -> ImGui.image((int) value, 60, 60);
-            );
+            ImGui.end();
+        }
 
-             */
+        if(texture_viewer){
+            ImGui.begin("textureviewer");
+            ImGui.inputInt("faceindex", faceindex);
 
+            if(ImGui.beginCombo("faceindex", faceindex.toString(), faceindex.get())){
 
+                for(int i = 0; i <= 5; i++){
+                    if(ImGui.selectable("hi", true)){
 
+                    }
+                }
 
-             /*
+                ImGui.endCombo();
+            }
 
-            ImGui.image(1, 60, 60);
+            if(ImGui.button("texture")){
+                texture_selection = true;
+            }
             ImGui.sameLine();
-            ImGui.image(2, 60, 60);
-            ImGui.sameLine();
-            ImGui.image(3, 60, 60);
-            ImGui.image(4, 60, 60);
-            ImGui.sameLine();
-            ImGui.image(5, 60, 60);
-
-              */
-
+            if(ImGui.button("done")){
+                texture_viewer = false;
+            }
             ImGui.end();
         }
 
@@ -167,7 +176,8 @@ public class ImGuiLayer {
                 ImGui.inputText("name: ",name);
 
                 if(ImGui.button("texture")){
-                    texture_selection = true;
+                    //texture_selection = true;
+                    texture_viewer = true;
                 }
 
                 ImGui.inputFloat("X",PosX);
@@ -250,12 +260,29 @@ public class ImGuiLayer {
                 showText = true;
             }
 
+            if(ImGui.checkbox("Normalmap", normal)){
+                normal = !normal;
+            }
+        if(normal){
+            Map.objects.get(10).element().setNormalMapAtInd(3, "Brickwall2_normal.jpg");
+            Map.objects.get(10).element().setNormalMapAtInd(0, "Brickwall2_normal.jpg");
+        }
+        else{
+            Map.objects.get(10).element().removeNormalMapAtInd(3);
+            Map.objects.get(10).element().removeNormalMapAtInd(0);
+            //System.out.println("what");
+        }
+
             if (ImGui.checkbox("Fullbright", render.globalFullbright)) {
                 render.globalFullbright = !render.globalFullbright;
             }
             if (ImGui.checkbox("polygonmode", polygonmode)) {
                 polygonmode = !polygonmode;
             }
+
+            ImGui.inputFloat("FOV:", FOV);
+            Transformations.FOV = FOV.get();
+            //System.out.println("haii");
 
             if (showText) {
                 ImGui.text("Text");

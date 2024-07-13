@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 public class Transformations {
 
 
-    float FOV = 75.0f;
+    public static float FOV = 75.0f;
     float far = 1500.0f;
     float near = 0.1f;
     float aspect = (float) WindowManager.width/WindowManager.height;
@@ -89,6 +89,13 @@ Matrix4f Camera = new Matrix4f(
 
     public Matrix4f getProjectionMatrix()
     {
+        float tanHalfFOV = Math.tan(Math.toRadians(FOV/2.0f));
+        float d = 1/(aspect*tanHalfFOV);
+        Matrix4f Projection = new Matrix4f(d, 0.0f, 0.0f, 0.0f,
+                0.0f, 1/tanHalfFOV, 0.0f, 0.0f,
+                0.0f, 0.0f, -((far+near)/range), -((2*far*near)/range),
+                0.0f, 0.0f, -1.0f, 0.0f);
+
         return Projection;
     }
 

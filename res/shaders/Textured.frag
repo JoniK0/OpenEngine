@@ -20,13 +20,32 @@ out vec4 FragColor;
 
 const int MAX_POINT_LIGHTS = 1000;
 
-uniform sampler2D textureSampler;
+/*
+uniform sampler2D textureSampler0;
 uniform sampler2D textureSampler1;
 uniform sampler2D textureSampler2;
 uniform sampler2D textureSampler3;
 uniform sampler2D textureSampler4;
 uniform sampler2D textureSampler5;
-uniform sampler2D textureSampler6;
+*/
+
+uniform sampler2D textureSamplers[6];
+uniform sampler2D normalMaps[6];
+
+/*
+uniform sampler2D normalMap0;
+uniform sampler2D normalMap1;
+uniform sampler2D normalMap2;
+uniform sampler2D normalMap3;
+uniform sampler2D normalMap4;
+uniform sampler2D normalMap5;
+*/
+
+//vec3 normale = vec3(texture(normalMap0, pass_uvs).rgb);
+
+
+
+//uniform sampler2D normalMap;
 
 float ambientStrength = 0.2;
 vec4 lightcolor = vec4(lightSourceColor, 1.0);
@@ -86,9 +105,22 @@ Sun sonne = Sun(vec3(-0.2f, 0.5f, -0.3f), 0.2, 0.5, 128);
 
 vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular){
 
+	vec3 norm = vec3(0,0,0);
+	for(int i = 0; i <=5; i++){
+		if(pass_texUnit == i) {
+			if (vec3(texture(normalMaps[i], pass_uvs).rgb) != vec3(0, 0, 0)) {
+				norm = normalize(vec3(texture(normalMaps[i], pass_uvs).rgb)* 2.0 - 1.0);
+			}
+			else{
+				norm = normalize(Normals);
+			}
+		}
+	}
+
 	vec4 ambient = phongambient * lightcolor;
 
-	vec3 norm = normalize(Normals);
+	//vec3 norm = normalize(Normals);
+
 	float diff = max(dot(norm, direction), 0.0);
 	vec4 diffuse = diff * lightcolor;
 
@@ -174,13 +206,20 @@ void main(){
 
 
 
-	if(pass_texUnit == 0.0f){out_Color = texture(textureSampler, pass_uvs) * lighting;}
+/*
+	if(pass_texUnit == 0.0f){out_Color = texture(textureSampler0, pass_uvs) * lighting;}
 	else if(pass_texUnit == 1.0f){out_Color = texture(textureSampler1, pass_uvs) * lighting;}
 	else if(pass_texUnit == 2.0f){out_Color = texture(textureSampler2, pass_uvs) * lighting;}
 	else if(pass_texUnit == 3.0f){out_Color = texture(textureSampler3, pass_uvs) * lighting;}
 	else if(pass_texUnit == 4.0f){out_Color = texture(textureSampler4, pass_uvs) * lighting;}
 	else if(pass_texUnit == 5.0f){out_Color = texture(textureSampler5, pass_uvs) * lighting;}
 	else{out_Color = texture(textureSampler2, pass_uvs) * lighting;}
+	*/
+
+	for(int i = 0; i <= 5; i++){
+		if(pass_texUnit == i){out_Color = texture(textureSamplers[i], pass_uvs) * lighting;}
+	}
+
 
 
 	//out_Color = texture(textureSampler, pass_uvs) * lighting;

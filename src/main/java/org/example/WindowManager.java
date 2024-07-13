@@ -319,10 +319,13 @@ public class WindowManager {
 
     public boolean isKeyClicked(int keycode){
         if(isKeyPressed(keycode) && !clicked){
+            //System.out.println(clicked);
             clicked = true;
+            //System.out.println("why");
             return true;
         }
         else if (isKeyReleased(keycode)){
+            //System.out.println("lol");
             clicked = false;
             return false;
         }

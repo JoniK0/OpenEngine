@@ -3,6 +3,8 @@ package org.example.render;
 import org.example.Main;
 import org.example.WindowManager;
 import org.joml.Math;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
@@ -509,6 +511,171 @@ public class ObjectLoader {
         return cube;
 
     }
+
+
+
+    public Mesh createQuad(float s1, float s2, float s3, float texScale){
+
+        float[] quadvertices = {
+                //Front
+                -s2/2f, s3/2f, s1/2f,
+                -s2/2f, -s3/2f, s1/2f,
+                s2/2f, -s3/2f, s1/2f,
+                s2/2f,s3/2f, s1/2f,
+                //Right side
+                s2/2f,s3/2f, s1/2f,//3
+                s2/2f, -s3/2f, s1/2f,//2
+                s2/2f,-s3/2f,-s1/2f,//6
+                s2/2f,s3/2f,-s1/2f,//7
+                //left side
+                -s2/2f,s3/2f,-s1/2f,//4
+                -s2/2f,-s3/2f,-s1/2f,//5
+                -s2/2f, -s3/2f, s1/2f,//1
+                -s2/2f, s3/2f, s1/2f,//0
+                //front side
+                s2/2f,s3/2f,-s1/2f,
+                s2/2f,-s3/2f,-s1/2f,
+                -s2/2f,-s3/2f,-s1/2f,
+                -s2/2f,s3/2f,-s1/2f,
+                //top
+                -s2/2f,s3/2f,-s1/2f,
+                -s2/2f, s3/2f, s1/2f,
+                s2/2f,s3/2f, s1/2f,
+                s2/2f,s3/2f,-s1/2f,
+                //bottom
+                -s2/2f, -s3/2f, s1/2f,
+                -s2/2f,-s3/2f,-s1/2f,
+                s2/2f,-s3/2f,-s1/2f,
+                        s2/2f, -s3/2f, s1/2f,
+    };
+    int[] CubeIndices = {
+            //front
+            0,1,3,
+            1,2,3,
+            //right
+            4,5,7,
+            5,6,7,
+            //left
+            8,9,11,
+            9,10,11,
+            //back
+            12,13,15,
+            13,14,15,
+            //top
+            16,17,19,
+            17,18,19,
+            //bottom
+            20,21,23,
+            21,22,23
+    };
+
+    float[] cubeNormals =
+            {
+                    0.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f,
+
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f,
+
+                    -1.0f, 0.0f, 0.0f,
+                    -1.0f, 0.0f, 0.0f,
+                    -1.0f, 0.0f, 0.0f,
+                    -1.0f, 0.0f, 0.0f,
+
+                    //
+                    0.0f, 0.0f, -1.0f,
+                    0.0f, 0.0f, -1.0f,
+                    0.0f, 0.0f, -1.0f,
+                    0.0f, 0.0f, -1.0f,
+                    //
+                    0.0f, 1.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f,
+
+                    0.0f, -1.0f, 0.0f,
+                    0.0f, -1.0f, 0.0f,
+                    0.0f, -1.0f, 0.0f,
+                    0.0f, -1.0f, 0.0f,
+            };
+
+    //float texScale = 7;
+
+    float[] CubeUVs = {
+            0.0f, 1.0f*(s3/texScale),
+            0.0f, 0.0f,
+            1.0f*(s2/texScale), 0.0f,
+            1.0f*(s2/texScale), 1.0f*(s3/texScale),
+
+            0.0f, 1.0f*(s3/texScale),
+            0.0f, 0.0f,
+            1.0f*(s1/texScale), 0.0f,
+            1.0f*(s1/texScale), 1.0f*(s3/texScale),
+
+            0.0f, 1.0f*(s3/texScale),
+            0.0f, 0.0f,
+            1.0f*(s1/texScale), 0.0f,
+            1.0f*(s1/texScale), 1.0f*(s3/texScale),
+
+            0.0f, 1.0f*(s3/texScale),
+            0.0f, 0.0f,
+            1.0f*(s2/texScale), 0.0f,
+            1.0f*(s2/texScale), 1.0f*(s3/texScale),
+
+            0.0f, 1.0f*(s1/texScale),
+            0.0f, 0.0f,
+            1.0f*(s2/texScale), 0.0f,
+            1.0f*(s2/texScale), 1.0f*(s1/texScale),
+
+            0.0f, 1.0f*(s1/texScale),
+            0.0f, 0.0f,
+            1.0f*(s2/texScale), 0.0f,
+            1.0f*(s2/texScale), 1.0f*(s1/texScale)
+    };
+
+    float[] texunits = {0,0,0,0,
+                        1,1,1,1,
+                        2,2,2,2,
+                        3,3,3,3,
+                        4,4,4,4,
+                        5,5,5,5,};
+
+        Mesh Quad = MeshLoader.createMesh(quadvertices, CubeUVs, CubeIndices, cubeNormals, texunits);
+        return Quad;
+    }
+
+    /*
+    public Vector3f[] createTanBitan(float[] pos, float[] UVs){
+        Vector3f[] result = new Vector3f[pos.length];
+        for(int i = 0; i <= (pos.length / 4)-1; i++){
+            Vector3f pos1 = new Vector3f(pos[i], pos[i+1], pos[i+2]);
+            Vector3f pos2 = new Vector3f(pos[i+3],pos[i+4], pos[i+5]);
+            Vector3f pos3 = new Vector3f(pos[i+6],pos[i+7], pos[i+8]);
+            Vector3f pos4 = new Vector3f(pos[i+9],pos[i+10], pos[i+11]);
+
+            Vector2f uv1 = new Vector2f(UVs[i], UVs[i+1]);
+            Vector2f uv2 = new Vector2f(UVs[i+2], UVs[i+3]);
+            Vector2f uv3 = new Vector2f(UVs[i+4], UVs[i+5]);
+            Vector2f uv4 = new Vector2f(UVs[i+6], UVs[i+7]);
+
+            Vector3f edge1 = pos2.min(pos1);
+            Vector3f edge2 = pos3.min(pos1);
+
+            Vector2f deltaUV1 = uv2.min(uv1);
+            Vector2f deltaUV2 = uv3.min(uv1);
+        }
+
+    }
+
+     */
+
+
+
+
 
 
 

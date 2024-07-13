@@ -184,11 +184,32 @@ public class Camera {
             isMouseEscape = false;
             GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
+
+
         if(windowmanager.isKeyPressed(GLFW_KEY_L))
         {
             isMouseEscape = true;
             GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
+
+
+        /*
+        if(windowmanager.isKeyClicked(GLFW_KEY_L)){
+            isMouseEscape = !isMouseEscape;
+            clicked = true;
+            if(isMouseEscape){
+                GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+            else{
+                GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            }
+        }
+
+         */
+
+        
+
+
         mouseInput.input();
         TargetVectorTransformation();
     }

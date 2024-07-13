@@ -16,12 +16,12 @@ public class Map {
 
 
     //initializes static objects
-    LightSource source = new LightSource("source",20, 8, 5, 0.0f, 0.0f, 1.0f);
-    LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 0.0f, 0.0f);
+    LightSource source = new LightSource("source",12, 20, 20, 1.0f, 1.0f, 1.0f);
+    LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
 
     public void initMap() {
 
-
+        Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
 
         try {
             Mesh[] model = StaticModelLoader.load("fire_axe");
@@ -41,7 +41,7 @@ public class Map {
 
 
 
-        Mesh SkyBox = objectLoader.createSkyBox(800f, "Galaxy.png");
+        //Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
         Mesh sphere = objectLoader.Sphere(5,50,50).addTexture("white.jpg");//
         //Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
         Mesh pointlight = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
@@ -49,10 +49,32 @@ public class Map {
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
 
-        Mesh multiCube = objectLoader.createCubeMulTex(5, 0f, 1f,2f,3f,4f,5f).addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
+        Mesh multiCube = objectLoader.createCubeMulTex(5, 0f, 1f,2f,3f,4f,5f).setMulTextures(new String[]{"white.jpg", "ctexture.png", "orange.png", "texture.png", "Brickwall.jpg", "Stonewall.jpg"});//.addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
+        multiCube.setMulTextureAtInd(0, "Stonewall.jpg");
+
+        Mesh quad = objectLoader.createQuad(150, 150, 1, 7).setMulTextures(new String[]{"planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg"});
+        Mesh wall = objectLoader.createQuad(2, 50, 40, 7).setMulTextures(new String[]{"Brickwall2.jpg", "Stonewall.jpg", "Brickwall2.jpg", "white.jpg", "Stonewall.jpg", "Stonewall.jpg"});
+
+        wall.setNormalMapAtInd(3, "Brickwall2_normal.jpg");
+        //wall.setNormalMapAtInd(0, "Brickwall2_normal.jpg");
+
+        System.out.println("heyho: "+multiCube.getVaoID());
 
 
-        //LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
+        System.out.println("normal"+wall.getNormalMaps());
+        System.out.println("tex:"+wall.getMultextures());
+
+        float[] test = new float[72];
+
+        //MeshLoader.subData(wall, 1, test);
+
+        //
+        //
+        // Textures found in: https://www.sketchuptextureclub.com/textures/architecture/stones-walls/stone-blocks/retaining-wall-stone-blocks-texture-seamless-21072
+        //
+        //
+
+        ////LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
         //LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
 
 
@@ -66,6 +88,8 @@ public class Map {
 
         object multCube = new object("multiCube", multiCube, 0, 0, 0, false, 0, 0, 0, 1);
 
+        object Quad = new object("floor", quad, 0, -10, 0, false, 0, 0, 0, 1);
+        object Wall = new object("wall", wall, 0, 25, 10, false, 0, 0, 0, 1);
 
 
         objects.add(secondSphere);
@@ -76,6 +100,9 @@ public class Map {
         objects.add(Kubus);
         objects.add(kubus);
         objects.add(multCube);
+
+        objects.add(Quad);
+        objects.add(Wall);
 
         lights.add(source);
         lights.add(sourcetwo);

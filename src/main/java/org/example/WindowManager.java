@@ -215,7 +215,7 @@ public class WindowManager {
 
             if(tickCounter >= (FPS/TickHZ)) {
                 renderer.input();
-                source.rotate(angle);
+                //source.rotate(angle);
                 //map.getLights().getFirst().rotate(angle);
                 angle += 0.01;
                 //System.out.println(tickCounter);

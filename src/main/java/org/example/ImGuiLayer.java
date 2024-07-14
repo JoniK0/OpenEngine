@@ -5,11 +5,8 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import imgui.type.ImString;
-import org.example.render.LightSource;
+import org.example.render.*;
 import org.example.render.Map.Map;
-import org.example.render.Texture;
-import org.example.render.Transformations;
-import org.example.render.render;
 
 import java.io.File;
 import java.security.Key;
@@ -49,6 +46,10 @@ public class ImGuiLayer {
 
     ImFloat Scale;
     ImInt faceindex = new ImInt(0);
+    ImFloat texScale = new ImFloat(1);
+    ImFloat uOffset = new ImFloat(0);
+    ImFloat vOffset = new ImFloat(0);
+    ImFloat texRot = new ImFloat(0);
     private boolean showChange = false;
     private boolean showSourceChange = false;
     public static boolean polygonmode = false;
@@ -110,16 +111,17 @@ public class ImGuiLayer {
             ImGui.begin("textureviewer");
             ImGui.inputInt("faceindex", faceindex);
 
-            if(ImGui.beginCombo("faceindex", faceindex.toString(), faceindex.get())){
 
-                for(int i = 0; i <= 5; i++){
-                    if(ImGui.selectable("hi", true)){
+            ImGui.inputFloat("U-offset", uOffset);
+            ImGui.inputFloat("V-offset", vOffset);
+            ImGui.inputFloat("rotation", texRot);
+            ImGui.inputFloat("scale", texScale);
 
-                    }
-                }
+            //System.out.println("doggo");
 
-                ImGui.endCombo();
-            }
+            float[] test = new float[72];
+           MeshLoader.subData(selected.element(), 2, ObjectLoader.offsetUVs(selected.element().getUvs(), uOffset.get(), vOffset.get(), texRot.get(), texScale.get()));
+            //MeshLoader.subData(selected.element(), 1, test);
 
             if(ImGui.button("texture")){
                 texture_selection = true;

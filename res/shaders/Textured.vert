@@ -4,6 +4,8 @@ layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 uvs;
 layout (location = 2) in vec3 normal;
 layout (location = 3) in float texUnit;
+layout (location = 4) in vec3 tangent;
+layout (location = 5) in vec3 bitangent;
 
 
 layout (location = 0) out vec2 pass_uvs;
@@ -20,6 +22,7 @@ layout (location = 9) out float[] LightPos;
 layout (location = 10) out float[] LightCols;
 
 layout (location = 11) out float pass_texUnit;
+layout (location = 12) out mat3 TBN;
 
 uniform mat4 Projection;
 uniform mat4 Translation;
@@ -41,14 +44,11 @@ uniform float[] LightColors;
 void main(){
 	//gl_Position = Projection * CameraTransform * AxisRotation * WorldTransform * vec4(position.x, position.y, position.z , 1.0);
 	gl_Position = Projection * CameraTransform * WorldTransform * AxisRotation * vec4(position.x, position.y, position.z , 1.0);
-
 	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
-
 	//FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
 	FragPos = vec3(WorldTransform * AxisRotation * vec4(position.x, position.y, position.z, 1.0));
 
 	pass_uvs = uvs;
-
 	vec4 norm = AxisRotation * vec4(normal.x, normal.y, normal.z, 1);
 	Normals = vec3(norm.x, norm.y, norm.z);
 	campos = camPos;
@@ -62,4 +62,11 @@ void main(){
 	LightCols = LightColors;
 
 	pass_texUnit = texUnit;
+
+	mat4 model = WorldTransform * AxisRotation;
+	vec3 T = normalize(vec3(model * vec4(tangent, 0.0)));
+	vec3 B = normalize(vec3(model * vec4(bitangent, 0.0)));
+	vec3 N = normalize(vec3(model * vec4(normal, 0.0)));
+	TBN = mat3(T, B, N);
+
 }

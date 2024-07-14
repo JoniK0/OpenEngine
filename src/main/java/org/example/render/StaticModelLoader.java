@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.render.ObjectLoader.createTanBitan;
 import static org.lwjgl.assimp.Assimp.*;
 import static org.lwjgl.assimp.AIMaterial.*;
 
@@ -106,7 +107,12 @@ public class StaticModelLoader {
         //System.out.println("texcoords:"+texture+" count:"+ normals.size());
 
         float[] texUnit = new float[Vertices.length];
-        Mesh mesh = MeshLoader.createMesh(Vertices, Texture, Indices, Normals, texUnit);
+
+        float[][] TanBitan = createTanBitan(Vertices, Texture);
+        float[] Tan = TanBitan[0];
+        float[] Bitan = TanBitan[1];
+
+        Mesh mesh = MeshLoader.createMesh(Vertices, Texture, Indices, Normals, texUnit, Tan, Bitan);
 
         String tex;
         int materialIdx = aiMesh.mMaterialIndex();

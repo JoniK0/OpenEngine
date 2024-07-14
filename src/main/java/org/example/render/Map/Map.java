@@ -1,6 +1,7 @@
 package org.example.render.Map;
 
 import org.example.render.*;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -18,6 +19,7 @@ public class Map {
     //initializes static objects
     LightSource source = new LightSource("source",12, 20, 20, 1.0f, 1.0f, 1.0f);
     LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
+    Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0.5f, 0, -1), 12.5f);
 
     public void initMap() {
 
@@ -56,6 +58,10 @@ public class Map {
         Mesh wall = objectLoader.createQuad(2, 50, 40, 7).setMulTextures(new String[]{"Brickwall2.jpg", "Stonewall.jpg", "Brickwall2.jpg", "white.jpg", "Stonewall.jpg", "Stonewall.jpg"});
 
         wall.setNormalMapAtInd(3, "Brickwall2_normal.jpg");
+
+        sphere.setNormalMapAtInd(0, "Brickwall2_normal.jpg");
+        sphere.setNormalMaps(new String[]{"Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg",});
+        //quad.setNormalMaps(new String[]{"Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg",});
         //wall.setNormalMapAtInd(0, "Brickwall2_normal.jpg");
 
         System.out.println("heyho: "+multiCube.getVaoID());
@@ -106,6 +112,7 @@ public class Map {
 
         lights.add(source);
         lights.add(sourcetwo);
+        lights.add(spotlight);
     }
 
     public void dynamic(){

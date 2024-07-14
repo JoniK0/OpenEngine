@@ -97,6 +97,7 @@ public class Mesh {
         return this.texture;
     }
     public int getNormalMap(){return this.normalMap;}
+    public float[] getUvs(){return this.uvs;}
     public ArrayList<Integer> getMultextures(){
         return this.multextures;
     }

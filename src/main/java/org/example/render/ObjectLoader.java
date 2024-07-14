@@ -1,15 +1,11 @@
 package org.example.render;
 
-import org.example.Main;
-import org.example.WindowManager;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
-import java.io.*;
-import java.util.List;
+import java.util.Arrays;
 
 public class ObjectLoader {
     //private final WindowManager manager;
@@ -149,7 +145,11 @@ public class ObjectLoader {
 
         float[] skyBoxTex = new float[24];
 
-        Mesh SkyBox = MeshLoader.createMesh(SkyBoxVertices, SkyBoxUVs, SkyBoxIndices, cubeNormals, skyBoxTex).addTexture(CubeMap);
+        float[][] TanBitan = createTanBitan(SkyBoxVertices, SkyBoxUVs);
+        float[] Tan = TanBitan[0];
+        float[] Bitan = TanBitan[1];
+
+        Mesh SkyBox = MeshLoader.createMesh(SkyBoxVertices, SkyBoxUVs, SkyBoxIndices, cubeNormals, skyBoxTex, Tan, Bitan).addTexture(CubeMap);
         return SkyBox;
     }
 
@@ -246,7 +246,12 @@ public class ObjectLoader {
 
 
         float[] spheretexture = new float[vertices.length];
-        Mesh Sphere = MeshLoader.createMesh(vertices,UVs,sphereIndices, vertices, spheretexture);
+
+        float[][] TanBitan = createTanBitan(vertices, UVs); //probably wrong for spheres
+        float[] Tan = TanBitan[0];
+        float[] Bitan = TanBitan[1];
+
+        Mesh Sphere = MeshLoader.createMesh(vertices,UVs,sphereIndices, vertices, spheretexture, Tan, Bitan);
         return Sphere;
     }
 
@@ -373,7 +378,12 @@ public class ObjectLoader {
         };
 
         float[] texUnit = new float[24];
-        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, texUnit);
+
+        float[][] TanBitan = createTanBitan(CubeVertices, CubeUVs);
+        float[] Tan = TanBitan[0];
+        float[] Bitan = TanBitan[1];
+
+        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, texUnit, Tan, Bitan);
         return cube;
 
     }
@@ -507,7 +517,13 @@ public class ObjectLoader {
                 texF5,texF5,texF5,texF5,
                 texF6,texF6,texF6,texF6};
 
-        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, textureUnit);
+        //createTanBitan(CubeVertices, CubeUVs);
+
+        float[][] TanBitan = createTanBitan(CubeVertices, CubeUVs);
+        float[] Tan = TanBitan[0];
+        float[] Bitan = TanBitan[1];
+
+        Mesh cube = MeshLoader.createMesh(CubeVertices, CubeUVs, CubeIndices, cubeNormals, textureUnit, Tan, Bitan);
         return cube;
 
     }
@@ -637,6 +653,43 @@ public class ObjectLoader {
             1.0f*(s2/texScale), 1.0f*(s1/texScale)
     };
 
+
+
+
+        float[] trash = {
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f
+        };
+
+
+
     float[] texunits = {0,0,0,0,
                         1,1,1,1,
                         2,2,2,2,
@@ -644,34 +697,148 @@ public class ObjectLoader {
                         4,4,4,4,
                         5,5,5,5,};
 
-        Mesh Quad = MeshLoader.createMesh(quadvertices, CubeUVs, CubeIndices, cubeNormals, texunits);
+
+    float[][] TanBitan = createTanBitan(quadvertices, CubeUVs);
+    float[] Tan = TanBitan[0];
+    float[] Bitan = TanBitan[1];
+
+
+
+    //System.out.println("Tangents: "+ Arrays.toString(Tan));
+    //System.out.println("Bitangents: "+Arrays.toString(Bitan));
+
+        Mesh Quad = MeshLoader.createMesh(quadvertices, CubeUVs, CubeIndices, cubeNormals, texunits, Tan, Bitan);
         return Quad;
     }
 
-    /*
-    public Vector3f[] createTanBitan(float[] pos, float[] UVs){
-        Vector3f[] result = new Vector3f[pos.length];
-        for(int i = 0; i <= (pos.length / 4)-1; i++){
-            Vector3f pos1 = new Vector3f(pos[i], pos[i+1], pos[i+2]);
-            Vector3f pos2 = new Vector3f(pos[i+3],pos[i+4], pos[i+5]);
-            Vector3f pos3 = new Vector3f(pos[i+6],pos[i+7], pos[i+8]);
-            Vector3f pos4 = new Vector3f(pos[i+9],pos[i+10], pos[i+11]);
 
-            Vector2f uv1 = new Vector2f(UVs[i], UVs[i+1]);
-            Vector2f uv2 = new Vector2f(UVs[i+2], UVs[i+3]);
-            Vector2f uv3 = new Vector2f(UVs[i+4], UVs[i+5]);
-            Vector2f uv4 = new Vector2f(UVs[i+6], UVs[i+7]);
+    public static float[][] createTanBitan(float[] pos, float[] UVs){
 
-            Vector3f edge1 = pos2.min(pos1);
-            Vector3f edge2 = pos3.min(pos1);
+        float[][] result = new float[2][pos.length*3];
 
-            Vector2f deltaUV1 = uv2.min(uv1);
-            Vector2f deltaUV2 = uv3.min(uv1);
+        float[] result_tangent = new float[pos.length];
+        float[] result_bitangent = new float[pos.length];
+
+
+        Vector3f tangent = new Vector3f();
+        Vector3f bitangent = new Vector3f();
+
+        for(int i = 0; i <= (pos.length / (3*4))-1; i++){
+            Vector3f pos1 = new Vector3f(pos[i*12], pos[i*12+1], pos[i*12+2]);
+            Vector3f pos2 = new Vector3f(pos[i*12+3],pos[i*12+4], pos[i*12+5]);
+            Vector3f pos3 = new Vector3f(pos[i*12+6],pos[i*12+7], pos[i*12+8]);
+            Vector3f pos4 = new Vector3f(pos[i*12+9],pos[i*12+10], pos[i*12+11]);
+
+            Vector2f uv1 = new Vector2f(UVs[i*8], UVs[i*8+1]);
+            Vector2f uv2 = new Vector2f(UVs[i*8+2], UVs[i*8+3]);
+            Vector2f uv3 = new Vector2f(UVs[i*8+4], UVs[i*8+5]);
+            Vector2f uv4 = new Vector2f(UVs[i*8+6], UVs[i*8+7]);
+
+
+            Vector3f edge1 =new Vector3f();
+            pos2.sub(pos1, edge1);
+
+
+            Vector3f edge2 = new Vector3f();
+            pos3.sub(pos1, edge2);
+
+            //System.out.println("edge1: "+edge1);
+            //System.out.println("edge2: "+edge2);
+
+
+            Vector2f deltaUV1 = new Vector2f();
+            Vector2f deltaUV2 = new Vector2f();
+
+            uv2.sub(uv1, deltaUV1);
+            uv3.sub(uv1, deltaUV2);
+
+
+
+            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+            //System.out.println(deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+            //System.out.println("f : "+f);
+
+            tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+            tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+            tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+
+            bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+            bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+            bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+            result_tangent[i*4] = tangent.x;
+            result_tangent[i*4+1] = tangent.y;
+            result_tangent[i*4+2] = tangent.z;
+
+            result_bitangent[i*4] = bitangent.x;
+            result_bitangent[i*4+1] = bitangent.y;
+            result_bitangent[i*4+2] = bitangent.z;
+
+            tangent.normalize();
+            bitangent.normalize();
+
+            //System.out.println("tangent:" + tangent);
+            //System.out.println("bitangent:"+ bitangent);
+
+            result[0][i*12] = tangent.x;
+            result[0][i*12+1] = tangent.y;
+            result[0][i*12+2] = tangent.z;
+
+            result[0][i*12+3] = tangent.x;
+            result[0][i*12+4] = tangent.y;
+            result[0][i*12+5] = tangent.z;
+
+            result[0][i*12+6] = tangent.x;
+            result[0][i*12+7] = tangent.y;
+            result[0][i*12+8] = tangent.z;
+
+            result[0][i*12+9] = tangent.x;
+            result[0][i*12+10] = tangent.y;
+            result[0][i*12+11] = tangent.z;
+
+
+            result[1][i*12] = bitangent.x;
+            result[1][i*12+1] = bitangent.y;
+            result[1][i*12+2] = bitangent.z;
+
+            result[1][i*12+3] = bitangent.x;
+            result[1][i*12+4] = bitangent.y;
+            result[1][i*12+5] = bitangent.z;
+
+            result[1][i*12+6] = bitangent.x;
+            result[1][i*12+7] = bitangent.y;
+            result[1][i*12+8] = bitangent.z;
+
+            result[1][i*12+9] = bitangent.x;
+            result[1][i*12+10] = bitangent.y;
+            result[1][i*12+11] = bitangent.z;
+
         }
+
+        return result;
+
 
     }
 
-     */
+    public static float[] offsetUVs(float[] uvs, float uOffset, float vOffset, float texRot, float scale){
+        float[] result = new float[uvs.length];
+
+        for(int i = 0; i < uvs.length; i++){
+            if(i % 2 == 0){
+                result[i] = (uvs[i]+uOffset)/scale;
+            }
+            else{
+                result[i] = (uvs[i]+vOffset)/scale;
+            }
+        }
+
+        //float[] result = new float[uvs.length];
+        return result;
+    }
+
+
 
 
 

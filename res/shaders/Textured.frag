@@ -9,16 +9,19 @@ layout (location = 5) in flat int globalFullbright;
 layout (location = 6) in vec3 lightPos;
 layout (location = 7) in vec3 lightSourceColor;
 layout (location = 8) in vec3 camDir;
+//layout (location = 9) in mat3 TBN;
 
 layout (location = 9) in float[] LightPos;
 layout (location = 10) in float[] LightCols;
 
 layout (location = 11) in float pass_texUnit;
+layout (location = 12) in mat3 TBN;
 
 out vec4 out_Color;
 out vec4 FragColor;
 
 const int MAX_POINT_LIGHTS = 1000;
+const int MAX_SPOT_LIGHTS = 1000;
 
 /*
 uniform sampler2D textureSampler0;
@@ -63,8 +66,23 @@ struct pointlight{
 	float quadratic;
 };
 
+struct Spotlight{
+	vec3 lightpos;
+	float ambient;
+	float specular;
+	float shininess;
+	vec4 color;
+	float constant;
+	float linear;
+	float quadratic;
+	vec3 direction;
+	float cutOff;
+};
+
 uniform pointlight pointlightlist[MAX_POINT_LIGHTS];
+uniform Spotlight spotlightlist[MAX_SPOT_LIGHTS];
 uniform int pointlightlist_size;
+uniform int spotlightlist_size;
 
 
 
@@ -92,12 +110,6 @@ struct Sun{
 	float shininess;
 };
 
-struct Spotlight{
-	vec3 position;
-	vec3 direction;
-	float cutOff;
-	float outerCutoff;
-};
 
 
 
@@ -110,6 +122,7 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 		if(pass_texUnit == i) {
 			if (vec3(texture(normalMaps[i], pass_uvs).rgb) != vec3(0, 0, 0)) {
 				norm = normalize(vec3(texture(normalMaps[i], pass_uvs).rgb)* 2.0 - 1.0);
+				norm = normalize(TBN * norm);
 			}
 			else{
 				norm = normalize(Normals);
@@ -157,15 +170,15 @@ vec4 CalcPointlight(vec3 pos, float ambient, float specular, float shininess, ve
 }
 //
 
-vec4 CalcSpotlight(vec3 position, vec3 direction, float cutoff){
+vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess, vec4 color, float constant, float linear, float quadratic, vec3 direction, float cutoff){
 	vec3 spotlightdirection = normalize(position - FragPos);
-	Spotlight spot = Spotlight(position, direction, cos(radians(cutoff)), cos(radians(17.5)));
+	Spotlight spot = Spotlight(position, ambient,specular, shininess, color, 1.0f, 0.03f, 0.0014f, direction, cos(radians(cutoff)));
 	float theta = dot(spotlightdirection, normalize(-spot.direction));
 	//float epsilon = (spot.cutOff - spot.outerCutoff);
 	float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff));
 	if(theta > spot.cutOff)
 	{
-		vec4 spotlight = Phong(spotlightdirection, ambientStrength, lightcolor, shininess, specularStrength);
+		vec4 spotlight = Phong(spotlightdirection, ambient, color, shininess, specular);
 		spotlight *= flashlightintensity;
 		return spotlight;
 	}
@@ -180,7 +193,8 @@ vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shini
 
 
 vec4 pointl = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
-vec4 flash = CalcSpotlight(camPos, camDir, 12.5);
+vec4 lightcolora = vec4(1,1,1,1);
+vec4 flash = CalcSpotlight(camPos, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,camDir, 40.5);
 
 vec4 lighting = vec4(0,0,0,0);
 
@@ -190,9 +204,15 @@ vec4 lighting = vec4(0,0,0,0);
 
 void main(){
 
+	//float trash = spotlightlist[0].lightpos.x;
 	for(int i = 0; i < pointlightlist_size; i++){
 		lighting += CalcPointlight(pointlightlist[i].lightpos, pointlightlist[i].ambient, pointlightlist[i].specular, pointlightlist[i].shininess, pointlightlist[i].color, pointlightlist[i].constant, pointlightlist[i].linear, pointlightlist[i].quadratic);
 		//lighting = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
+	}
+
+	for(int i = 0; i < spotlightlist_size; i++){
+		//lighting += CalcSpotlight(spotlightlist[i].lightpos, spotlightlist[i].ambient, spotlightlist[0].specular, spotlightlist[0].shininess, spotlightlist[0].color, spotlightlist[0].constant, spotlightlist[0].linear, spotlightlist[0].quadratic, spotlightlist[0].direction, spotlightlist[0].cutOff);
+		//lighting += CalcSpotlight(spotlightlist[i].lightpos, spotlightlist[i].ambient, spotlightlist[i].specular, spotlightlist[i].shininess, spotlightlist[i].color, spotlightlist[i].constant, spotlightlist[i].linear, spotlightlist[i].quadratic, spotlightlist[i].direction, spotlightlist[i].cutOff);
 	}
 
 	if (fullbright == 1 || globalFullbright == 1)
@@ -201,6 +221,7 @@ void main(){
 		pointl = vec4(1,1,1,1);
 	}
 
+	//lighting = flash;
 
 
 

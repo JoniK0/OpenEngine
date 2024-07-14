@@ -43,7 +43,7 @@ public class MeshLoader {
 
     public static void subData(Mesh mesh, int attribute, float[] data){
         GL30.glBindVertexArray(mesh.getVaoID());
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos.get((attribute-1)+5*(mesh.getVaoID()-1)));
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos.get((attribute-1)+7*(mesh.getVaoID()-1)));
         FloatBuffer buffer = createFloatBuffer(data);
         GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buffer);
         //GL20.glVertexAttribPointer(attribute, 1, GL11.GL_FLOAT, false, 0,0);
@@ -60,17 +60,21 @@ public class MeshLoader {
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
     }
 
-    public static Mesh createMesh(float[] positions,float[] UVs, int[] indices, float[] normals, float[] textureUnit){
+    public static Mesh createMesh(float[] positions,float[] UVs, int[] indices, float[] normals, float[] textureUnit, float[] tangents, float[] bitangents){
         int vao = genVAO();
         storeData(0,3,positions);
         storeData(1,2,UVs);
         storeData(2, 3, normals);
         storeData(3, 1, textureUnit);
+        storeData(4, 3, tangents);
+        storeData(5, 3, bitangents);
 
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
         GL20.glEnableVertexAttribArray(3);
+        GL20.glEnableVertexAttribArray(4);
+        GL20.glEnableVertexAttribArray(5);
         //System.out.println("size pos: "+positions.length);
         //System.out.println("size tex: "+textureUnit.length);
         //System.out.println("texUnit:" + Arrays.toString(textureUnit));

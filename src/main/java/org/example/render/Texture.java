@@ -1,9 +1,14 @@
 package org.example.render;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
@@ -37,12 +42,40 @@ public class Texture {
                 IntBuffer channels = stack.mallocInt(1);
 
                 //URL url = Texture.class.getResource("res/" + resourceName);
-                File file = new File("res/textures/" + texture);
-                String filepath = file.getAbsolutePath();
+                //File file = new File("res/textures/" + texture);
+                ClassLoader classLoader = Texture.class.getClassLoader();
+                //File file = new File(classLoader.getResource("../../../textures/"+texture).getFile());
+                File file = new File(Texture.class.getResource("/textures/"+texture).getFile());
+
+                String path = Texture.class.getResource("/textures/"+texture).getPath();
+
+
+                InputStream stream = Texture.class.getResourceAsStream("/textures/"+texture);
+                byte[] streamByte = stream.readAllBytes();
+                ByteBuffer streamByteBuffer = BufferUtils.createByteBuffer(streamByte.length);
+                streamByteBuffer.put(streamByte);
+                streamByteBuffer.flip();
+
+
+
+                System.out.println("path: "+path);
+                //System.out.println("test: "+test);
+
+                //File file = new File("src/main/java/resources/textures/" + texture);
+                String filepath = file.getAbsolutePath();;
+
+                System.out.println("absolutepath: "+filepath);
+                System.out.println("file: "+file.toString().replace("file:", "").replace("!", ""));
+
+                //String filepath = String.valueOf(Texture.class.getResource("/textures/"+texture));
+
                 //System.out.println("filepath: "+filepath);
-                buffer = STBImage.stbi_load(filepath, w, h, channels, 4);
+                //buffer = STBImage.stbi_load(filepath, w, h, channels, 4);
+                //buffer = STBImage.stbi_load(file.toString().replace("file:", "").replace("!", ""), w, h, channels, 4);
+                buffer = STBImage.stbi_load_from_memory(streamByteBuffer, w, h, channels, 4);
+
                 if (buffer == null) {
-                    throw new Exception("Can't load file" + texture + " " + STBImage.stbi_failure_reason());
+                    throw new Exception("Can't load file: " + texture + " " + STBImage.stbi_failure_reason());
                 }
                 width = w.get();
                 height = h.get();
@@ -91,8 +124,12 @@ public class Texture {
                 IntBuffer channels = stack.mallocInt(1);
 
                 //URL url = Texture.class.getResource("res/" + resourceName);
-                File file = new File(path+"/"+texture);
+                File file = new File(Texture.class.getResource(path+"/"+texture).getFile());
+
                 String filepath = file.getAbsolutePath();
+
+                filepath = Texture.class.getResource(path+"/"+texture).getPath();
+
                 //System.out.println("filepath: "+filepath);
                 buffer = STBImage.stbi_load(filepath, w, h, channels, 4);
                 if (buffer == null) {

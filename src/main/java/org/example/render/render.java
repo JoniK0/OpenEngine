@@ -49,6 +49,7 @@ public class render {
         //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
 
         //cam.keyListener();
+        shader.loadLights(windowmanager.getLightSourceArray());
 
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
@@ -61,12 +62,14 @@ public class render {
 
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);
-        shader.loadVector("lightSource", windowmanager.getLightSource().getLightPosition());
+        //shader.loadVector("lightSource", windowmanager.getLightSource().getLightPosition());
 
-        shader.loadList("LightPositions", windowmanager.getLightSourcesPos());
-        shader.loadList("LightColors", windowmanager.getLightSourceColor());
+        //shader.loadList("LightPositions", windowmanager.getLightSourcesPos());
+        //shader.loadList("LightColors", windowmanager.getLightSourceColor());
 
-        shader.loadLights(windowmanager.getLightSourceArray());
+        //
+        //shader.loadLights(windowmanager.getLightSourceArray());
+        //
 
         shader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
         shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
@@ -129,6 +132,10 @@ public class render {
 
         //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
         /////
+
+        if(GL20.glGetError() != 0){
+            System.out.println(GL20.glGetError());
+        }
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);

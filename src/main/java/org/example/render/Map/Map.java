@@ -14,17 +14,20 @@ public class Map {
 
     public static ArrayList<object> objects = new ArrayList<object>();
     public static ArrayList<LightSource> lights = new ArrayList<>();
+    public static ArrayList<Spotlight> spotlights = new ArrayList<>();
 
 
     //initializes static objects
     LightSource source = new LightSource("source",12, 20, 20, 1.0f, 1.0f, 1.0f);
     LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
-    Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0.5f, 0, -1), 12.5f);
+    Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0, -1, 0), 12.5f);
 
     public void initMap() {
 
         Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
 
+
+        /*
         try {
             Mesh[] model = StaticModelLoader.load("fire_axe");
             int i = 0;
@@ -38,6 +41,8 @@ public class Map {
             throw new RuntimeException(e);
         }
 
+         */
+
 
 
 
@@ -50,6 +55,7 @@ public class Map {
         Mesh Cube = objectLoader.createCube(1).addTexture("white.jpg");//
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
+        Mesh spotlightmesh = objectLoader.Sphere(0.5f, 30, 30).addTexture("orange.png");
 
         Mesh multiCube = objectLoader.createCubeMulTex(5, 0f, 1f,2f,3f,4f,5f).setMulTextures(new String[]{"white.jpg", "ctexture.png", "orange.png", "texture.png", "Brickwall.jpg", "Stonewall.jpg"});//.addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
         multiCube.setMulTextureAtInd(0, "Stonewall.jpg");
@@ -97,6 +103,8 @@ public class Map {
         object Quad = new object("floor", quad, 0, -10, 0, false, 0, 0, 0, 1);
         object Wall = new object("wall", wall, 0, 25, 10, false, 0, 0, 0, 1);
 
+        object Spotlight = new object("spotlight", spotlightmesh, spotlight.getLightPosition().x(), spotlight.getLightPosition().y(), spotlight.getLightPosition().z(), true, 0, 0, 0, 1);
+
 
         objects.add(secondSphere);
         objects.add(Skybox);
@@ -110,8 +118,10 @@ public class Map {
         objects.add(Quad);
         objects.add(Wall);
 
-        lights.add(source);
-        lights.add(sourcetwo);
+        objects.add(Spotlight);
+
+        //lights.add(source);
+        //lights.add(sourcetwo);
         lights.add(spotlight);
     }
 

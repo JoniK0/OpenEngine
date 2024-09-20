@@ -1,9 +1,12 @@
 package org.example.render;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,17 +18,32 @@ import static org.lwjgl.assimp.AIMaterial.*;
 
 public class StaticModelLoader {
     public static Mesh[] load(String modelDirName) throws Exception{
-        File file = new File("res/textures/models/source/"+modelDirName+"/scene.gltf");
+        //File file = new File("src/main/java/resources/textures/models/source/"+modelDirName+"/scene.gltf");
+        //File file = new File(StaticModelLoader.class.getResource("../../../textures/models/source/"+modelDirName+"/scene.gltf").getFile());
+        File file = new File(StaticModelLoader.class.getResource("/textures/models/source/"+modelDirName+"/scene.gltf").getFile());
         String filepath = file.getAbsolutePath();
+
+        InputStream stream = StaticModelLoader.class.getResourceAsStream("/textures/models/source/"+modelDirName+"/scene.gltf");
+        byte[] byteArray = stream.readAllBytes();
+        ByteBuffer buffer = BufferUtils.createByteBuffer(byteArray.length);
+        buffer.put(byteArray);
+        buffer.flip();
+
+
         //String resourcePath = "/home/joni/IdeaProjects/Github/OpenEngine/res/textures/models/source/"+modelName;
-        return load(filepath, modelDirName, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals);
+        return load(buffer, filepath, modelDirName, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FixInfacingNormals);
     }
 
-    public static Mesh[] load(String resourcePath, String modelDirName, int flags) throws Exception{
-        AIScene aiScene = aiImportFile(resourcePath, flags);
+    public static Mesh[] load(ByteBuffer buffer, String resourcePath, String modelDirName, int flags) throws Exception{
+        //AIScene aiScene = aiImportFile(resourcePath, flags);
+
+        AIScene aiScene = aiImportFileFromMemory(buffer, flags, "gltf");
+
+
+
         //Assimp.aiReleaseImport(aiScene);
         if(aiScene == null){
-            throw new Exception("Error: model cannot be loaded");
+            throw new Exception("Error: model cannot be loaded "+aiGetErrorString());
         }
 
         //Materials
@@ -124,7 +142,8 @@ public class StaticModelLoader {
         }
 
         //mesh.addTexture(tex);
-        mesh.addTexture(tex, "res/textures/models/source/"+modelDirName+"/textures");
+        //mesh.addTexture(tex, "src/main/java/resources/textures/models/source/"+modelDirName+"/textures");
+        mesh.addTexture(tex, "/textures/models/source/"+modelDirName+"/textures");
 
 
         return mesh;

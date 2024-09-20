@@ -66,21 +66,21 @@ struct pointlight{
 	float quadratic;
 };
 
-struct Spotlight{
-	vec3 lightpos;
-	float ambient;
-	float specular;
-	float shininess;
-	vec4 color;
-	float constant;
-	float linear;
-	float quadratic;
-	vec3 direction;
-	float cutOff;
+struct spotlight{
+	vec3 lightpos2;
+	float ambient2;
+	float specular2;
+	float shininess2;
+	vec4 color2;
+	float constant2;
+	float linear2;
+	float quadratic2;
+	vec3 direction2;
+	float cutOff2;
 };
 
 uniform pointlight pointlightlist[MAX_POINT_LIGHTS];
-uniform Spotlight spotlightlist[MAX_SPOT_LIGHTS];
+uniform spotlight trashcan[MAX_SPOT_LIGHTS];
 uniform int pointlightlist_size;
 uniform int spotlightlist_size;
 
@@ -171,12 +171,15 @@ vec4 CalcPointlight(vec3 pos, float ambient, float specular, float shininess, ve
 //
 
 vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess, vec4 color, float constant, float linear, float quadratic, vec3 direction, float cutoff){
+
 	vec3 spotlightdirection = normalize(position - FragPos);
-	Spotlight spot = Spotlight(position, ambient,specular, shininess, color, 1.0f, 0.03f, 0.0014f, direction, cos(radians(cutoff)));
-	float theta = dot(spotlightdirection, normalize(-spot.direction));
+	spotlight spot = spotlight(position, ambient, specular, shininess, color, 1.0f, 0.03f, 0.0014f, direction, cos(radians(cutoff)));
+	float theta = dot(spotlightdirection, normalize(-spot.direction2));
 	//float epsilon = (spot.cutOff - spot.outerCutoff);
-	float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff));
-	if(theta > spot.cutOff)
+	float flashlightintensity = (1.0 - ( 1.0 - theta)/(1.0-spot.cutOff2));
+
+
+	if(theta > spot.cutOff2)
 	{
 		vec4 spotlight = Phong(spotlightdirection, ambient, color, shininess, specular);
 		spotlight *= flashlightintensity;
@@ -187,6 +190,8 @@ vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess
 		vec4 spotlight = vec4(0,0,0,0);
 		return spotlight;
 	}
+
+	return vec4(0,0,0,0);
 }
 
 vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
@@ -204,15 +209,48 @@ vec4 lighting = vec4(0,0,0,0);
 
 void main(){
 
-	//float trash = spotlightlist[0].lightpos.x;
-	for(int i = 0; i < pointlightlist_size; i++){
+	//float trash = trashcan[0].lightpos.x;
+	for(int i = 0; i < pointlightlist_size; i++) {
 		lighting += CalcPointlight(pointlightlist[i].lightpos, pointlightlist[i].ambient, pointlightlist[i].specular, pointlightlist[i].shininess, pointlightlist[i].color, pointlightlist[i].constant, pointlightlist[i].linear, pointlightlist[i].quadratic);
 		//lighting = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
 	}
 
-	for(int i = 0; i < spotlightlist_size; i++){
-		//lighting += CalcSpotlight(spotlightlist[i].lightpos, spotlightlist[i].ambient, spotlightlist[0].specular, spotlightlist[0].shininess, spotlightlist[0].color, spotlightlist[0].constant, spotlightlist[0].linear, spotlightlist[0].quadratic, spotlightlist[0].direction, spotlightlist[0].cutOff);
-		//lighting += CalcSpotlight(spotlightlist[i].lightpos, spotlightlist[i].ambient, spotlightlist[i].specular, spotlightlist[i].shininess, spotlightlist[i].color, spotlightlist[i].constant, spotlightlist[i].linear, spotlightlist[i].quadratic, spotlightlist[i].direction, spotlightlist[i].cutOff);
+	for(int i = 0; i < spotlightlist_size; i++) {
+
+		/*
+		vec3 pos = trashcan[i].lightpos;
+		float ambient = trashcan[i].ambient;
+		float specular = trashcan[i].specular;
+		float shininess = trashcan[i].shininess;
+		vec4 color = trashcan[i].color;
+		float constant = trashcan[i].constant;
+		float linear = trashcan[i].linear;
+		float quadratic = trashcan[i].quadratic;
+		vec3 spotdirection = trashcan[i].direction;
+		float spotcutoff = trashcan[i].cutOff;
+*/
+
+
+		//lighting += CalcPointlight(trashcan[i].lightpos2, trashcan[i].ambient2, trashcan[i].specular2, trashcan[i].shininess2, trashcan[i].color2, trashcan[i].constant2, trashcan[i].linear2, trashcan[i].quadratic2);
+		//lighting += CalcSpotlight(trashcan[i].lightpos, trashcan[i].ambient, trashcan[0].specular, trashcan[0].shininess, trashcan[0].color, trashcan[0].constant, trashcan[0].linear, trashcan[0].quadratic, trashcan[0].direction, trashcan[0].cutOff);
+		//lighting += CalcSpotlight(trashcan[i].lightpos2, trashcan[i].ambient2, trashcan[i].specular2, trashcan[i].shininess2, trashcan[i].color2, trashcan[i].constant2, trashcan[i].linear2, trashcan[i].quadratic2, trashcan[i].direction2, trashcan[i].cutOff2);
+		//lighting += CalcSpotlight(pos,ambient,specular,shininess,color, constant,linear,quadratic,spotdirection,spotcutoff);
+		//lighting += CalcSpotlight(vec3(1,0,0), 1,1,1, vec4(1,2,3,4), 0,1,2, vec3(1,2,3), 0.5);
+		lighting += CalcSpotlight(
+			trashcan[i].lightpos2,
+			trashcan[i].ambient2,
+			trashcan[i].specular2,
+			trashcan[i].shininess2,
+			trashcan[i].color2,
+			trashcan[i].constant2,
+			trashcan[i].linear2,
+			trashcan[i].quadratic2,
+			trashcan[i].direction2,
+			trashcan[i].cutOff2);
+
+		//lighting = color;
+
+
 	}
 
 	if (fullbright == 1 || globalFullbright == 1)
@@ -222,6 +260,8 @@ void main(){
 	}
 
 	//lighting = flash;
+
+	//lighting = vec4(1,1,1,1)*spotlightlist_size;
 
 
 

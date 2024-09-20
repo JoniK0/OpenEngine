@@ -1,8 +1,5 @@
 package org.example.render.shader;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +51,15 @@ public abstract class Shader {
     private static int loadShader(String file, int type){
         StringBuilder shaderSource = new StringBuilder();
         try{
-            BufferedReader reader = new BufferedReader(new FileReader("res/shaders/"+file));
+            //BufferedReader reader = new BufferedReader(new FileReader("res/shaders/"+file));
+            //BufferedReader reader = new BufferedReader(new FileReader("src/main/java/resources/shaders/"+file));
+            //BufferedReader reader = new BufferedReader(new FileReader(Shader.class.getResource("../../../../shaders/"+file).getFile()));
+            //BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(Shader.class.getResourceAsStream("../../../../shaders/"+file))));
+            //BufferedReader reader = new BufferedReader(new FileReader(Shader.class.getResource("/shaders/"+file).getFile()));
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Shader.class.getResourceAsStream("/shaders/"+file)));
+
+
             System.out.println(file);
             String line;
             while((line = reader.readLine()) != null){
@@ -87,6 +92,7 @@ public abstract class Shader {
         matrix.clear();
         value.get(matrix);
         //matrix.flip();
+        //System.out.println("setUniform: "+getUniformLocation(name));
         GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
     }
 
@@ -124,37 +130,49 @@ public abstract class Shader {
     public void loadLights(LightSource list[]){
         int numLights = 0;
         int numSpotLights = 0;
-        System.out.println("loading lights");
+       // System.out.println("loading lights");
         //for(int i = 0; i < numLights; i++) {
         int i = 0;
         for(LightSource light : list){
 
             if (light instanceof Spotlight) {
-                System.out.println("spotlight "+((Spotlight) list[i]).getDirection());
+                //System.out.println("spotlight "+((Spotlight) list[i]).getDirection());
+                /*
                 System.out.println("cutoff: "+((Spotlight) list[i]).getCutoff());
-                System.out.println("numSpotLights: "+numSpotLights);
+                System.out.println("numSpotLights: " + numSpotLights);
+                System.out.println("lightcolor: "+list[i].getLightColor());
+                System.out.println("pos: " + light.getLightPosition());
+                System.out.println("direction: " + ((Spotlight) light).getDirection());
 
-                GL20.glUniform3f(getUniformLocation("spotlightlist[" + numSpotLights + "].lightpos"), light.getLightPosition().x, light.getLightPosition().y, light.getLightPosition().z);
-                //GL20.glUniform3f(getUniformLocation("spotlightlist[" + numSpotLights + "].lightpos"), 1,1, 1);
-                GL20.glUniform4f(getUniformLocation("spotlightlist[" + numSpotLights + "].color"), list[i].getLightColor().x, list[i].getLightColor().y, list[i].getLightColor().z, 1);
+                System.out.println("unilocation" + getUniformLocation("trashcan[" + numSpotLights + "].lightpos"));
+                System.out.println("unilocation1: " + getUniformLocation("trashcan[0].lightpos"));
 
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].ambient"), 0.2f);
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].specular"), 0.5f);
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].shininess"), 128f);
+                 */
 
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].constant"), 1f);
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].linear"), 0.03f);
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].quadratic"), 0.0014f);
+                GL20.glUniform3f(getUniformLocation("trashcan[" + numSpotLights + "].lightpos2"), light.getLightPosition().x, light.getLightPosition().y, light.getLightPosition().z);
+                //GL20.glUniform3f(getUniformLocation("trashcan[" + numSpotLights + "].lightpos"), 1,1, 1);
+                GL20.glUniform4f(getUniformLocation("trashcan[" + numSpotLights + "].color2"), list[i].getLightColor().x, list[i].getLightColor().y, list[i].getLightColor().z, 1);
 
-                GL20.glUniform3f(getUniformLocation("spotlightlist[" + numSpotLights + "].direction"), ((Spotlight) list[i]).getDirection().x, ((Spotlight) list[i]).getDirection().y, ((Spotlight) list[i]).getDirection().z);
-                GL20.glUniform1f(getUniformLocation("spotlightlist[" + numSpotLights + "].cutOff"), ((Spotlight) list[i]).getCutoff());
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].ambient2"), 0.2f);
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].specular2"), 0.5f);
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].shininess2"), 128f);
+
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].constant2"), 1f);
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].linear2"), 0.03f);
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].quadratic2"), 0.0014f);
+
+                GL20.glUniform3f(getUniformLocation("trashcan[" + numSpotLights + "].direction2"), ((Spotlight) list[i]).getDirection().x, ((Spotlight) list[i]).getDirection().y, ((Spotlight) list[i]).getDirection().z);
+                GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].cutOff2"), ((Spotlight) list[i]).getCutoff());
 
                 numSpotLights += 1;
             }
             else {
+
                 //System.out.println("pointlight");
                 //System.out.println("i:"+i+" pos: "+list[i].getLightPosition());
                 //System.out.println("i: "+i+" color: "+list[i].getLightColor());
+                //System.out.println("unilocation pointlight: "+getUniformLocation("pointlightlist[" + numLights + "].lightpos"));
+
                 GL20.glUniform3f(getUniformLocation("pointlightlist[" + numLights + "].lightpos"), light.getLightPosition().x, list[i].getLightPosition().y, list[i].getLightPosition().z);
                 GL20.glUniform4f(getUniformLocation("pointlightlist[" + numLights + "].color"), list[i].getLightColor().x, list[i].getLightColor().y, list[i].getLightColor().z, 1);
 
@@ -166,6 +184,8 @@ public abstract class Shader {
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].linear"), 0.03f);
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].quadratic"), 0.0014f);
 
+
+
                 numLights += 1;
                 //GL20.glUniform1i(getUniformLocation("pointlightlist_size"), numLights);
             }
@@ -175,9 +195,11 @@ public abstract class Shader {
 
         //System.out.println("i: "+i);
         //System.out.println("numlights"+numLights);
-        System.out.println("numspotlights: "+numSpotLights);
+        //System.out.println("numspotlights: "+numSpotLights);
+        //System.out.println("spotlightlist_size: " + numSpotLights);
         GL20.glUniform1i(getUniformLocation("pointlightlist_size"), numLights);
-        GL20.glUniform1i(getUniformLocation("spotlightlist_size"), numSpotLights);
+        loadInt("spotlightlist_size", numSpotLights);
+        //GL20.glUniform1i(getUniformLocation("spotlightlist_size"), numSpotLights);
 
 
 

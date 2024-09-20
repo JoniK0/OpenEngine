@@ -70,7 +70,8 @@ public class ImGuiLayer {
 
         if(texture_selection) {
             ImGui.begin("textures");
-            File Directory = new File("res/textures");
+            //File Directory = new File("src/main/java/resources/textures");
+            File Directory = new File(ImGuiLayer.class.getResource("/textures").getFile());
             File[] textures = Directory.listFiles();
 
             /*
@@ -266,12 +267,12 @@ public class ImGuiLayer {
                 normal = !normal;
             }
         if(normal){
-            Map.objects.get(10).element().setNormalMapAtInd(3, "Brickwall2_normal.jpg");
-            Map.objects.get(10).element().setNormalMapAtInd(0, "Brickwall2_normal.jpg");
+            Map.objects.get(9).element().setNormalMapAtInd(3, "Brickwall2_normal.jpg");
+            Map.objects.get(9).element().setNormalMapAtInd(0, "Brickwall2_normal.jpg");
         }
         else{
-            Map.objects.get(10).element().removeNormalMapAtInd(3);
-            Map.objects.get(10).element().removeNormalMapAtInd(0);
+            Map.objects.get(9).element().removeNormalMapAtInd(3);
+            Map.objects.get(9).element().removeNormalMapAtInd(0);
             //System.out.println("what");
         }
 

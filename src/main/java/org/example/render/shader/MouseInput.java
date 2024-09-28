@@ -2,6 +2,7 @@ package org.example.render.shader;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.Camera;
+import org.example.render.render;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
@@ -40,8 +41,9 @@ public class MouseInput {
             curPos.y = WindowManager.height/2;
 
         if(!Camera.isMouseEscape){
-            Camera.yaw += x * Sensitivity;
-            Camera.pitch += y * Sensitivity;
+            //System.out.println("input");
+            render.activeCam.yaw += x * Sensitivity;
+            render.activeCam.pitch += y * Sensitivity;
             GLFW.glfwSetCursorPos(Main.getWindowManager().getWindow(), WindowManager.width/2, WindowManager.height/2);
         }
 

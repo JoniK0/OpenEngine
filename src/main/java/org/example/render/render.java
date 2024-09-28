@@ -13,7 +13,9 @@ public class render {
 
     ShaderTextured shader = new ShaderTextured();
     Transformations transform = new Transformations();
-    Camera cam = new Camera();
+    public static Camera cam = new Camera(0, 0, -1);
+    public static Camera cam2 = new Camera(0, 0, -100);
+    public static Camera activeCam = cam2;
     WindowManager windowmanager = Main.getWindowManager();
     public static boolean globalFullbright = false;
 
@@ -24,6 +26,8 @@ public class render {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
+
+        //System.out.println(activeCam.yaw);
 
         if(ImGuiLayer.polygonmode){
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -54,8 +58,8 @@ public class render {
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
 
-        shader.loadVector("camPos", cam.m_pos);
-        shader.loadVector("camDirection", cam.m_target);
+        shader.loadVector("camPos", activeCam.m_pos);
+        shader.loadVector("camDirection", activeCam.m_target);
 
         //System.out.println("target: " + cam.m_target);
         //System.out.println("pos" + cam.m_pos);
@@ -75,7 +79,7 @@ public class render {
         shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
         //shader.setUniform("CameraTransform", transform.getCameraTransformation());
 
-        shader.setUniform("CameraTransform", cam.getMatrix());
+        shader.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
 
 
 
@@ -143,6 +147,6 @@ public class render {
     }
 
     public void input(){
-        cam.keyListener();
+        activeCam.keyListener();
     }
 }

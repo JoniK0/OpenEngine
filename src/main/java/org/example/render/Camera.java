@@ -25,19 +25,23 @@ public class Camera {
     private final Vector3f m_up;
     public Vector3f m_target;
     private final WindowManager windowmanager;
-    public static float yaw = 90;
-    public static float pitch = 0;
+    public float yaw = 90;
+    public float pitch = 0;
     public static boolean isMouseEscape = false;
     public ObjectLoader objectLoader = new ObjectLoader();
-    public MouseInput mouseInput = new MouseInput();
+    public static MouseInput mouseInput = new MouseInput();
     private static boolean clicked = false;
 
 
 
-    public Camera(){
-        m_pos = new Vector3f(0.0f, 0.0f, 1.0f);
-        m_up = new Vector3f(0.0f, 1.0f, 0.0f);
-        m_target = new Vector3f(0.0f, 0.0f, 1.0f);
+    public Camera(float x, float y, float z){
+        this.m_pos = new Vector3f(x, y, z);
+        this.m_up = new Vector3f(0.0f, 1.0f, 0.0f);
+        this.m_target = new Vector3f(0.0f, 0.0f, 1.0f);
+
+        this.yaw = 90;
+        this.pitch = 0;
+
         this.windowmanager = Main.getWindowManager();
         mouseInput.init();
     }
@@ -85,7 +89,7 @@ public class Camera {
 
 
     public Matrix4f getMatrix(){
-        return CameraTransformation(m_pos,m_target,m_up);
+        return CameraTransformation(this.m_pos,this.m_target,this.m_up);
     }
 
     public void keyListener(){
@@ -98,37 +102,37 @@ public class Camera {
         if(windowmanager.isKeyClicked(GLFW_KEY_T))
         {
             Mesh def = objectLoader.createCube(1).addTexture("white.jpg");
-            Map.object cube = new Map.object("cube",def, m_pos.x-m_target.x*3, m_pos.y-m_target.y*3,m_pos.z-m_target.z*3, false, 0,0,0, 1);
+            Map.object cube = new Map.object("cube",def, this.m_pos.x-this.m_target.x*3, this.m_pos.y-this.m_target.y*3,this.m_pos.z-this.m_target.z*3, false, 0,0,0, 1);
             windowmanager.getMap().getObjects().add(cube);
             clicked = true;
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_W))//up
         {
             Vector3f Add = new Vector3f();
-            m_target.mul(-m_speed, Add);
-            m_pos.add(Add);
+            this.m_target.mul(-this.m_speed, Add);
+            this.m_pos.add(Add);
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_S)) //down
         {
             Vector3f Add = new Vector3f();
-            m_target.mul(m_speed, Add);
-            m_pos.add(Add);
+            this.m_target.mul(this.m_speed, Add);
+            this.m_pos.add(Add);
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_A))//left
         {
             Vector3f Left = new Vector3f();
-            m_target.cross(m_up, Left);
+            this.m_target.cross(this.m_up, Left);
             Left.normalize();
-            Left.mul(m_speed);
-            m_pos.add(Left);
+            Left.mul(this.m_speed);
+            this.m_pos.add(Left);
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_D))//right
         {
             Vector3f Right = new Vector3f();
-            m_up.cross(m_target, Right);
+            this.m_up.cross(m_target, Right);
             Right.normalize();
-            Right.mul(m_speed);
-            m_pos.add(Right);
+            Right.mul(this.m_speed);
+            this.m_pos.add(Right);
         }
 
         if(windowmanager.isKeyPressed(GLFW_KEY_D))
@@ -143,25 +147,25 @@ public class Camera {
             //yaw -= 3;
             TargetVectorTransformation();
         }
-        if(windowmanager.isKeyPressed(GLFW_KEY_W) && pitch > -89.9)
+        if(windowmanager.isKeyPressed(GLFW_KEY_W) && this.pitch > -89.9)
         {
             //pitch -= 3;
             TargetVectorTransformation();
         }
-        if(windowmanager.isKeyPressed(GLFW_KEY_S) && pitch < 89.9)
+        if(windowmanager.isKeyPressed(GLFW_KEY_S) && this.pitch < 89.9)
         {
             //pitch += 3;
             TargetVectorTransformation();
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_KP_ADD))
         {
-            m_speed += 0.1;
-            System.out.println("Current speed: "+m_speed);
+            this.m_speed += 0.1;
+            System.out.println("Current speed: "+this.m_speed);
         }
-        if(windowmanager.isKeyPressed(GLFW_KEY_KP_SUBTRACT) && m_speed >= 0.5)
+        if(windowmanager.isKeyPressed(GLFW_KEY_KP_SUBTRACT) && this.m_speed >= 0.5)
         {
-            m_speed -= 0.1;
-            System.out.println("Current speed: "+m_speed);
+            this.m_speed -= 0.1;
+            System.out.println("Current speed: "+this.m_speed);
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_F))
         {
@@ -192,6 +196,13 @@ public class Camera {
             GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
+        if(windowmanager.isKeyPressed(GLFW_KEY_1)){
+            render.activeCam = render.cam;
+        }
+        if(windowmanager.isKeyPressed(GLFW_KEY_2)){
+            render.activeCam = render.cam2;
+        }
+
 
         /*
         if(windowmanager.isKeyClicked(GLFW_KEY_L)){
@@ -211,15 +222,15 @@ public class Camera {
 
 
         mouseInput.input();
-        TargetVectorTransformation();
+        render.activeCam.TargetVectorTransformation();
     }
 
     public void TargetVectorTransformation()
     {
-        m_target.x = Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
-        m_target.y = Math.sin(Math.toRadians(pitch));
-        m_target.z = Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch));
-        m_target.normalize();
+        this.m_target.x = Math.cos(Math.toRadians(this.yaw)) * Math.cos(Math.toRadians(this.pitch));
+        this.m_target.y = Math.sin(Math.toRadians(this.pitch));
+        this.m_target.z = Math.sin(Math.toRadians(this.yaw)) * Math.cos(Math.toRadians(this.pitch));
+        this.m_target.normalize();
     }
 
 

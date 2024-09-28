@@ -120,8 +120,8 @@ public class Map {
 
         objects.add(Spotlight);
 
-        //lights.add(source);
-        //lights.add(sourcetwo);
+        lights.add(source);
+        lights.add(sourcetwo);
         lights.add(spotlight);
     }
 

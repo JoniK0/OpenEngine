@@ -5,27 +5,96 @@ import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.Map.Map;
+import org.example.render.shader.ShaderSky;
 import org.example.render.shader.ShaderTextured;
 import org.lwjgl.opengl.*;
 import org.example.render.shader.Shader;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.IntBuffer;
 
 public class render {
 
     ShaderTextured shader = new ShaderTextured();
+    ShaderSky skyShader = new ShaderSky();
     Transformations transform = new Transformations();
     public static Camera cam = new Camera(0, 0, -1);
     public static Camera cam2 = new Camera(0, 0, -100);
-    public static Camera activeCam = cam2;
+    public static Camera activeCam = cam;
     WindowManager windowmanager = Main.getWindowManager();
     public static boolean globalFullbright = false;
 
     public void cleanup(){
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
     }
+    public void drawSkybox(Mesh Skybox, float transformX, float transformY, float transformZ, float sizeScale){
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        try(MemoryStack stack = MemoryStack.stackPush()) {
+
+            IntBuffer oldCullFaceMode = stack.mallocInt(1);
+            IntBuffer oldDepthFunc = stack.mallocInt(1);
+            GL11.glGetIntegerv(GL11.GL_CULL_FACE_MODE, oldCullFaceMode);
+            GL11.glGetIntegerv(GL11.GL_DEPTH_FUNC, oldDepthFunc);
+
+
+        //GL11.glGetIntegerv(GL11.GL_CULL_FACE_MODE, oldCullFaceMode);
+
+        GL11.glCullFace(GL11.GL_FRONT);
+        GL11.glDepthFunc(GL11.GL_LEQUAL);
+        GL11.glEnable(GL40.GL_DEPTH_CLAMP);
+
+        GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL20.GL_TEXTURE_WRAP_R, GL20.GL_CLAMP_TO_EDGE);
+
+        GL20.glDepthMask(false);
+        skyShader.start();
+
+        skyShader.setUniform("Projection", transform.getProjectionMatrix());
+        skyShader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
+        skyShader.setUniform("View", activeCam.getMatrix());
+
+        GL30.glBindVertexArray(Skybox.getVaoID());
+        GL20.glEnableVertexAttribArray(0);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL11.glBindTexture(GL20.GL_TEXTURE_CUBE_MAP, Skybox.getTexture());
+        skyShader.loadInt("skybox", 0);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, Skybox.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+        GL20.glDepthMask(true);
+
+
+        GL20.glDisableVertexAttribArray(0);
+        GL30.glBindVertexArray(0);
+
+        if(GL20.glGetError() != 0){
+            //System.out.println(GL20.glGetError());
+            //System.out.println("error");
+        }
+        GL11.glDepthFunc(oldDepthFunc.get());
+        GL11.glCullFace(oldCullFaceMode.get());
+
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        skyShader.stop();
+        GL11.glCullFace(GL11.GL_BACK);
+        GL11.glDisable(GL40.GL_DEPTH_CLAMP);
+
+    }
     public void draw(Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale){
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
+
+        GL11.glCullFace(GL11.GL_BACK);
 
         //System.out.println(activeCam.yaw);
 
@@ -47,6 +116,7 @@ public class render {
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
         GL20.glEnableVertexAttribArray(3);
+
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         //GL13.glActiveTexture(GL13.GL_TEXTURE1);
 

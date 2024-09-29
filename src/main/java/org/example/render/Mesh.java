@@ -36,6 +36,10 @@ public class Mesh {
         //this.multextures.add(Texture.loadTexture(texture));
         return this;
     }
+    public Mesh addSky(String Directory){
+        this.texture = Texture.loadCubemap(Directory);
+        return this;
+    }
     public Mesh addNormalMap(String texture){
         this.normalMap = Texture.loadTexture(texture);
         return this;

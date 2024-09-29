@@ -21,6 +21,7 @@ public class Map {
     LightSource source = new LightSource("source",12, 20, 20, 1.0f, 1.0f, 1.0f);
     LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
     Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0, -1, 0), 12.5f);
+    Mesh Sky;
 
     public void initMap() {
 
@@ -44,7 +45,10 @@ public class Map {
          */
 
 
+        String[] skytextures = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
 
+        Sky = objectLoader.createCube(500f).addSky("Sky");
+        //Mesh test = objectLoader.createCube(10);
 
 
 
@@ -107,7 +111,7 @@ public class Map {
 
 
         objects.add(secondSphere);
-        objects.add(Skybox);
+        //objects.add(Skybox);
         objects.add(Sphere);
         objects.add(Lightbulb);
         objects.add(Pointlight);
@@ -138,5 +142,6 @@ public class Map {
     public ArrayList<LightSource> getLights(){
         return lights;
     }
+    public Mesh getSky(){return Sky;}
 
 }

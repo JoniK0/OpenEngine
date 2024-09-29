@@ -206,10 +206,16 @@ public class WindowManager {
             renderer.cleanup();
 
 
+            if(map.getSky() != null){
+                //System.out.println("sky not null");
+                renderer.drawSkybox(map.getSky(), 0, 0, 0, 0);
+            }
 
             for(Map.object obj : map.getObjects()){
                 renderer.draw(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
             }
+            renderer.drawSkybox(map.getObjects().get(0).element(), 0, 0, 0, 0);
+
             //map.getObjects().removeLast();
 
 

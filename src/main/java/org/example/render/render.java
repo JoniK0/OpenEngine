@@ -124,6 +124,7 @@ public class render {
 
         //cam.keyListener();
         shader.loadLights(windowmanager.getLightSourceArray());
+        shader.loadSun(windowmanager.getSun());
 
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
@@ -136,6 +137,7 @@ public class render {
 
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);
+        shader.loadBoolean("flash", Variables.flashlight);
         //shader.loadVector("lightSource", windowmanager.getLightSource().getLightPosition());
 
         //shader.loadList("LightPositions", windowmanager.getLightSourcesPos());

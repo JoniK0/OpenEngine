@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.example.render.LightSource;
 import org.example.render.Spotlight;
+import org.example.render.Sun;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -127,6 +128,12 @@ public abstract class Shader {
         GL20.glUniform1fv(getUniformLocation(name), array);
     }
 
+    public void loadSun(Sun sun){
+        if(sun != null) {
+            GL20.glUniform3f(getUniformLocation("directSun.direction"), sun.getDirection().x, sun.getDirection().y, sun.getDirection().z);
+            GL20.glUniform4f(getUniformLocation("directSun.color"), sun.getColor().x, sun.getColor().y, sun.getColor().z, 1);
+        }
+    }
     public void loadLights(LightSource list[]){
         int numLights = 0;
         int numSpotLights = 0;

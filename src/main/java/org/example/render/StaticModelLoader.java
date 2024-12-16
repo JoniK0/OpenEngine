@@ -18,7 +18,8 @@ import static org.lwjgl.assimp.AIMaterial.*;
 
 public class StaticModelLoader {
     public static Mesh[] load(String modelDirName) throws Exception{
-        //File file = new File("src/main/java/resources/textures/models/source/"+modelDirName+"/scene.gltf");
+        //File file = new File("res/textures/models/source/"+modelDirName+"/scene.gltf");
+        //File file = new File("src/main/resources/textures/models/source/"+modelDirName+"/scene.gltf");
         //File file = new File(StaticModelLoader.class.getResource("../../../textures/models/source/"+modelDirName+"/scene.gltf").getFile());
         File file = new File(StaticModelLoader.class.getResource("/textures/models/source/"+modelDirName+"/scene.gltf").getFile());
         String filepath = file.getAbsolutePath();
@@ -35,9 +36,9 @@ public class StaticModelLoader {
     }
 
     public static Mesh[] load(ByteBuffer buffer, String resourcePath, String modelDirName, int flags) throws Exception{
-        //AIScene aiScene = aiImportFile(resourcePath, flags);
+        AIScene aiScene = aiImportFile(resourcePath, flags);
 
-        AIScene aiScene = aiImportFileFromMemory(buffer, flags, "gltf");
+        //AIScene aiScene = aiImportFileFromMemory(buffer, flags, "gltf");
 
 
 
@@ -52,10 +53,11 @@ public class StaticModelLoader {
         PointerBuffer aiMaterials = aiScene.mMaterials();
         System.out.println("aiMaterial pointer: "+aiMaterials.get(0));
         List<String> textures = new ArrayList<>();
+        List<String> normals = new ArrayList<>();
         for(int i = 0; i < numMaterials; i++){
             AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
             System.out.println("aiMaterial.create:  "+aiMaterial);
-            processMaterial(aiMaterial, textures, modelDirName);
+            processMaterial(aiMaterial, textures, modelDirName, normals);
         }
         //
 
@@ -68,7 +70,7 @@ public class StaticModelLoader {
 
         for(int i = 0; i < numMeshes; i++){
             AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-            Mesh mesh = processMeshes(aiMesh, textures, modelDirName);
+            Mesh mesh = processMeshes(aiMesh, textures, modelDirName, normals);
             meshes[i] = mesh;
             System.out.println("meshes loaded: "+i);
         }
@@ -82,7 +84,7 @@ public class StaticModelLoader {
 
 
 
-    private static void processMaterial(AIMaterial aiMaterial, List<String> textures, String textureDir){
+    private static void processMaterial(AIMaterial aiMaterial, List<String> textures, String textureDir, List<String> normals){
 
         AIString path = AIString.calloc();
         Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_BASE_COLOR, 0, path, (IntBuffer) null, null, null, null, null, null);
@@ -95,13 +97,20 @@ public class StaticModelLoader {
             System.out.println("texture: "+texture);
             textures.add(texture);
         }
+        Assimp.aiGetMaterialTexture(aiMaterial, aiTextureType_NORMALS, 0, path, (IntBuffer) null, null, null, null, null, null);
+        textPath = path.dataString();
+        if(textPath != null && textPath.length() > 0){
+            File norm = new File(textPath);
+            String normal = norm.getName();
+            normals.add(normal);
+        }
         //textures.add(textPath);
         System.out.println("textpath: "+textPath);
         System.out.println("test: ");
 
     }
 
-    private static Mesh processMeshes(AIMesh aiMesh, List<String> textures, String modelDirName){
+    private static Mesh processMeshes(AIMesh aiMesh, List<String> textures, String modelDirName, List<String> norms){
 
         List<Float> vertices = new ArrayList<>();
         List<Float> texture = new ArrayList<>();
@@ -133,17 +142,22 @@ public class StaticModelLoader {
         Mesh mesh = MeshLoader.createMesh(Vertices, Texture, Indices, Normals, texUnit, Tan, Bitan);
 
         String tex;
+        String normal;
         int materialIdx = aiMesh.mMaterialIndex();
         if( materialIdx >= 0 && materialIdx < textures.size()){
             tex = textures.get(materialIdx);
+            normal = norms.get(materialIdx);
         }
         else{
             tex = "white.jpg";
+            normal = "";
         }
 
         //mesh.addTexture(tex);
         //mesh.addTexture(tex, "src/main/java/resources/textures/models/source/"+modelDirName+"/textures");
         mesh.addTexture(tex, "/textures/models/source/"+modelDirName+"/textures");
+        mesh.addNormal(normal, "/textures/models/source/"+modelDirName+"/textures");
+        //mesh.addNormal()
 
 
         return mesh;

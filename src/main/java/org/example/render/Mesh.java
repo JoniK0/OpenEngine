@@ -97,6 +97,12 @@ public class Mesh {
         return this;
     }
 
+    public Mesh addNormal(String normal, String path){
+        this.normalMaps.set(0, Texture.loadTextureAbsolutePath(normal, path));
+        this.normalMap = Texture.loadTextureAbsolutePath(normal, path);
+        return this;
+    }
+
     public int getTexture(){
         return this.texture;
     }

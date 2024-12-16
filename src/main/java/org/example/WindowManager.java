@@ -48,9 +48,10 @@ import static org.lwjgl.nuklear.Nuklear.*;
 
 public class WindowManager {
 
+    Font font = new Font();
     private long window;
-    public static int width = 900;
-    public static int height = 600;
+    public static int width = 1300;
+    public static int height = 900;
     public static double FPS = 1000;
     public render renderer;
     public LightSource source;
@@ -75,8 +76,9 @@ public class WindowManager {
 
 
 
-    public void run(){
+    public void run() {
         init();
+        //font.initFont();
         map.initMap();
         initImGui();
         loop();
@@ -176,6 +178,8 @@ public class WindowManager {
         lightSourcesList.add(sourcetwo);
         //lightSourcesList.add(source);
 
+        //map.setSun(new Sun(0.2f, -0.5f, 0.3f, 1, 1, 1));
+
 
 
 
@@ -213,6 +217,11 @@ public class WindowManager {
 
             for(Map.object obj : map.getObjects()){
                 renderer.draw(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
+            }
+            for(Map.model mod : map.getModels()){
+                for(Mesh mesh : mod.elements()){
+                    renderer.draw(mesh, mod.x(), mod.y(), mod.z(), mod.fullbright(), mod.rotX(), mod.rotY(), mod.rotZ(), mod.sizeScale());
+                }
             }
             renderer.drawSkybox(map.getObjects().get(0).element(), 0, 0, 0, 0);
 
@@ -254,7 +263,6 @@ public class WindowManager {
             //
 
 
-
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
             //System.out.println("loop");
@@ -264,6 +272,10 @@ public class WindowManager {
 
     public long getWindow(){
         return window;
+    }
+    public long setWindow(long window){
+        this.window = window;
+        return this.window;
     }
 
 
@@ -283,6 +295,7 @@ public class WindowManager {
         }
         return list;
     }
+    public Sun getSun(){return map.getSun();}
 
     public ArrayList<Float> getLightSourceColor(){
         ArrayList list = new ArrayList<>();

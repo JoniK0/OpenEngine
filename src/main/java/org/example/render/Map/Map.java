@@ -8,11 +8,13 @@ import java.util.ArrayList;
 public class Map {
 
     public record object(String name, Mesh element, float x, float y, float z, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale){ }
+    public record model(String name, Mesh[] elements, float x, float y, float z, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale){ }
 
     ObjectLoader objectLoader = new ObjectLoader();
     MeshLoader meshLoader = new MeshLoader();
 
     public static ArrayList<object> objects = new ArrayList<object>();
+    public static ArrayList<model> models = new ArrayList<>();
     public static ArrayList<LightSource> lights = new ArrayList<>();
     public static ArrayList<Spotlight> spotlights = new ArrayList<>();
 
@@ -22,18 +24,23 @@ public class Map {
     LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
     Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0, -1, 0), 12.5f);
     Mesh Sky;
+    Sun sun;
 
     public void initMap() {
 
         Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
 
 
-        /*
+
         try {
-            Mesh[] model = StaticModelLoader.load("fire_axe");
+            Mesh[] model = StaticModelLoader.load("blacksmith");
+            Mesh[] axe = StaticModelLoader.load("fire_axe");
             int i = 0;
+            models.add(new model("blacksmith", model, 10, 1, 14, false, 0, 0, 0, 0.05f));
+            models.add(new model("fire_axe", axe, 15, 1, 14, false, 0, 0, 0, 0.05f));
             for (Mesh mesh:model){
-                objects.add(new object("fireaxe", mesh, 10, 1, 10, false, 0, 0, 0, 0.05f));
+
+                //objects.add(new object("fireaxe", mesh, 10, 1, 14, false, 0, 0, 0, 0.05f));
                 if(mesh == null){
                     System.out.println("stooopid");
                 }
@@ -42,7 +49,7 @@ public class Map {
             throw new RuntimeException(e);
         }
 
-         */
+
 
 
         String[] skytextures = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
@@ -138,10 +145,13 @@ public class Map {
     public ArrayList<object> getObjects(){
         return objects;
     }
+    public ArrayList<model> getModels(){return models;}
 
     public ArrayList<LightSource> getLights(){
         return lights;
     }
     public Mesh getSky(){return Sky;}
+    public void setSun(Sun setSun){this.sun = setSun;}
+    public Sun getSun(){return  this.sun;}
 
 }

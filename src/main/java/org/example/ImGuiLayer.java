@@ -7,6 +7,7 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.example.render.*;
 import org.example.render.Map.Map;
+import org.lwjgl.glfw.*;
 
 import java.io.File;
 import java.security.Key;
@@ -14,6 +15,9 @@ import java.util.HashMap;
 
 
 public class ImGuiLayer {
+    WindowManager windowmanager;
+    ImInt screenWidth = new ImInt(WindowManager.width);
+    ImInt screenHeight = new ImInt(WindowManager.height);
     private boolean texture_selection = false;
     private boolean normal = true;
     private boolean texture_viewer = false;
@@ -54,6 +58,7 @@ public class ImGuiLayer {
     private boolean showSourceChange = false;
     public static boolean polygonmode = false;
     public void imgui() {
+        this.windowmanager = Main.getWindowManager();
         /*
         Map.object selected = Map.objects.get(0);
         ImFloat PosX = new ImFloat(selected.x());
@@ -136,6 +141,11 @@ public class ImGuiLayer {
 
 
             ImGui.begin("objects");
+
+                ImGui.text("");
+                ImGui.text("Objects: ");
+                ImGui.text("");
+
                 for (Map.object object : Map.objects) {
                     //ImGui.text(object.name());
                     String buttonName = object.name();
@@ -164,6 +174,20 @@ public class ImGuiLayer {
                         showChange = true;
                     }
 
+                }
+
+                ImGui.text("");
+                ImGui.text("Models: ");
+                ImGui.text("");
+
+                for(Map.model mod : Map.models){
+                    String bname = mod.name();
+                    if(bname.equals("")){
+                        bname = "?";
+                    }
+                    if(ImGui.button(bname)){
+
+                    }
                 }
 
 
@@ -267,12 +291,12 @@ public class ImGuiLayer {
                 normal = !normal;
             }
         if(normal){
-            Map.objects.get(9).element().setNormalMapAtInd(3, "Brickwall2_normal.jpg");
-            Map.objects.get(9).element().setNormalMapAtInd(0, "Brickwall2_normal.jpg");
+            Map.objects.get(8).element().setNormalMapAtInd(3, "Brickwall2_normal.jpg");
+            Map.objects.get(8).element().setNormalMapAtInd(0, "Brickwall2_normal.jpg");
         }
         else{
-            Map.objects.get(9).element().removeNormalMapAtInd(3);
-            Map.objects.get(9).element().removeNormalMapAtInd(0);
+            Map.objects.get(8).element().removeNormalMapAtInd(3);
+            Map.objects.get(8).element().removeNormalMapAtInd(0);
             //System.out.println("what");
         }
 
@@ -282,10 +306,30 @@ public class ImGuiLayer {
             if (ImGui.checkbox("polygonmode", polygonmode)) {
                 polygonmode = !polygonmode;
             }
+            if(ImGui.checkbox("Flashlight", Variables.flashlight)){
+                Variables.flashlight = !Variables.flashlight;
+            }
+
 
             ImGui.inputFloat("FOV:", FOV);
             Transformations.FOV = FOV.get();
             //System.out.println("haii");
+
+            ImGui.text("Screensize");
+            ImGui.inputInt("ScreenWidth: ",screenWidth);
+            ImGui.inputInt("ScreenHeight", screenHeight);
+
+            if(ImGui.button("apply")){
+                WindowManager.width = screenWidth.get();
+                WindowManager.height = screenHeight.get();
+
+                GLFW.glfwSetWindowSize(windowmanager.getWindow(), screenWidth.get(), screenHeight.get());
+
+            }
+
+
+
+
 
             if (showText) {
                 ImGui.text("Text");

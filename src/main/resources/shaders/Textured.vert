@@ -24,19 +24,26 @@ layout (location = 10) out float[] LightCols;
 layout (location = 11) out float pass_texUnit;
 layout (location = 12) out mat3 TBN;
 
+out int Flashlight;
+
 uniform mat4 Projection;
 uniform mat4 Translation;
 uniform mat4 Rotation;
+
 uniform mat4 Final;
 uniform mat4 WorldTransform;
 uniform mat4 CameraTransform;
+
 uniform vec3 camPos;
 uniform vec3 camDirection;
 uniform int Fullbright;
+
 uniform int globalFullbright;
 uniform vec3 lightSource;
 uniform mat4 AxisRotation;
+
 uniform vec3 lightColor;
+uniform int flash;
 
 uniform float[] LightPositions;
 uniform float[] LightColors;
@@ -68,5 +75,7 @@ void main(){
 	vec3 B = normalize(vec3(model * vec4(bitangent, 0.0)));
 	vec3 N = normalize(vec3(model * vec4(normal, 0.0)));
 	TBN = mat3(T, B, N);
+
+	Flashlight = flash;
 
 }

@@ -16,6 +16,7 @@ layout (location = 10) in float[] LightCols;
 
 layout (location = 11) in float pass_texUnit;
 layout (location = 12) in mat3 TBN;
+flat in int Flashlight;
 
 out vec4 out_Color;
 out vec4 FragColor;
@@ -78,11 +79,17 @@ struct spotlight{
 	vec3 direction2;
 	float cutOff2;
 };
+struct sun{
+	vec3 direction;
+	vec4 color;
+};
 
 uniform pointlight pointlightlist[MAX_POINT_LIGHTS];
 uniform spotlight trashcan[MAX_SPOT_LIGHTS];
 uniform int pointlightlist_size;
 uniform int spotlightlist_size;
+
+uniform sun directSun;
 
 
 
@@ -194,7 +201,7 @@ vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess
 	return vec4(0,0,0,0);
 }
 
-vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
+//vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
 
 
 vec4 pointl = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
@@ -208,6 +215,10 @@ vec4 lighting = vec4(0,0,0,0);
 
 
 void main(){
+
+	lighting += CalcSun(normalize(directSun.direction), ambientStrength, directSun.color, shininess, specularStrength);
+	//lighting += CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
+
 
 	//float trash = trashcan[0].lightpos.x;
 	for(int i = 0; i < pointlightlist_size; i++) {
@@ -252,6 +263,12 @@ void main(){
 
 
 	}
+
+	if(Flashlight == 1)
+	{
+		lighting += flash;
+	}
+
 
 	if (fullbright == 1 || globalFullbright == 1)
 	{

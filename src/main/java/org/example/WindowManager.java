@@ -96,7 +96,7 @@ public class WindowManager {
 
     public void init(){
 
-        glslVersion = "#version 330";
+        glslVersion = "#version 450 core";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
         //Imgui
@@ -109,6 +109,8 @@ public class WindowManager {
         //
 
         System.out.println(GLFW.glfwGetVersionString());
+
+
 
 
         GLFWErrorCallback.createPrint(System.err).set();

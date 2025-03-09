@@ -12,6 +12,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL40;
+import org.lwjgl.opengl.GL44;
 import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryUtil;
 
@@ -24,14 +26,14 @@ public abstract class Shader {
     private FloatBuffer matrix = BufferUtils.createFloatBuffer(16);
 
     public Shader(String Vert, String Frag){
-        vertexID = loadShader(Vert,GL20.GL_VERTEX_SHADER);
-        fragmentID = loadShader(Frag,GL20.GL_FRAGMENT_SHADER);
-        programID = GL20.glCreateProgram();
-        GL20.glAttachShader(programID, vertexID);
-        GL20.glAttachShader(programID, fragmentID);
+        vertexID = loadShader(Vert,GL44.GL_VERTEX_SHADER);
+        fragmentID = loadShader(Frag,GL44.GL_FRAGMENT_SHADER);
+        programID = GL44.glCreateProgram();
+        GL44.glAttachShader(programID, vertexID);
+        GL44.glAttachShader(programID, fragmentID);
         bindAttributes();
-        GL20.glLinkProgram(programID);
-        GL20.glValidateProgram(programID);
+        GL44.glLinkProgram(programID);
+        GL44.glValidateProgram(programID);
         getAllUniformLocations();
         System.out.println("Shader initialized");
 
@@ -39,10 +41,10 @@ public abstract class Shader {
     }
 
     public void start(){
-        GL20.glUseProgram(programID);
+        GL44.glUseProgram(programID);
     }
     public void stop(){
-        GL20.glUseProgram(0);
+        GL44.glUseProgram(0);
     }
 
     protected  abstract  void bindAttributes();
@@ -72,9 +74,12 @@ public abstract class Shader {
             e.printStackTrace();
             System.exit(-1);
         }
-        int ID = GL20.glCreateShader(type);
-        GL20.glShaderSource(ID, shaderSource);
-        GL20.glCompileShader(ID);
+        int ID = GL44.glCreateShader(type);
+        GL44.glShaderSource(ID, shaderSource);
+        GL44.glCompileShader(ID);
+
+
+
         if(GL20.glGetShaderi(ID, GL20.GL_COMPILE_STATUS)==GL11.GL_FALSE){
             System.out.println(GL20.glGetShaderInfoLog(ID, 512));
             System.err.println("Couldn't compile the shader");
@@ -85,7 +90,7 @@ public abstract class Shader {
     }
 
     protected int getUniformLocation(String uniformName) {
-        return GL20.glGetUniformLocation(programID, uniformName);
+        return GL44.glGetUniformLocation(programID, uniformName);
     }
 
     public void setUniform(String name, Matrix4f value) {
@@ -94,21 +99,21 @@ public abstract class Shader {
         value.get(matrix);
         //matrix.flip();
         //System.out.println("setUniform: "+getUniformLocation(name));
-        GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
+        GL44.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
     }
 
     protected void bindAttribute(int attribute, String variableName) {
-        GL20.glBindAttribLocation(programID, attribute, variableName);
+        GL44.glBindAttribLocation(programID, attribute, variableName);
     }
 
     public void loadFloat(String name, float value){
-        GL20.glUniform1f(getUniformLocation(name), value);
+        GL44.glUniform1f(getUniformLocation(name), value);
     }
     public void loadVector(String name, Vector3f vector){
-        GL20.glUniform3f(getUniformLocation(name), vector.x, vector.y, vector.z);
+        GL44.glUniform3f(getUniformLocation(name), vector.x, vector.y, vector.z);
     }
     public void loadInt(String name, int integer){
-        GL20.glUniform1i(getUniformLocation(name), integer);
+        GL44.glUniform1i(getUniformLocation(name), integer);
     }
 
     public void loadBoolean(String name, boolean value){
@@ -117,7 +122,7 @@ public abstract class Shader {
             tovec = 1;
         }
         //GL20.glUniform1f(getUniformLocation(name), tovec);
-        GL20.glUniform1i(getUniformLocation(name), tovec);
+        GL44.glUniform1i(getUniformLocation(name), tovec);
     }
 
     public void loadList(String name, ArrayList<Float> list){
@@ -125,7 +130,7 @@ public abstract class Shader {
         for(int i = 0; i < list.size(); i++){
             array[i] = list.get(i);
         }
-        GL20.glUniform1fv(getUniformLocation(name), array);
+        GL44.glUniform1fv(getUniformLocation(name), array);
     }
 
     public void loadSun(Sun sun){

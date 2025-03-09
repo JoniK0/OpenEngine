@@ -90,7 +90,7 @@ public class ImGuiLayer {
 
             //System.out.println("doggo");
             for (File texture : textures) {
-                if (!texture.getName().equals("models")) {
+                if (!texture.getName().equals("models") && !texture.getName().equals("Sky")) {
                     id = Texture.loadTexture(texture.getName());
                     if (ImGui.imageButton(id, 60, 60)) {
                         selected_texture = texture.getName();
@@ -126,7 +126,7 @@ public class ImGuiLayer {
             //System.out.println("doggo");
 
             float[] test = new float[72];
-           MeshLoader.subData(selected.element(), 2, ObjectLoader.offsetUVs(selected.element().getUvs(), uOffset.get(), vOffset.get(), texRot.get(), texScale.get()));
+           //MeshLoader.subData(selected.element(), 2, ObjectLoader.offsetUVs(selected.element().getUvs(), uOffset.get(), vOffset.get(), texRot.get(), texScale.get()));
             //MeshLoader.subData(selected.element(), 1, test);
 
             if(ImGui.button("texture")){

@@ -68,7 +68,7 @@ public class Map {
         Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
         Mesh spotlightmesh = objectLoader.Sphere(0.5f, 30, 30).addTexture("orange.png");
 
-        Mesh multiCube = objectLoader.createCubeMulTex(5, 0f, 1f,2f,3f,4f,5f).setMulTextures(new String[]{"white.jpg", "ctexture.png", "orange.png", "texture.png", "Brickwall.jpg", "Stonewall.jpg"});//.addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
+        Mesh multiCube = objectLoader.createCubeMulTex(5, 0, 1,2,3,4,5).setMulTextures(new String[]{"white.jpg", "ctexture.png", "orange.png", "texture.png", "Brickwall.jpg", "Stonewall.jpg"});//.addMulTextures("white.jpg").addMulTextures("ctexture.png").addMulTextures("orange.png").addMulTextures("texture.png");
         multiCube.setMulTextureAtInd(0, "Stonewall.jpg");
 
         Mesh quad = objectLoader.createQuad(150, 150, 1, 7).setMulTextures(new String[]{"planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg"});

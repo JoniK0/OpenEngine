@@ -49,7 +49,7 @@ void main(){
 	FragPos = vec3(WorldTransform * AxisRotation * vec4(position.x, position.y, position.z, 1.0));
 
 	pass_uvs = uvs;
-	vec4 norm = AxisRotation * vec4(normal.x, normal.y, normal.z, 1);
+	vec4 norm = vec4(AxisRotation * vec4(normal.x, normal.y, normal.z, 1));
 	Normals = vec3(norm.x, norm.y, norm.z);
 	campos = camPos;
 	fullbright = Fullbright;

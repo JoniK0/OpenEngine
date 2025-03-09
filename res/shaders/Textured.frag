@@ -181,14 +181,14 @@ vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess
 
 	if(theta > spot.cutOff2)
 	{
-		vec4 spotlight = Phong(spotlightdirection, ambient, color, shininess, specular);
-		spotlight *= flashlightintensity;
-		return spotlight;
+		vec4 Spotlight = Phong(spotlightdirection, ambient, color, shininess, specular);
+		Spotlight = Spotlight * flashlightintensity;
+		return Spotlight;
 	}
 	else
 	{
-		vec4 spotlight = vec4(0,0,0,0);
-		return spotlight;
+		vec4 Spotlight = vec4(0,0,0,0);
+		return Spotlight;
 	}
 
 	return vec4(0,0,0,0);

@@ -138,6 +138,12 @@ public class Texture {
                 GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+
+                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
+                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
+                //GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 3);
+
+                //GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
                 STBImage.stbi_image_free(buffer);
                 System.out.println("Texture initialized " + id);
                 return id;

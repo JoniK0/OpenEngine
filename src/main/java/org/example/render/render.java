@@ -94,6 +94,8 @@ public class render {
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
 
+        GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
+
         GL11.glCullFace(GL11.GL_BACK);
 
         //System.out.println(activeCam.yaw);
@@ -105,9 +107,11 @@ public class render {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
+
+        GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
+        GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
+        //GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 3);
 
         shader.start();
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -175,14 +179,23 @@ public class render {
             for(int i=0; i<mesh.getMultextures().size(); i++){
 
                 //System.out.println("size:"+mesh.getMultextures().size());
+                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
                 GL13.glActiveTexture(GL13.GL_TEXTURE0+i);
+
+                GL13.glEnable(GL11.GL_TEXTURE_2D);
+
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
+
+                GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
+                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
+                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
             }
 
             for(int i = 0; i <= 5; i++){
                 shader.loadInt("normalMaps["+Integer.toString(i)+"]", i+6);
             }
             for(int i=0; i<mesh.getNormalMaps().size(); i++){
+                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
                 GL13.glActiveTexture(GL13.GL_TEXTURE0+6+i);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
 
@@ -191,6 +204,9 @@ public class render {
             }
 
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+            if(GL20.glGetError() != 0){
+                System.out.println(GL20.glGetError());
+            }
 
         }
         else{
@@ -209,9 +225,17 @@ public class render {
         //GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
         /////
 
+
         if(GL20.glGetError() != 0){
             System.out.println(GL20.glGetError());
         }
+
+
+
+        //System.out.println(GL20.glGetError());
+
+        GL40.glGetString(GL40.GL_VERSION);
+
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);

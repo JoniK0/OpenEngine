@@ -7,6 +7,7 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.example.render.*;
 import org.example.render.Map.Map;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
 
 import java.io.File;
@@ -22,6 +23,7 @@ public class ImGuiLayer {
     private boolean normal = true;
     private boolean texture_viewer = false;
     private boolean showText = false;
+    private boolean create_object = false;
     Map.object selected = null;
     LightSource selected_source;
     String selected_texture;
@@ -29,6 +31,9 @@ public class ImGuiLayer {
     int lightIndex;
 
     ImFloat FOV = new ImFloat(Transformations.FOV);
+    boolean remove = false;
+
+    int removeIndex = -1;
 
     ImString name;
     ImFloat PosX;
@@ -44,6 +49,11 @@ public class ImGuiLayer {
     ImFloat ColPosY;
     ImFloat ColPosZ;
 
+    ImFloat cutOff;
+    ImFloat targetX;
+    ImFloat targetY;
+    ImFloat targetZ;
+
     ImFloat R;
     ImFloat G;
     ImFloat B;
@@ -56,9 +66,18 @@ public class ImGuiLayer {
     ImFloat texRot = new ImFloat(0);
     private boolean showChange = false;
     private boolean showSourceChange = false;
+    private boolean newSource = false;
     public static boolean polygonmode = false;
+    ObjectLoader loader = new ObjectLoader();
+    Camera selectedCam;
+    String objName = "new0";
+
+    boolean spotlightchange = false;
+
+
     public void imgui() {
         this.windowmanager = Main.getWindowManager();
+        selectedCam = render.activeCam;
         /*
         Map.object selected = Map.objects.get(0);
         ImFloat PosX = new ImFloat(selected.x());
@@ -72,6 +91,8 @@ public class ImGuiLayer {
          */
 
         ImGui.begin("DevConsole");
+
+
 
         if(texture_selection) {
             ImGui.begin("textures");
@@ -229,32 +250,156 @@ public class ImGuiLayer {
                 if(ImGui.button("done")){
                     showChange = false;
                 }
+
+
             }
+
+            ImGui.text("");
+
+        if(ImGui.button("new Object"))
+        {
+            create_object = true;
+        }
+
+        if(create_object)
+        {
+            ImGui.begin("create_object");
+
+            selectedCam = render.activeCam;
+
+            if(ImGui.button("Quad"))
+            {
+                Map.object obj = new Map.object("new", loader.createCubeMulTex(1, 0, 1, 2, 3, 4, 5).setMulTextures(new String[]{"planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg"}), selectedCam.m_pos.x-selectedCam.m_target.x*3, selectedCam.m_pos.y-selectedCam.m_target.y*3, selectedCam.m_pos.z-selectedCam.m_target.z*3, false, 0, 0, 0, 1);
+                Map.objects.add(obj);
+            }
+            if(ImGui.button("Sphere"))
+            {
+                Map.object obj = new Map.object("new", loader.Sphere(1, 30, 30).addTexture("white.jpg"), selectedCam.m_pos.x-selectedCam.m_target.x*3, selectedCam.m_pos.y-selectedCam.m_target.y*3, selectedCam.m_pos.z-selectedCam.m_target.z*3, false, 0, 0, 0, 1);
+                Map.objects.add(obj);
+            }
+
+            if(ImGui.button("done"))
+            {
+                create_object = false;
+            }
+
+            ImGui.end();
+
+        }
                 ImGui.end();
 
             ImGui.begin("lightsources");
-                for(LightSource light : Map.lights){
-                    String buttonname = light.getName();
-                    if(light.getName().equals("")){
-                        buttonname = "?";
+
+                ImGui.text("");
+                ImGui.text("Spotlights: ");
+                ImGui.text("");
+
+                for(LightSource light : Map.lights)
+                {
+                    if(light instanceof  Spotlight)
+                    {
+                        if(ImGui.button(light.getName()))
+                        {
+                            remove = true;
+                            selected_source = light;
+                            lightIndex = Map.lights.indexOf(light);
+                            System.out.println(lightIndex);
+
+                            lightName = new ImString(selected_source.getName());
+
+                            ColPosX = new ImFloat(selected_source.getLightPosition().x);
+                            ColPosY = new ImFloat(selected_source.getLightPosition().y);
+                            ColPosZ = new ImFloat(selected_source.getLightPosition().z);
+
+                            targetX = new ImFloat(((Spotlight) selected_source).getDirection().x);
+                            targetY = new ImFloat(((Spotlight) selected_source).getDirection().y);
+                            targetZ = new ImFloat(((Spotlight) selected_source).getDirection().z);
+
+                            cutOff = new ImFloat(((Spotlight) light).getCutoff());
+
+                            R = new ImFloat(selected_source.getLightColor().x);
+                            G = new ImFloat(selected_source.getLightColor().y);
+                            B = new ImFloat(selected_source.getLightColor().z);
+
+                            spotlightchange = true;
+                        }
+
+                        ImGui.sameLine();
+
+                        if(remove)
+                        {
+                            if(ImGui.button("X"))
+                            {
+                                removeIndex = lightIndex;
+                                remove = false;
+                            }
+                        }
+
+                        if(spotlightchange)
+                        {
+                            ImGui.inputText("name: ", lightName);
+
+                            ImGui.inputFloat("PosX", ColPosX);
+                            ImGui.inputFloat("PosY", ColPosY);
+                            ImGui.inputFloat("PosZ", ColPosZ);
+
+                            ImGui.inputFloat("R",R);
+                            ImGui.inputFloat("G",G);
+                            ImGui.inputFloat("B",B);
+
+                            ImGui.inputFloat("TargetX", targetX);
+                            ImGui.inputFloat("TargetY", targetY);
+                            ImGui.inputFloat("TargetZ", targetZ);
+
+                            Spotlight spot = new Spotlight(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), R.get(), G.get(), B.get(), new Vector3f(targetX.get(), targetY.get(), targetZ.get()), cutOff.get());
+                            Map.lights.set(lightIndex, spot);
+
+                            if(ImGui.button("done"))
+                            {
+                                spotlightchange = false;
+                            }
+                        }
                     }
-                    if(ImGui.button(buttonname)){
-                        selected_source = light;
-                        lightIndex = Map.lights.indexOf(light);
+                }
 
-                        lightName = new ImString(selected_source.getName());
+                if(removeIndex != -1)
+                {
+                    Map.lights.remove(removeIndex);
+                    System.out.println(removeIndex);
+                    removeIndex = -1;
+                }
 
-                        ColPosX = new ImFloat(selected_source.getLightPosition().x);
-                        ColPosY = new ImFloat(selected_source.getLightPosition().y);
-                        ColPosZ = new ImFloat(selected_source.getLightPosition().z);
 
-                        R = new ImFloat(selected_source.getLightColor().x);
-                        G = new ImFloat(selected_source.getLightColor().y);
-                        B = new ImFloat(selected_source.getLightColor().z);
+                ImGui.text("");
+
+                for(LightSource light : Map.lights){
+                    if(light instanceof Spotlight){
+
+                    }
+                    else{
+                        String buttonname = light.getName();
+                        if(light.getName().equals("")){
+                            buttonname = "?";
+                        }
+                        if(ImGui.button(buttonname)){
+                            selected_source = light;
+                            lightIndex = Map.lights.indexOf(light);
+
+                            lightName = new ImString(selected_source.getName());
+
+                            ColPosX = new ImFloat(selected_source.getLightPosition().x);
+                            ColPosY = new ImFloat(selected_source.getLightPosition().y);
+                            ColPosZ = new ImFloat(selected_source.getLightPosition().z);
+
+                            R = new ImFloat(selected_source.getLightColor().x);
+                            G = new ImFloat(selected_source.getLightColor().y);
+                            B = new ImFloat(selected_source.getLightColor().z);
 
 
 
                         showSourceChange = true;
+                        }
+
                     }
                 }
 
@@ -278,6 +423,40 @@ public class ImGuiLayer {
 
                     if(ImGui.button("done")){
                         showSourceChange = false;
+                    }
+                }
+
+                if(ImGui.button("new source"))
+                {
+                    newSource = true;
+                }
+
+                if(newSource)
+                {
+                    if(ImGui.button("Pointlight"))
+                    {
+
+                        int i = 1;
+                        Boolean nameFound = false;
+
+
+                            for(LightSource light : Map.lights)
+                            {
+                                if(light.getName() == objName)
+                                {
+                                    objName = objName.substring(0, objName.length()-1) + i;
+                                    i++;
+                                }
+                            }
+
+                        LightSource newLight = new LightSource(objName, selectedCam.m_pos.x, selectedCam.m_pos.y, selectedCam.m_pos.z, 1, 1, 1);
+                        Map.lights.add(newLight);
+                    }
+                    if(ImGui.button("Spotlight"))
+                    {
+                        Vector3f target = new Vector3f(-selectedCam.m_target.x, -selectedCam.m_target.y, -selectedCam.m_target.z);
+                        Spotlight newSpot = new Spotlight("new", selectedCam.m_pos.x, selectedCam.m_pos.y, selectedCam.m_pos.z, 1, 1, 1, target, 15);
+                        Map.lights.add(newSpot);
                     }
                 }
 

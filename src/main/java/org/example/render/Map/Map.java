@@ -18,11 +18,14 @@ public class Map {
     public static ArrayList<LightSource> lights = new ArrayList<>();
     public static ArrayList<Spotlight> spotlights = new ArrayList<>();
 
+    public static int numDirLights = 0;
+    public static int numSpotLights = 0;
+
 
     //initializes static objects
     LightSource source = new LightSource("source",12, 20, 20, 1.0f, 1.0f, 1.0f);
     LightSource sourcetwo = new LightSource("source2",0, 0, 0, 1.0f, 1.0f, 1.0f);
-    Spotlight spotlight = new Spotlight("spotlight", 10, 20, 5, 1, 1, 1, new Vector3f(0, -1, 0), 12.5f);
+    Spotlight spotlight = new Spotlight("spotlight", 30, 10, 35, 1, 1, 1, new Vector3f(-1, -1, 0), 25.5f);
     Mesh Sky;
     Sun sun;
 
@@ -146,6 +149,33 @@ public class Map {
         return objects;
     }
     public ArrayList<model> getModels(){return models;}
+
+    public int getNumDirLights(){
+        int num = 0;
+
+        for(LightSource light : Map.lights){
+            if(light instanceof Spotlight){
+                continue;
+            }
+            else{
+                num++;
+            }
+        }
+        return num;
+    }
+
+    public int getNumSpotLights(){
+        int num = 0;
+        for(LightSource light : Map.lights){
+            if(light instanceof Spotlight){
+                num++;
+            }
+            else{
+                continue;
+            }
+        }
+        return num;
+    }
 
     public ArrayList<LightSource> getLights(){
         return lights;

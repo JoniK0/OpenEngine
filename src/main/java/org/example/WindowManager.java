@@ -212,6 +212,7 @@ public class WindowManager {
             renderer.cleanup();
 
 
+
             if(map.getSky() != null){
                 //System.out.println("sky not null");
                 renderer.drawSkybox(map.getSky(), 0, 0, 0, 0);
@@ -219,13 +220,19 @@ public class WindowManager {
 
             for(Map.object obj : map.getObjects()){
                 renderer.draw(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
+                //renderer.test(obj.element(), obj.x(), obj.y(), obj.z(), obj.fullbright(), obj.rotX(), obj.rotY(), obj.rotZ(), obj.sizeScale());
             }
             for(Map.model mod : map.getModels()){
                 for(Mesh mesh : mod.elements()){
                     renderer.draw(mesh, mod.x(), mod.y(), mod.z(), mod.fullbright(), mod.rotX(), mod.rotY(), mod.rotZ(), mod.sizeScale());
                 }
             }
-            renderer.drawSkybox(map.getObjects().get(0).element(), 0, 0, 0, 0);
+            //renderer.drawSkybox(map.getObjects().get(0).element(), 0, 0, 0, 0);
+
+
+
+
+            //renderer.colorShaderFunc(map.getObjects().get(0).element());
 
             //map.getObjects().removeLast();
 

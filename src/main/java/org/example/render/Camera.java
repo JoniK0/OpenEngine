@@ -51,6 +51,8 @@ public class Camera {
         m_pos.y = y;
         m_pos.z = z;
     }
+    public Vector3f getPosition(){ return m_pos; }
+    public  Vector3f getTarget(){ return m_target; }
 
     public Matrix4f CameraTransformation(Vector3f Pos, Vector3f Target, Vector3f Up){
         //System.out.println(m_up);
@@ -99,12 +101,21 @@ public class Camera {
             Map.objects.remove(0);
             Map.objects.addFirst(obj);
         }
-        if(windowmanager.isKeyClicked(GLFW_KEY_T))
+        /*if(windowmanager.isKeyClicked(GLFW_KEY_T))
         {
             Mesh def = objectLoader.createCube(1).addTexture("white.jpg");
             Map.object cube = new Map.object("cube",def, this.m_pos.x-this.m_target.x*3, this.m_pos.y-this.m_target.y*3,this.m_pos.z-this.m_target.z*3, false, 0,0,0, 1);
             windowmanager.getMap().getObjects().add(cube);
             clicked = true;
+        }
+
+         */
+        if(windowmanager.isKeyClicked(GLFW_KEY_X))
+        {
+            LightSource light = new LightSource("source",this.m_pos.x, this.m_pos.y, this.m_pos.z, 1.0f, 1.0f, 1.0f);
+            Map.lights.add(light);
+            clicked = true;
+            System.out.println("NUMLIGHTS: "+windowmanager.getMap().getNumDirLights());
         }
         if(windowmanager.isKeyPressed(GLFW_KEY_W))//up
         {
@@ -202,6 +213,7 @@ public class Camera {
         if(windowmanager.isKeyPressed(GLFW_KEY_2)){
             render.activeCam = render.cam2;
         }
+
 
 
         /*

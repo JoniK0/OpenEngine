@@ -4,6 +4,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.example.Main;
 import org.example.render.LightSource;
 import org.example.render.Spotlight;
 import org.example.render.Sun;
@@ -62,6 +63,11 @@ public abstract class Shader {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(Shader.class.getResourceAsStream("/shaders/"+file)));
 
+            shaderSource.append("#version 450 core").append("\n");
+            shaderSource.append("#define numSpotLights " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n");
+            shaderSource.append("#define numDirLights " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
+            //shaderSource.append("#define numDirLights 2").append("\n");
+            System.out.println("NUMDIRLIGHTS: " + Main.getWindowManager().getMap().getNumDirLights());
 
             System.out.println(file);
             String line;
@@ -188,7 +194,7 @@ public abstract class Shader {
                 GL20.glUniform3f(getUniformLocation("pointlightlist[" + numLights + "].lightpos"), light.getLightPosition().x, list[i].getLightPosition().y, list[i].getLightPosition().z);
                 GL20.glUniform4f(getUniformLocation("pointlightlist[" + numLights + "].color"), list[i].getLightColor().x, list[i].getLightColor().y, list[i].getLightColor().z, 1);
 
-                GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].ambient"), 0.2f);
+                GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].ambient"), 0.02f);
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].specular"), 0.5f);
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].shininess"), 128f);
 
@@ -200,6 +206,7 @@ public abstract class Shader {
 
                 numLights += 1;
                 //GL20.glUniform1i(getUniformLocation("pointlightlist_size"), numLights);
+                //System.out.println("pointlightlistsize "+numLights);
             }
             i += 1;
 
@@ -210,10 +217,22 @@ public abstract class Shader {
         //System.out.println("numspotlights: "+numSpotLights);
         //System.out.println("spotlightlist_size: " + numSpotLights);
         GL20.glUniform1i(getUniformLocation("pointlightlist_size"), numLights);
-        loadInt("spotlightlist_size", numSpotLights);
+        //loadInt("spotlightlist_size", numSpotLights);
+
+        GL20.glUniform1f(getUniformLocation("spotlightlist_size"), numSpotLights);
+
         //GL20.glUniform1i(getUniformLocation("spotlightlist_size"), numSpotLights);
 
 
+
+    }
+
+    public void genSSBO(int ssbo){
+        ssbo = GL40.glGenBuffers();
+        GL40.glBindBuffer(GL44.GL_SHADER_STORAGE_BUFFER, ssbo);
+    }
+
+    public void bindSSBO(){
 
     }
 

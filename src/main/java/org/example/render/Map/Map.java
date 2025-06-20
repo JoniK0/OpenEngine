@@ -178,7 +178,7 @@ public class Map {
     }
 
     public ArrayList<LightSource> getLights(){
-        return lights;
+        return Map.lights;
     }
     public Mesh getSky(){return Sky;}
     public void setSun(Sun setSun){this.sun = setSun;}

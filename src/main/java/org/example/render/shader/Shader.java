@@ -66,6 +66,13 @@ public abstract class Shader {
             shaderSource.append("#version 450 core").append("\n");
             shaderSource.append("#define numSpotLights " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n");
             shaderSource.append("#define numDirLights " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
+            if(Main.getWindowManager().getMap().getNumDirLights() == 0){ shaderSource.append("#define MAX_POINT_LIGHTS 1").append("\n"); }
+            else{ shaderSource.append("#define MAX_POINT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n"); }
+
+            if(Main.getWindowManager().getMap().getNumSpotLights() == 0){ shaderSource.append("#define MAX_SPOT_LIGHTS 1").append("\n"); }
+            else{ shaderSource.append("#define MAX_SPOT_LIGHTS " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n"); }
+            //shaderSource.append("#define MAX_POINT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
+            //shaderSource.append("#define MAX_SPOT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
             //shaderSource.append("#define numDirLights 2").append("\n");
             System.out.println("NUMDIRLIGHTS: " + Main.getWindowManager().getMap().getNumDirLights());
 

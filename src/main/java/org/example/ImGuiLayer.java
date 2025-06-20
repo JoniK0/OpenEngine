@@ -7,7 +7,9 @@ import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.example.render.*;
 import org.example.render.Map.Map;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.*;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 
 public class ImGuiLayer {
     WindowManager windowmanager;
+    Transformations Transform = new Transformations();
     ImInt screenWidth = new ImInt(WindowManager.width);
     ImInt screenHeight = new ImInt(WindowManager.height);
     private boolean texture_selection = false;
@@ -24,8 +27,10 @@ public class ImGuiLayer {
     private boolean texture_viewer = false;
     private boolean showText = false;
     private boolean create_object = false;
+    private boolean colorpicker = false;
     Map.object selected = null;
     LightSource selected_source;
+    LightSource deleteSource;
     String selected_texture;
     int index;
     int lightIndex;
@@ -35,6 +40,8 @@ public class ImGuiLayer {
 
     int removeIndex = -1;
 
+    private final float[] flt = new float[1];
+
     ImString name;
     ImFloat PosX;
     ImFloat PosY;
@@ -43,6 +50,16 @@ public class ImGuiLayer {
     ImFloat RotX;
     ImFloat RotY;
     ImFloat RotZ;
+
+    private final float[] rotTargetX = new float[1];
+    private final float[] rotTargetY = new float[1];
+    private final float[] rotTargetZ = new float[1];
+
+    private final float[] Rot_X = new float[1];
+    private final float[] Rot_Y = new float[1];
+    private final float[] Rot_Z = new float[1];
+
+    private final float[] scale = new float[1];
 
     ImString lightName;
     ImFloat ColPosX;
@@ -54,9 +71,15 @@ public class ImGuiLayer {
     ImFloat targetY;
     ImFloat targetZ;
 
+    Vector3f target;
+
+    private int iterator = 0;
+
     ImFloat R;
     ImFloat G;
     ImFloat B;
+
+    private final float[] color = new float[3];
 
     ImFloat Scale;
     ImInt faceindex = new ImInt(0);
@@ -71,6 +94,7 @@ public class ImGuiLayer {
     ObjectLoader loader = new ObjectLoader();
     Camera selectedCam;
     String objName = "new0";
+    Map map;
 
     boolean spotlightchange = false;
 
@@ -78,6 +102,7 @@ public class ImGuiLayer {
     public void imgui() {
         this.windowmanager = Main.getWindowManager();
         selectedCam = render.activeCam;
+        map = windowmanager.getMap();
         /*
         Map.object selected = Map.objects.get(0);
         ImFloat PosX = new ImFloat(selected.x());
@@ -190,7 +215,12 @@ public class ImGuiLayer {
                         RotY = new ImFloat(selected.rotY());
                         RotZ = new ImFloat(selected.rotZ());
 
+                        Rot_X[0] = (float) Math.toDegrees(selected.rotX());
+                        Rot_Y[0] = (float) Math.toDegrees(selected.rotX());
+                        Rot_Z[0] = (float) Math.toDegrees(selected.rotX());
+
                         Scale = new ImFloat(selected.sizeScale());
+                        scale[0] = selected.sizeScale();
 
                         showChange = true;
                     }
@@ -234,14 +264,24 @@ public class ImGuiLayer {
 
                 //ImGui.sliderFloat("PosX", flt, -1000, 1000);
 
-                ImGui.inputFloat("RotX", RotX);
-                ImGui.inputFloat("RotY", RotY);
-                ImGui.inputFloat("RotZ", RotZ);
+                //ImGui.inputFloat("RotX", RotX);
+                //ImGui.inputFloat("RotY", RotY);
+                //ImGui.inputFloat("RotZ", RotZ);
+
+
+                //Rot_X[0] = selected.rotX();
+                ImGui.sliderFloat("RotX: ", Rot_X, 0, 360);
+                ImGui.sliderFloat("RotY: ", Rot_Y, 0, 360);
+                ImGui.sliderFloat("RotZ: ", Rot_Z, 0, 360);
+
+                //Rot_X[0] = (float) Math.toRadians(Rot_X[0]);
+
+                ImGui.sliderFloat("Scale: ", scale, Math.max(0, scale[0]-10), scale[0] + 10);
 
                 ImGui.inputFloat("Scale", Scale);
 
 
-                Map.object newObj = new Map.object(name.get(), selected.element(), PosX.get(), PosY.get(), PosZ.get(), selected.fullbright(), RotX.get(), RotY.get(), RotZ.get(), Scale.get());
+                Map.object newObj = new Map.object(name.get(), selected.element(), PosX.get(), PosY.get(), PosZ.get(), selected.fullbright(), (float) Math.toRadians(Rot_X[0]), (float) Math.toRadians(Rot_Y[0]), (float) Math.toRadians(Rot_Z[0]), scale[0]);
                 Map.objects.set(index, newObj);
 
 
@@ -298,12 +338,13 @@ public class ImGuiLayer {
                 {
                     if(light instanceof  Spotlight)
                     {
+                        iterator = Map.lights.indexOf(light);
                         if(ImGui.button(light.getName()))
                         {
                             remove = true;
                             selected_source = light;
                             lightIndex = Map.lights.indexOf(light);
-                            System.out.println(lightIndex);
+                            //System.out.println(lightIndex);
 
                             lightName = new ImString(selected_source.getName());
 
@@ -311,9 +352,12 @@ public class ImGuiLayer {
                             ColPosY = new ImFloat(selected_source.getLightPosition().y);
                             ColPosZ = new ImFloat(selected_source.getLightPosition().z);
 
+
                             targetX = new ImFloat(((Spotlight) selected_source).getDirection().x);
                             targetY = new ImFloat(((Spotlight) selected_source).getDirection().y);
                             targetZ = new ImFloat(((Spotlight) selected_source).getDirection().z);
+
+                            target = ((Spotlight) selected_source).getDirection();
 
                             cutOff = new ImFloat(((Spotlight) light).getCutoff());
 
@@ -321,55 +365,90 @@ public class ImGuiLayer {
                             G = new ImFloat(selected_source.getLightColor().y);
                             B = new ImFloat(selected_source.getLightColor().z);
 
+                            color[0] = selected_source.getLightColor().x;
+                            color[1] = selected_source.getLightColor().y;
+                            color[2] = selected_source.getLightColor().z;
+
+
                             spotlightchange = true;
                         }
 
                         ImGui.sameLine();
 
-                        if(remove)
-                        {
+
                             if(ImGui.button("X"))
                             {
-                                removeIndex = lightIndex;
+                                removeIndex = iterator;
                                 remove = false;
                             }
-                        }
 
-                        if(spotlightchange)
-                        {
-                            ImGui.inputText("name: ", lightName);
+                        ImGui.newLine();
 
-                            ImGui.inputFloat("PosX", ColPosX);
-                            ImGui.inputFloat("PosY", ColPosY);
-                            ImGui.inputFloat("PosZ", ColPosZ);
 
-                            ImGui.inputFloat("R",R);
-                            ImGui.inputFloat("G",G);
-                            ImGui.inputFloat("B",B);
 
-                            ImGui.inputFloat("TargetX", targetX);
-                            ImGui.inputFloat("TargetY", targetY);
-                            ImGui.inputFloat("TargetZ", targetZ);
-
-                            Spotlight spot = new Spotlight(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), R.get(), G.get(), B.get(), new Vector3f(targetX.get(), targetY.get(), targetZ.get()), cutOff.get());
-                            Map.lights.set(lightIndex, spot);
-
-                            if(ImGui.button("done"))
-                            {
-                                spotlightchange = false;
-                            }
                         }
                     }
-                }
+
+                    if(spotlightchange)
+                    {
+                        ImGui.inputText("name: ", lightName);
+
+                        ImGui.inputFloat("PosX", ColPosX);
+                        ImGui.inputFloat("PosY", ColPosY);
+                        ImGui.inputFloat("PosZ", ColPosZ);
+
+                        //ImGui.inputFloat("R",R);
+                        //ImGui.inputFloat("G",G);
+                        //ImGui.inputFloat("B",B);
+
+                        if(ImGui.button("Color")){
+                            colorpicker = true;
+                            //ImGui.colorPicker3("R: ", colorR);
+                        }
+
+                        if(colorpicker){
+                            ImGui.colorPicker3("Colorpicker: ", color);
+                            if(ImGui.button("done")){
+                                colorpicker = false;
+                            }
+                        }
+
+                        ImGui.inputFloat("TargetX", targetX);
+                        ImGui.inputFloat("TargetY", targetY);
+                        ImGui.inputFloat("TargetZ", targetZ);
+
+                        ImGui.sliderFloat("Rotate X: ", rotTargetX, 0, 7);
+                        ImGui.sliderFloat("Rotate Y: ", rotTargetY, 0, 7);
+                        ImGui.sliderFloat("Rotate Z: ", rotTargetZ, 0, 7);
+
+                        Vector3f testVector = Transform.rotateVector(target, rotTargetX[0], rotTargetY[0], rotTargetZ[0]);
+
+
+
+                        Spotlight spot = new Spotlight(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), color[0], color[1], color[2], testVector, cutOff.get());
+                        Map.lights.set(lightIndex, spot);
+
+                        if(ImGui.button("done"))
+                        {
+                            spotlightchange = false;
+                        }
+                    }
+
 
                 if(removeIndex != -1)
                 {
-                    Map.lights.remove(removeIndex);
+                    spotlightchange = false;
+                    //System.out.println("pre: "+ Map.lights);
+                    map.lights.remove(removeIndex);
+                    //Map.lights.remove(deleteSource);
                     System.out.println(removeIndex);
                     removeIndex = -1;
+                    //System.out.println("post: " + Map.lights);
                 }
 
 
+                ImGui.text("");
+                ImGui.text("Pointlights: ");
                 ImGui.text("");
 
                 for(LightSource light : Map.lights){
@@ -381,7 +460,9 @@ public class ImGuiLayer {
                         if(light.getName().equals("")){
                             buttonname = "?";
                         }
+                        iterator = Map.lights.indexOf(light);
                         if(ImGui.button(buttonname)){
+                            remove = true;
                             selected_source = light;
                             lightIndex = Map.lights.indexOf(light);
 
@@ -395,12 +476,28 @@ public class ImGuiLayer {
                             G = new ImFloat(selected_source.getLightColor().y);
                             B = new ImFloat(selected_source.getLightColor().z);
 
+                            color[0] = selected_source.getLightColor().x;
+                            color[1] = selected_source.getLightColor().y;
+                            color[2] = selected_source.getLightColor().z;
+
 
 
                         showSourceChange = true;
                         }
 
+                        ImGui.sameLine();
+
+                        if(ImGui.button("X"))
+                        {
+                            removeIndex = iterator;
+                            System.out.println("pressed");
+                            remove = false;
+                        }
+                        ImGui.newLine();
+
+
                     }
+
                 }
 
                 if(showSourceChange){
@@ -414,22 +511,48 @@ public class ImGuiLayer {
                     ImGui.inputFloat("PosY", ColPosY);
                     ImGui.inputFloat("PosZ", ColPosZ);
 
-                    ImGui.inputFloat("R",R);
-                    ImGui.inputFloat("G",G);
-                    ImGui.inputFloat("B",B);
+                    //ImGui.inputFloat("R",R);
+                    //ImGui.inputFloat("G",G);
+                    //ImGui.inputFloat("B",B);
 
-                    LightSource newLight = new LightSource(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), R.get(), G.get(), B.get());
+                    if(ImGui.button("Color")){
+                        colorpicker = true;
+                        //ImGui.colorPicker3("R: ", colorR);
+                    }
+
+                    if(colorpicker){
+                        ImGui.colorPicker3("R: ", color);
+                        if(ImGui.button("done")){
+                            colorpicker = false;
+                        }
+                    }
+
+                    LightSource newLight = new LightSource(lightName.get(), ColPosX.get(), ColPosY.get(), ColPosZ.get(), color[0], color[1], color[2]);
                     Map.lights.set(lightIndex, newLight);
 
                     if(ImGui.button("done")){
                         showSourceChange = false;
                     }
                 }
+                if(removeIndex != -1)
+                {
+                    showSourceChange = false;
+                    //System.out.println("pre: "+ Map.lights);
+                    map.lights.remove(removeIndex);
+                    //Map.lights.remove(deleteSource);
+                    //System.out.println(removeIndex);
+                    removeIndex = -1;
+                    //System.out.println("post: " + Map.lights);
+                }
+
+                ImGui.text("");
 
                 if(ImGui.button("new source"))
                 {
                     newSource = true;
                 }
+
+                ImGui.text("");
 
                 if(newSource)
                 {
@@ -456,7 +579,9 @@ public class ImGuiLayer {
                     {
                         Vector3f target = new Vector3f(-selectedCam.m_target.x, -selectedCam.m_target.y, -selectedCam.m_target.z);
                         Spotlight newSpot = new Spotlight("new", selectedCam.m_pos.x, selectedCam.m_pos.y, selectedCam.m_pos.z, 1, 1, 1, target, 15);
-                        Map.lights.add(newSpot);
+                        map.lights.add(newSpot);
+
+                        System.out.println("new SPOT: "+ map.lights.getLast().getName());
                     }
                 }
 
@@ -490,9 +615,13 @@ public class ImGuiLayer {
             }
 
 
-            ImGui.inputFloat("FOV:", FOV);
-            Transformations.FOV = FOV.get();
+            //ImGui.inputFloat("FOV:", FOV);
+            //Transformations.FOV = FOV.get();
             //System.out.println("haii");
+
+            flt[0] = Transformations.FOV;
+            ImGui.sliderFloat("FOV", flt, 10, 170);
+            Transformations.FOV = flt[0];
 
             ImGui.text("Screensize");
             ImGui.inputInt("ScreenWidth: ",screenWidth);

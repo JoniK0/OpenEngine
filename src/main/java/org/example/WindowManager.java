@@ -6,6 +6,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import imgui.ImFont;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.ImGuiStyle;
@@ -380,9 +381,34 @@ public class WindowManager {
 
         ImGuiStyle style = ImGui.getStyle();
 
+
         style.setWindowMinSize(160, 20);
-        style.setWindowRounding(4);
-        style.setColor(ImGuiCol.Text, 0.86f, 0.93f, 0.89f, 0.78f);
+        style.setWindowRounding(10);
+        style.setFrameRounding(2);
+        style.setColor(ImGuiCol.Text,               191, 191, 191, 255);
+        style.setColor(ImGuiCol.WindowBg,           28, 27, 27, 255);
+        style.setColor(ImGuiCol.Header,             26, 25 ,24, 255);
+        style.setColor(ImGuiCol.Button,             184, 59, 50, 255);
+        style.setColor(ImGuiCol.ButtonHovered,      128, 35, 28, 255);
+        style.setColor(ImGuiCol.ButtonActive,       128, 25, 28, 255 );
+        style.setColor(ImGuiCol.CheckMark,          184, 59, 50, 255);
+        style.setColor(ImGuiCol.SliderGrab,         184, 59, 50, 255);
+        style.setColor(ImGuiCol.SliderGrabActive,   128, 35, 28, 255);
+        style.setColor(ImGuiCol.Tab,                26, 25, 24, 255);
+        style.setColor(ImGuiCol.TabActive,          15, 15, 15, 255);
+        style.setColor(ImGuiCol.TabHovered,         46, 44, 43, 255);
+        style.setColor(ImGuiCol.TabUnfocused,       26, 25, 24, 255);
+        style.setColor(ImGuiCol.TabUnfocusedActive, 15, 15, 15, 255);
+        style.setColor(ImGuiCol.HeaderActive,       26, 25, 24, 255);
+        style.setColor(ImGuiCol.MenuBarBg,          26, 25, 24, 255);
+        style.setColor(ImGuiCol.ResizeGrip,         184, 59, 50, 255);
+        style.setColor(ImGuiCol.ResizeGripHovered,  128, 35, 28, 255);
+        style.setColor(ImGuiCol.ResizeGripActive,   128, 35, 28, 255);
+        style.setColor(ImGuiCol.FrameBg,            15, 15, 15, 255);
+        style.setColor(ImGuiCol.FrameBgHovered,     20, 20, 20, 255);
+        style.setColor(ImGuiCol.FrameBgActive,      20, 20, 20, 255);
+        style.setColor(ImGuiCol.TitleBgActive,      26, 25, 24, 255);
+
 
 
 

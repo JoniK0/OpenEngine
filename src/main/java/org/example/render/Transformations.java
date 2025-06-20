@@ -3,6 +3,7 @@ import org.example.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Math;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
@@ -109,6 +110,14 @@ Matrix4f Camera = new Matrix4f(
     public Matrix4f getCameraTransformation()
     {
         return Camera;
+    }
+
+    public Vector3f rotateVector(Vector3f vector, float rotX, float rotY, float rotZ)
+    {
+        Matrix4f transformation = RotationMatrix(rotX, rotY, rotZ);
+        Vector4f val = new Vector4f(vector, 1.0f);
+        val = val.mul(transformation);
+        return new Vector3f(val.x, val.y, val.z);
     }
 
 

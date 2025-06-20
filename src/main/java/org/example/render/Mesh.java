@@ -12,59 +12,66 @@ public class Mesh {
     private int vertices;
     private float[] uvs;
 
-    public Mesh(int vao, int vertex, float[] uvs){
+    public Mesh(int vao, int vertex, float[] uvs) {
         this.vao = vao;
         this.vertices = vertex;
         this.uvs = uvs;
-        for(int i = 0; i <= 5; i++){
+        for (int i = 0; i <= 5; i++) {
             this.multextures.add(0);
             this.normalMaps.add(0);
         }
 
     }
 
-    public int getVaoID(){
+    public int getVaoID() {
         return vao;
     }
 
-    public int getVertexCount(){
+    public int getVertexCount() {
         return vertices;
     }
 
-    public Mesh addTexture(String texture){
+    public Mesh addTexture(String texture) {
         this.texture = Texture.loadTexture(texture);
         //this.multextures.add(Texture.loadTexture(texture));
         return this;
     }
-    public Mesh addSky(String Directory){
+
+    public Mesh addSky(String Directory) {
         this.texture = Texture.loadCubemap(Directory);
         return this;
     }
-    public Mesh addNormalMap(String texture){
+
+    public Mesh addNormalMap(String texture) {
         this.normalMap = Texture.loadTexture(texture);
         return this;
     }
 
-    public boolean isMultex(){return multex;}
-    public void setMultexFalse(){this.multex = false;}
+    public boolean isMultex() {
+        return multex;
+    }
 
-    public Mesh addMulTextures(String texture){
+    public void setMultexFalse() {
+        this.multex = false;
+    }
+
+    public Mesh addMulTextures(String texture) {
         multex = true;
         this.multextures.add(Texture.loadTexture(texture));
         return this;
     }
 
-    public Mesh setMulTextures(String[] textures){
+    public Mesh setMulTextures(String[] textures) {
         this.multex = true;
         ArrayList<Integer> multex = new ArrayList<>();
-        for(int i=0; i < textures.length; i++){
+        for (int i = 0; i < textures.length; i++) {
             multex.add(Texture.loadTexture(textures[i]));
         }
         this.multextures = multex;
         return this;
     }
 
-    public Mesh setMulTextureAtInd(int index, String texture){
+    public Mesh setMulTextureAtInd(int index, String texture) {
         this.multex = true;
         this.multextures.set(index, Texture.loadTexture(texture));
         //System.out.println("setmultex");
@@ -72,46 +79,56 @@ public class Mesh {
         return this;
     }
 
-    public Mesh setNormalMaps(String[] normalmaps){
+    public Mesh setNormalMaps(String[] normalmaps) {
         ArrayList<Integer> maps = new ArrayList<>();
-        for(int i=0; i < normalmaps.length; i++){
+        for (int i = 0; i < normalmaps.length; i++) {
             maps.add(Texture.loadTexture(normalmaps[i]));
         }
         this.normalMaps = maps;
         return this;
     }
 
-    public Mesh setNormalMapAtInd(int index, String normalmap){
+    public Mesh setNormalMapAtInd(int index, String normalmap) {
         this.normalMaps.set(index, Texture.loadTexture(normalmap));
         return this;
     }
 
-    public Mesh removeNormalMapAtInd(int index){
+    public Mesh removeNormalMapAtInd(int index) {
         this.normalMaps.set(index, 0);
         return this;
     }
 
 
-    public Mesh addTexture(String texture, String path){
+    public Mesh addTexture(String texture, String path) {
         this.texture = Texture.loadTextureAbsolutePath(texture, path);
         return this;
     }
 
-    public Mesh addNormal(String normal, String path){
+    public Mesh addNormal(String normal, String path) {
         this.normalMaps.set(0, Texture.loadTextureAbsolutePath(normal, path));
         this.normalMap = Texture.loadTextureAbsolutePath(normal, path);
         return this;
     }
 
-    public int getTexture(){
+    public int getTexture() {
         return this.texture;
     }
-    public int getNormalMap(){return this.normalMap;}
-    public float[] getUvs(){return this.uvs;}
-    public ArrayList<Integer> getMultextures(){
+
+    public int getNormalMap() {
+        return this.normalMap;
+    }
+
+    public float[] getUvs() {
+        return this.uvs;
+    }
+
+    public ArrayList<Integer> getMultextures() {
         return this.multextures;
     }
-    public ArrayList<Integer> getNormalMaps(){return this.normalMaps;}
+
+    public ArrayList<Integer> getNormalMaps() {
+        return this.normalMaps;
+    }
 
 }
 

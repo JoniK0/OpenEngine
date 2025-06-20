@@ -1,4 +1,5 @@
 package org.example.render;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -19,7 +20,8 @@ public class Texture {
 
     public static HashMap<String, Integer> idMap = new HashMap<String, Integer>();
     public static String resourceName = "textures";
-    public static int loadCubemap(String Directory){
+
+    public static int loadCubemap(String Directory) {
         int id;
         int width;
         int height;
@@ -28,14 +30,14 @@ public class Texture {
 
         String[] faces = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
 
-        for(int i = 0; i < faces.length; i++){
-            try(MemoryStack stack = MemoryStack.stackPush()) {
+        for (int i = 0; i < faces.length; i++) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer w = stack.mallocInt(1);
                 IntBuffer h = stack.mallocInt(1);
                 IntBuffer channels = stack.mallocInt(1);
                 ByteBuffer buffer;
 
-                InputStream stream = Texture.class.getResourceAsStream("/textures/"+ Directory +"/"+faces[i]);
+                InputStream stream = Texture.class.getResourceAsStream("/textures/" + Directory + "/" + faces[i]);
                 byte[] streamByte = stream.readAllBytes();
                 ByteBuffer streamByteBuffer = BufferUtils.createByteBuffer(streamByte.length);
                 streamByteBuffer.put(streamByte);
@@ -43,7 +45,7 @@ public class Texture {
 
                 buffer = STBImage.stbi_load_from_memory(streamByteBuffer, w, h, channels, 4);
 
-                if(buffer == null){
+                if (buffer == null) {
                     throw new Exception("Can't load file: " + faces[i] + " " + STBImage.stbi_failure_reason());
                 }
                 width = w.get();
@@ -52,14 +54,13 @@ public class Texture {
                 GL11.glTexImage2D(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
                 GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE);
-                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL11.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE);
-                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP,GL20.GL_TEXTURE_WRAP_R, GL20.GL_CLAMP_TO_EDGE);
+                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE);
+                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE);
+                GL11.glTexParameteri(GL20.GL_TEXTURE_CUBE_MAP, GL20.GL_TEXTURE_WRAP_R, GL20.GL_CLAMP_TO_EDGE);
 
                 STBImage.stbi_image_free(buffer);
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -67,22 +68,20 @@ public class Texture {
         return id;
     }
 
-    public static int loadTexture(String texture){
+    public static int loadTexture(String texture) {
         int width;
         int height;
         ByteBuffer buffer;
 
-        try(MemoryStack stack = MemoryStack.stackPush()){
+        try (MemoryStack stack = MemoryStack.stackPush()) {
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if(idMap.containsKey(texture)){
+        if (idMap.containsKey(texture)) {
             return idMap.get(texture);
-        }
-
-        else {
+        } else {
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer w = stack.mallocInt(1);
@@ -93,27 +92,27 @@ public class Texture {
                 //File file = new File("res/textures/" + texture);
                 ClassLoader classLoader = Texture.class.getClassLoader();
                 //File file = new File(classLoader.getResource("../../../textures/"+texture).getFile());
-                File file = new File(Texture.class.getResource("/textures/"+texture).getFile());
+                File file = new File(Texture.class.getResource("/textures/" + texture).getFile());
 
-                String path = Texture.class.getResource("/textures/"+texture).getPath();
+                String path = Texture.class.getResource("/textures/" + texture).getPath();
 
 
-                InputStream stream = Texture.class.getResourceAsStream("/textures/"+texture);
+                InputStream stream = Texture.class.getResourceAsStream("/textures/" + texture);
                 byte[] streamByte = stream.readAllBytes();
                 ByteBuffer streamByteBuffer = BufferUtils.createByteBuffer(streamByte.length);
                 streamByteBuffer.put(streamByte);
                 streamByteBuffer.flip();
 
 
-
-                System.out.println("path: "+path);
+                System.out.println("path: " + path);
                 //System.out.println("test: "+test);
 
                 //File file = new File("src/main/java/resources/textures/" + texture);
-                String filepath = file.getAbsolutePath();;
+                String filepath = file.getAbsolutePath();
+                ;
 
-                System.out.println("absolutepath: "+filepath);
-                System.out.println("file: "+file.toString().replace("file:", "").replace("!", ""));
+                System.out.println("absolutepath: " + filepath);
+                System.out.println("file: " + file.toString().replace("file:", "").replace("!", ""));
 
                 //String filepath = String.valueOf(Texture.class.getResource("/textures/"+texture));
 
@@ -155,22 +154,20 @@ public class Texture {
 
     }
 
-    public static int loadTextureAbsolutePath(String texture, String path){
+    public static int loadTextureAbsolutePath(String texture, String path) {
         int width;
         int height;
         ByteBuffer buffer;
 
-        try(MemoryStack stack = MemoryStack.stackPush()){
+        try (MemoryStack stack = MemoryStack.stackPush()) {
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if(idMap.containsKey(texture)){
+        if (idMap.containsKey(texture)) {
             return idMap.get(texture);
-        }
-
-        else {
+        } else {
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer w = stack.mallocInt(1);
@@ -178,11 +175,11 @@ public class Texture {
                 IntBuffer channels = stack.mallocInt(1);
 
                 //URL url = Texture.class.getResource("res/" + resourceName);
-                File file = new File(Texture.class.getResource(path+"/"+texture).getFile());
+                File file = new File(Texture.class.getResource(path + "/" + texture).getFile());
 
                 String filepath = file.getAbsolutePath();
 
-                filepath = Texture.class.getResource(path+"/"+texture).getPath();
+                filepath = Texture.class.getResource(path + "/" + texture).getPath();
 
                 //System.out.println("filepath: "+filepath);
                 buffer = STBImage.stbi_load(filepath, w, h, channels, 4);

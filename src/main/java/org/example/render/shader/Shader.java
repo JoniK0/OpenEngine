@@ -1,4 +1,5 @@
 package org.example.render.shader;
+
 import java.io.*;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -26,9 +27,9 @@ public abstract class Shader {
 
     private FloatBuffer matrix = BufferUtils.createFloatBuffer(16);
 
-    public Shader(String Vert, String Frag){
-        vertexID = loadShader(Vert,GL44.GL_VERTEX_SHADER);
-        fragmentID = loadShader(Frag,GL44.GL_FRAGMENT_SHADER);
+    public Shader(String Vert, String Frag) {
+        vertexID = loadShader(Vert, GL44.GL_VERTEX_SHADER);
+        fragmentID = loadShader(Frag, GL44.GL_FRAGMENT_SHADER);
         programID = GL44.glCreateProgram();
         GL44.glAttachShader(programID, vertexID);
         GL44.glAttachShader(programID, fragmentID);
@@ -41,36 +42,43 @@ public abstract class Shader {
 
     }
 
-    public void start(){
+    public void start() {
         GL44.glUseProgram(programID);
     }
-    public void stop(){
+
+    public void stop() {
         GL44.glUseProgram(0);
     }
 
-    protected  abstract  void bindAttributes();
+    protected abstract void bindAttributes();
 
-    protected  abstract  void getAllUniformLocations();
+    protected abstract void getAllUniformLocations();
 
-    private static int loadShader(String file, int type){
+    private static int loadShader(String file, int type) {
         StringBuilder shaderSource = new StringBuilder();
-        try{
+        try {
             //BufferedReader reader = new BufferedReader(new FileReader("res/shaders/"+file));
             //BufferedReader reader = new BufferedReader(new FileReader("src/main/java/resources/shaders/"+file));
             //BufferedReader reader = new BufferedReader(new FileReader(Shader.class.getResource("../../../../shaders/"+file).getFile()));
             //BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(Shader.class.getResourceAsStream("../../../../shaders/"+file))));
             //BufferedReader reader = new BufferedReader(new FileReader(Shader.class.getResource("/shaders/"+file).getFile()));
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(Shader.class.getResourceAsStream("/shaders/"+file)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Shader.class.getResourceAsStream("/shaders/" + file)));
 
             shaderSource.append("#version 450 core").append("\n");
             shaderSource.append("#define numSpotLights " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n");
             shaderSource.append("#define numDirLights " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
-            if(Main.getWindowManager().getMap().getNumDirLights() == 0){ shaderSource.append("#define MAX_POINT_LIGHTS 1").append("\n"); }
-            else{ shaderSource.append("#define MAX_POINT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n"); }
+            if (Main.getWindowManager().getMap().getNumDirLights() == 0) {
+                shaderSource.append("#define MAX_POINT_LIGHTS 1").append("\n");
+            } else {
+                shaderSource.append("#define MAX_POINT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
+            }
 
-            if(Main.getWindowManager().getMap().getNumSpotLights() == 0){ shaderSource.append("#define MAX_SPOT_LIGHTS 1").append("\n"); }
-            else{ shaderSource.append("#define MAX_SPOT_LIGHTS " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n"); }
+            if (Main.getWindowManager().getMap().getNumSpotLights() == 0) {
+                shaderSource.append("#define MAX_SPOT_LIGHTS 1").append("\n");
+            } else {
+                shaderSource.append("#define MAX_SPOT_LIGHTS " + Main.getWindowManager().getMap().getNumSpotLights()).append("\n");
+            }
             //shaderSource.append("#define MAX_POINT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
             //shaderSource.append("#define MAX_SPOT_LIGHTS " + Main.getWindowManager().getMap().getNumDirLights()).append("\n");
             //shaderSource.append("#define numDirLights 2").append("\n");
@@ -78,11 +86,11 @@ public abstract class Shader {
 
             System.out.println(file);
             String line;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 shaderSource.append(line).append("\n");
             }
             reader.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Can't read file");
             e.printStackTrace();
             System.exit(-1);
@@ -92,13 +100,12 @@ public abstract class Shader {
         GL44.glCompileShader(ID);
 
 
-
-        if(GL20.glGetShaderi(ID, GL20.GL_COMPILE_STATUS)==GL11.GL_FALSE){
+        if (GL20.glGetShaderi(ID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             System.out.println(GL20.glGetShaderInfoLog(ID, 512));
             System.err.println("Couldn't compile the shader");
             System.exit(-1);
         }
-        System.out.println("Shader loaded "+ID);
+        System.out.println("Shader loaded " + ID);
         return ID;
     }
 
@@ -119,46 +126,49 @@ public abstract class Shader {
         GL44.glBindAttribLocation(programID, attribute, variableName);
     }
 
-    public void loadFloat(String name, float value){
+    public void loadFloat(String name, float value) {
         GL44.glUniform1f(getUniformLocation(name), value);
     }
-    public void loadVector(String name, Vector3f vector){
+
+    public void loadVector(String name, Vector3f vector) {
         GL44.glUniform3f(getUniformLocation(name), vector.x, vector.y, vector.z);
     }
-    public void loadInt(String name, int integer){
+
+    public void loadInt(String name, int integer) {
         GL44.glUniform1i(getUniformLocation(name), integer);
     }
 
-    public void loadBoolean(String name, boolean value){
+    public void loadBoolean(String name, boolean value) {
         int tovec = 0;
-        if(value){
+        if (value) {
             tovec = 1;
         }
         //GL20.glUniform1f(getUniformLocation(name), tovec);
         GL44.glUniform1i(getUniformLocation(name), tovec);
     }
 
-    public void loadList(String name, ArrayList<Float> list){
+    public void loadList(String name, ArrayList<Float> list) {
         float[] array = new float[list.size()];
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             array[i] = list.get(i);
         }
         GL44.glUniform1fv(getUniformLocation(name), array);
     }
 
-    public void loadSun(Sun sun){
-        if(sun != null) {
+    public void loadSun(Sun sun) {
+        if (sun != null) {
             GL20.glUniform3f(getUniformLocation("directSun.direction"), sun.getDirection().x, sun.getDirection().y, sun.getDirection().z);
             GL20.glUniform4f(getUniformLocation("directSun.color"), sun.getColor().x, sun.getColor().y, sun.getColor().z, 1);
         }
     }
-    public void loadLights(LightSource list[]){
+
+    public void loadLights(LightSource list[]) {
         int numLights = 0;
         int numSpotLights = 0;
-       // System.out.println("loading lights");
+        // System.out.println("loading lights");
         //for(int i = 0; i < numLights; i++) {
         int i = 0;
-        for(LightSource light : list){
+        for (LightSource light : list) {
 
             if (light instanceof Spotlight) {
                 //System.out.println("spotlight "+((Spotlight) list[i]).getDirection());
@@ -190,8 +200,7 @@ public abstract class Shader {
                 GL20.glUniform1f(getUniformLocation("trashcan[" + numSpotLights + "].cutOff2"), ((Spotlight) list[i]).getCutoff());
 
                 numSpotLights += 1;
-            }
-            else {
+            } else {
 
                 //System.out.println("pointlight");
                 //System.out.println("i:"+i+" pos: "+list[i].getLightPosition());
@@ -208,7 +217,6 @@ public abstract class Shader {
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].constant"), 1f);
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].linear"), 0.03f);
                 GL20.glUniform1f(getUniformLocation("pointlightlist[" + numLights + "].quadratic"), 0.0014f);
-
 
 
                 numLights += 1;
@@ -231,20 +239,19 @@ public abstract class Shader {
         //GL20.glUniform1i(getUniformLocation("spotlightlist_size"), numSpotLights);
 
 
-
     }
 
-    public void genSSBO(int ssbo){
+    public void genSSBO(int ssbo) {
         ssbo = GL40.glGenBuffers();
         GL40.glBindBuffer(GL44.GL_SHADER_STORAGE_BUFFER, ssbo);
     }
 
-    public void bindSSBO(){
+    public void bindSSBO() {
 
     }
 
 
-    protected void loadMatrix(int location, Matrix4f value){
+    protected void loadMatrix(int location, Matrix4f value) {
         value.get(matrix);
         matrix.flip();
         GL20.glUniformMatrix4fv(location, false, matrix);

@@ -17,7 +17,7 @@ public class Transformations {
     public static float FOV = 75.0f;
     float far = 1500.0f;
     float near = 0.1f;
-    float aspect = (float) WindowManager.width/WindowManager.height;
+    public static float aspect = (float) WindowManager.width/WindowManager.height;
     float tanHalfFOV = Math.tan(Math.toRadians(FOV/2.0f));
     float range = far-near;
     float d = 1/(aspect*tanHalfFOV);

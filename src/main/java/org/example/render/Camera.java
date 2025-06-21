@@ -189,13 +189,13 @@ public class Camera {
         }
         if (windowmanager.isKeyPressed(GLFW_KEY_K)) {
             isMouseEscape = false;
-            GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(windowmanager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
 
 
         if (windowmanager.isKeyPressed(GLFW_KEY_L)) {
             isMouseEscape = true;
-            GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(windowmanager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
         if (windowmanager.isKeyPressed(GLFW_KEY_1)) {

@@ -5,9 +5,11 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import imgui.type.ImString;
+
 import java.io.File;
 import java.security.Key;
 import java.util.HashMap;
+
 import org.example.render.*;
 import org.example.render.Map.Map;
 import org.joml.Matrix4f;
@@ -281,9 +283,24 @@ public class ImGuiLayer {
                     (float) Math.toRadians(Rot_Z[0]), scale[0]);
             Map.objects.set(index, newObj);
 
+            if (ImGui.button("Delete")) {
+                removeIndex = index;
+                remove = false;
+            }
+
             if (ImGui.button("done")) {
                 showChange = false;
             }
+        }
+
+        if (removeIndex != -1) {
+            showChange = false;
+            // System.out.println("pre: "+ Map.lights);
+            map.getObjects().remove(removeIndex);
+            // Map.lights.remove(deleteSource);
+            System.out.println(removeIndex);
+            removeIndex = -1;
+            // System.out.println("post: " + Map.lights);
         }
 
         ImGui.text("");
@@ -300,7 +317,7 @@ public class ImGuiLayer {
             if (ImGui.button("Quad")) {
                 Map.object obj = new Map.object("new",
                         loader.createCubeMulTex(1, 0, 1, 2, 3, 4, 5)
-                                .setMulTextures(new String[] {"planks.jpg", "planks.jpg",
+                                .setMulTextures(new String[]{"planks.jpg", "planks.jpg",
                                         "planks.jpg", "planks.jpg", "planks.jpg", "planks.jpg"}),
                         selectedCam.m_pos.x - selectedCam.m_target.x * 3,
                         selectedCam.m_pos.y - selectedCam.m_target.y * 3,
@@ -364,14 +381,9 @@ public class ImGuiLayer {
                     color[2] = selected_source.getLightColor().z;
 
                     spotlightchange = true;
+                    showSourceChange = false;
                 }
 
-                ImGui.sameLine();
-
-                if (ImGui.button("X")) {
-                    removeIndex = iterator;
-                    remove = false;
-                }
 
                 ImGui.newLine();
             }
@@ -415,6 +427,12 @@ public class ImGuiLayer {
                     ColPosY.get(), ColPosZ.get(), color[0], color[1], color[2],
                     testVector, cutOff.get());
             Map.lights.set(lightIndex, spot);
+
+            if (ImGui.button("Delete")) {
+                removeIndex = iterator;
+                remove = false;
+            }
+
 
             if (ImGui.button("done")) {
                 spotlightchange = false;
@@ -463,15 +481,11 @@ public class ImGuiLayer {
                     color[2] = selected_source.getLightColor().z;
 
                     showSourceChange = true;
+                    spotlightchange = false;
                 }
 
                 ImGui.sameLine();
 
-                if (ImGui.button("X")) {
-                    removeIndex = iterator;
-                    System.out.println("pressed");
-                    remove = false;
-                }
                 ImGui.newLine();
             }
         }
@@ -506,6 +520,11 @@ public class ImGuiLayer {
             LightSource newLight = new LightSource(lightName.get(), ColPosX.get(),
                     ColPosY.get(), ColPosZ.get(), color[0], color[1], color[2]);
             Map.lights.set(lightIndex, newLight);
+
+            if (ImGui.button("Delete")) {
+                removeIndex = iterator;
+                remove = false;
+            }
 
             if (ImGui.button("done")) {
                 showSourceChange = false;
@@ -565,6 +584,7 @@ public class ImGuiLayer {
         if (ImGui.checkbox("Normalmap", normal)) {
             normal = !normal;
         }
+        /*
         if (normal) {
             Map.objects.get(8).element().setNormalMapAtInd(
                     3, "Brickwall2_normal.jpg");
@@ -575,6 +595,8 @@ public class ImGuiLayer {
             Map.objects.get(8).element().removeNormalMapAtInd(0);
             // System.out.println("what");
         }
+
+         */
 
         if (ImGui.checkbox("Fullbright", render.globalFullbright)) {
             render.globalFullbright = !render.globalFullbright;
@@ -616,4 +638,4 @@ public class ImGuiLayer {
 
         ImGui.end();
     }
-    }
+}

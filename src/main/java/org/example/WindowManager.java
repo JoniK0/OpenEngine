@@ -69,6 +69,8 @@ public class WindowManager {
     public void run() {
         init();
         // font.initFont();
+        renderer = new render();
+        renderer.initDepthBuffer();
         map.initMap();
         initImGui();
         loop();
@@ -146,7 +148,7 @@ public class WindowManager {
         // GL.createCapabilities();
 
         // int texture = Texture.loadTexture("texture.png");
-        renderer = new render();
+        //renderer = new render();
         ObjectLoader objectLoader = new ObjectLoader();
         // source = new LightSource(20, 8, 5, 1, 1, 1);
 

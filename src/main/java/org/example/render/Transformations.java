@@ -100,6 +100,15 @@ Matrix4f Camera = new Matrix4f(
         return Projection;
     }
 
+    public Matrix4f genOrthoMatrix(float left, float right, float bottom, float top, float near, float far)
+    {
+        Matrix4f ortho = new Matrix4f(2/(right-left), 0.0f, 0.0f, -((right+left)/(right-left)),
+                0.0f, 2/(top-bottom), 0.0f, -((top+bottom)/(top-bottom)),
+                0.0f, 0.0f, -2/(far-near), -((far+near)/(far-near)),
+                0.0f, 0.0f, 0.0f, 1.0f);
+        return ortho;
+    }
+
     public Matrix4f getWorldTransformation(float TransX, float TransY, float TransZ, float Scale, float SizeScale)
     {
         Matrix4f World = ScaleMatrix(SizeScale).mul(TranslationMatrix(TransX, TransY, TransZ));

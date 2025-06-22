@@ -13,6 +13,7 @@ import java.util.HashMap;
 import org.example.render.*;
 import org.example.render.Map.Map;
 import org.joml.Matrix4f;
+import org.joml.Vector2d;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.*;
@@ -416,12 +417,12 @@ public class ImGuiLayer {
             ImGui.inputFloat("TargetY", targetY);
             ImGui.inputFloat("TargetZ", targetZ);
 
-            ImGui.sliderFloat("Rotate X: ", rotTargetX, 0, 7);
-            ImGui.sliderFloat("Rotate Y: ", rotTargetY, 0, 7);
-            ImGui.sliderFloat("Rotate Z: ", rotTargetZ, 0, 7);
+            ImGui.sliderFloat("Rotate X: ", rotTargetX, 0, 360);
+            ImGui.sliderFloat("Rotate Y: ", rotTargetY, 0, 360);
+            ImGui.sliderFloat("Rotate Z: ", rotTargetZ, 0, 360);
 
             Vector3f testVector = Transform.rotateVector(
-                    target, rotTargetX[0], rotTargetY[0], rotTargetZ[0]);
+                    target, (float) Math.toRadians(rotTargetX[0]), (float) Math.toRadians(rotTargetY[0]), (float) Math.toRadians(rotTargetZ[0]));
 
             Spotlight spot = new Spotlight(lightName.get(), ColPosX.get(),
                     ColPosY.get(), ColPosZ.get(), color[0], color[1], color[2],
@@ -627,6 +628,7 @@ public class ImGuiLayer {
             GLFW.glfwSetWindowSize(
                     windowmanager.getWindow(), screenWidth.get(), screenHeight.get());
         }
+            Camera.mouseInput.prevPos = new Vector2d(WindowManager.width/2, WindowManager.height/2);
 
         if (showText) {
             ImGui.text("Text");

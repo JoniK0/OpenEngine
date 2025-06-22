@@ -1,4 +1,4 @@
-#version 450 core
+
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 uvs;
@@ -14,7 +14,7 @@ layout (location = 2) out vec3 FragPos;
 layout (location = 3) out vec3 campos;
 layout (location = 4) out int fullbright;
 layout (location = 5) out int globalFull;
-layout (location = 6) out vec3 LightSource;
+layout (location = 6) out vec4 FragPosLightSpace;
 layout (location = 7) out vec3 LightColor;
 layout (location = 8) out vec3 camDir;
 
@@ -24,19 +24,27 @@ layout (location = 10) out float[] LightCols;
 layout (location = 11) out float pass_texUnit;
 layout (location = 12) out mat3 TBN;
 
+//layout (location = 13) out int Flashlight;
+
 uniform mat4 Projection;
 uniform mat4 Translation;
 uniform mat4 Rotation;
+
 uniform mat4 Final;
 uniform mat4 WorldTransform;
 uniform mat4 CameraTransform;
+uniform mat4 lightSpaceMatrix;
+
 uniform vec3 camPos;
 uniform vec3 camDirection;
 uniform int Fullbright;
+
 uniform int globalFullbright;
 uniform vec3 lightSource;
 uniform mat4 AxisRotation;
+
 uniform vec3 lightColor;
+//uniform int flash;
 
 uniform float[] LightPositions;
 uniform float[] LightColors;
@@ -49,12 +57,12 @@ void main(){
 	FragPos = vec3(WorldTransform * AxisRotation * vec4(position.x, position.y, position.z, 1.0));
 
 	pass_uvs = uvs;
-	vec4 norm = vec4(AxisRotation * vec4(normal.x, normal.y, normal.z, 1));
-	Normals = vec3(norm.x, norm.y, norm.z);
+	//vec4 norm = vec4(AxisRotation * vec4(normal.x, normal.y, normal.z, 1.0));
+	Normals = normalize(mat3(transpose(inverse(WorldTransform * AxisRotation))) * vec3(normal.x, normal.y, normal.z));
+	//Normals = normal;
 	campos = camPos;
 	fullbright = Fullbright;
 	globalFull = globalFullbright;
-	LightSource = lightSource;
 	LightColor = lightColor;
 	camDir = -camDirection;
 
@@ -63,10 +71,14 @@ void main(){
 
 	pass_texUnit = texUnit;
 
+	FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0f);
+
 	mat4 model = WorldTransform * AxisRotation;
 	vec3 T = normalize(vec3(model * vec4(tangent, 0.0)));
 	vec3 B = normalize(vec3(model * vec4(bitangent, 0.0)));
 	vec3 N = normalize(vec3(model * vec4(normal, 0.0)));
 	TBN = mat3(T, B, N);
+
+	//Flashlight = flash;
 
 }

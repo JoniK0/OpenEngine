@@ -5,19 +5,20 @@ import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.Map.Map;
-import org.example.render.shader.ShaderColored;
-import org.example.render.shader.ShaderSky;
-import org.example.render.shader.ShaderTextured;
+import org.example.render.shader.*;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
-import org.example.render.shader.Shader;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public class render {
 
     ShaderTextured shader = new ShaderTextured();
     ShaderSky skyShader = new ShaderSky();
+    ShadowPass shadowPass = new ShadowPass();
     ShaderColored colorShader = new ShaderColored();
     Transformations transform = new Transformations();
     public static Camera cam = new Camera(0, 0, -1);
@@ -25,6 +26,9 @@ public class render {
     public static Camera activeCam = cam;
     WindowManager windowmanager = Main.getWindowManager();
     public static boolean globalFullbright = false;
+    public int depthMapFBO;
+    public int depthMap;
+    public Matrix4f lightSpaceMatrix;
 
     public int numLoadedLights = windowmanager.getMap().getLights().size();
 
@@ -98,6 +102,53 @@ public class render {
 
     }
 
+    public int genDepthFBO() {
+        //generate depthMap
+        int depthMapFBO = 0;
+        depthMapFBO = GL30.glGenFramebuffers();
+
+        //generate depthTexture
+
+        depthMap = GL30.glGenTextures();
+        GL30.glBindTexture(GL11.GL_TEXTURE_2D, depthMap);
+        GL30.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, Variables.shadowWidth, Variables.shadowHeight, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (ByteBuffer) null);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+
+        //bind Framebuffer and attach depthtexture
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
+        GL32.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL11.GL_TEXTURE_2D, depthMap, 0);
+        GL30.glDrawBuffer(0);
+        GL30.glReadBuffer(0);
+
+        if(GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE)
+        {
+            System.out.println("Framebuffer Error: "+GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER));
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+
+        return depthMapFBO;
+    }
+
+    public void configShadowPass(Matrix4f worldTransform, Matrix4f rotation)
+    {
+        Matrix4f ortho = transform.genOrthoMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+        Matrix4f lightTransform = Camera.CameraTransformation(new Vector3f(30, 10, 35), new Vector3f(-1, -1, 0), new Vector3f(0, 1, 0));
+        lightSpaceMatrix = ortho.mul(lightTransform);
+        shadowPass.start();
+        shadowPass.setUniform("lightSpaceMatrix", lightSpaceMatrix);
+        shadowPass.setUniform("model", worldTransform.mul(rotation));
+    }
+
+    public void initDepthBuffer()
+    {
+        depthMapFBO = genDepthFBO();
+    }
+
     public void draw(Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale) {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
@@ -129,6 +180,36 @@ public class render {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////
+        //ShadowPass
+
+        /*
+
+        configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
+        GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
+        GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+        GL30.glBindVertexArray(mesh.getVaoID());
+        GL20.glEnableVertexAttribArray(0);
+        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+
+
+        GL30.glBindVertexArray(0);
+        GL20.glDisableVertexAttribArray(0);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        //GL30.glDeleteFramebuffers(depthMapFBO);
+
+        shadowPass.stop();
+
+         */
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        GL11.glViewport(0, 0, WindowManager.width, WindowManager.height);
+
         //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
 
         GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
@@ -142,6 +223,7 @@ public class render {
         }
 
         shader.start();
+
 
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilMask(0xFF);
@@ -161,6 +243,7 @@ public class render {
 
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
+        //shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
 
         shader.loadVector("camPos", activeCam.m_pos);
         shader.loadVector("camDirection", activeCam.m_target);
@@ -174,6 +257,12 @@ public class render {
         //shader.setUniform("CameraTransform", transform.getCameraTransformation());
 
         shader.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
+
+
+        shader.loadInt("shadowMap", 12);
+
+
+
 
 
         if (mesh.isMultex()) {
@@ -205,6 +294,17 @@ public class render {
 
             }
 
+
+            /*
+            GL13.glActiveTexture(GL13.GL_TEXTURE12);
+            GL13.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthMap);
+            GL13.glActiveTexture(0);
+
+             */
+
+
+
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
             if (GL20.glGetError() != 0) {
@@ -215,48 +315,18 @@ public class render {
             shader.loadInt("textureSampler", 0);
             shader.loadInt("normalMap0", 6);
 
+
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
             GL13.glActiveTexture(GL13.GL_TEXTURE6);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMap());
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
+
+
         }
         GL30.glBindVertexArray(0);
 
         shader.stop();
-
-        /*
-
-        GL11.glStencilFunc(GL11.GL_NOTEQUAL, 1, 0xFF);
-        GL11.glStencilMask(0x00);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-
-        colorShader.start();
-
-        GL30.glBindVertexArray(mesh.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
-        GL20.glEnableVertexAttribArray(2);
-        GL20.glEnableVertexAttribArray(3);
-
-        colorShader.setUniform("Projection", transform.getProjectionMatrix());
-        colorShader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 1, sizeScale*0.7f));
-        colorShader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
-        colorShader.setUniform("CameraTransform", activeCam.getMatrix());
-
-        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
-        GL11.glStencilMask(0xFF);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-        colorShader.stop();
-
-        if(GL20.glGetError() != 0){
-            System.out.println(GL20.glGetError());
-        }
-
-         */
 
 
         //System.out.println(GL20.glGetError());

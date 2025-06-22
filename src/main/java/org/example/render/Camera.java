@@ -60,7 +60,7 @@ public class Camera {
         return m_target;
     }
 
-    public Matrix4f CameraTransformation(Vector3f Pos, Vector3f Target, Vector3f Up) {
+    public static Matrix4f CameraTransformation(Vector3f Pos, Vector3f Target, Vector3f Up) {
         //System.out.println(m_up);
 
         Vector3f N = new Vector3f(Target);

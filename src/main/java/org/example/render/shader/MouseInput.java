@@ -8,7 +8,7 @@ import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
 public class MouseInput {
-    private final Vector2d prevPos, curPos;
+    public Vector2d prevPos, curPos;
     private final Vector2f displVec;
     private boolean inWindow = false;
     public static float Sensitivity = 0.2f;

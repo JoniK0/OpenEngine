@@ -1,4 +1,4 @@
-#version 450 core
+
 
 layout (location = 0) in vec2 pass_uvs;
 layout (location = 1) in vec3 Normals;
@@ -6,7 +6,7 @@ layout (location = 2) in vec3 FragPos;
 layout (location = 3) in vec3 camPos;
 layout (location = 4) in flat int fullbright;
 layout (location = 5) in flat int globalFullbright;
-layout (location = 6) in vec3 lightPos;
+layout (location = 6) in vec4 FragPosLightSpace;
 layout (location = 7) in vec3 lightSourceColor;
 layout (location = 8) in vec3 camDir;
 //layout (location = 9) in mat3 TBN;
@@ -21,8 +21,8 @@ layout (location = 12) in mat3 TBN;
 out vec4 out_Color;
 out vec4 FragColor;
 
-const int MAX_POINT_LIGHTS = 2;
-const int MAX_SPOT_LIGHTS = 1000;
+//const int MAX_POINT_LIGHTS = numDirLights;
+//const int MAX_SPOT_LIGHTS = numSpotLights;
 
 #define CONST 1
 
@@ -37,6 +37,7 @@ uniform sampler2D textureSampler5;
 
 uniform sampler2D textureSamplers[6];
 uniform sampler2D normalMaps[6];
+uniform sampler2D shadowMap;
 
 /*
 uniform sampler2D normalMap0;
@@ -126,7 +127,18 @@ struct Sun{
 
 Sun sonne = Sun(vec3(-0.2f, 0.5f, -0.3f), 0.2, 0.5, 128);
 
-vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular){
+float shadowCalculation(vec4 fragPosLightSpace)
+{
+	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	float closestDepth = texture(shadowMap, projCoords.xy).r;
+	float currentDepth = projCoords.z;
+	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+	return shadow;
+}
+
+vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular, float atten){
 
 	vec3 norm = vec3(0,0,0);
 	for(int i = 0; i <=5; i++){
@@ -136,6 +148,8 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 			//if (round(vec3(texture(normalMaps[i], pass_uvs).x)) != 0.0f && round(vec3(texture(normalMaps[i], pass_uvs).y)) != 0.0f && round(vec3(texture(normalMaps[i], pass_uvs).z)) != 0.0f) {
 				norm = normalize(vec3(texture(normalMaps[i], pass_uvs).rgb)* 2.0 - 1.0);
 				norm = normalize(TBN * norm);
+
+				//norm = normalize(Normals);
 			}
 			else{
 				norm = normalize(Normals);
@@ -149,7 +163,13 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 
 	//vec3 norm = normalize(Normals);
 
-	float diff = max(dot(norm, direction), 0.0);
+	vec3 dir = normalize(direction);
+
+	vec3 null = vec3(0,1,0);
+
+	float dotprod = dot(norm, dir);
+
+	float diff = max(dotprod, 0.0f);
 	vec4 diffuse = diff * lightcolor;
 
 	vec3 viewDir = normalize(camPos - FragPos);
@@ -162,14 +182,18 @@ vec4 Phong(vec3 direction, float phongambient, vec4 lightcolor, float phongshini
 	//
 	vec4 specular = phongspecular * spec * lightcolor;
 
-	vec4 lighting = ambient+ diffuse + specular;
+	float shadow = shadowCalculation(FragPosLightSpace);
+
+	vec4 lighting = (diffuse * atten + specular * atten);
+
+	//vec4 lighting = ambient;
 
 	return lighting;
 }
 
 //calculate sun
 vec4 CalcSun(vec3 direction, float phongambient, vec4 lightcolor, float phongshininess, float phongspecular){
-	vec4 lighting = Phong(direction, phongambient, lightcolor, phongshininess, phongspecular);
+	vec4 lighting = Phong(direction, phongambient, lightcolor, phongshininess, phongspecular, 1);
 	return lighting;
 }
 //
@@ -180,11 +204,12 @@ vec4 CalcPointlight(vec3 pos, float ambient, float specular, float shininess, ve
 	float distance = length(point.lightpos - FragPos);
 	vec3 lightdirection = normalize(point.lightpos - FragPos);
 	float atten = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
-	vec4 Pointlight = Phong(lightdirection, ambient, color, shininess, specular) * atten;
+	vec4 Pointlight = Phong(lightdirection, ambient, color, shininess, specular, atten);
 	return Pointlight;
 }
 //
 
+/*
 vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess, vec4 color, float constant, float linear, float quadratic, vec3 direction, float cutoff){
 
 	vec3 spotlightdirection = normalize(position - FragPos);
@@ -229,6 +254,7 @@ vec4 CalcSpotlight(vec3 position, float ambient, float specular, float shininess
 	return Spotlight;
 	//return vec4(0,0,0,0);
 }
+*/
 
 //vec4 sun = CalcSun(vec3(-0.2f, 0.5f, -0.3), ambientStrength,vec4(1,1,1,1), shininess, specularStrength);
 
@@ -240,13 +266,21 @@ vec4 NewCalcSpotlight(spotlight spot)
 	vec3 from_light_dir = -to_light_dir;
 	float spot_alfa = dot(from_light_dir, normalize(spot.direction2));
 
+	float theta = dot(light_dir, normalize(-spot.direction2));
+	float epsilon = cos(radians(5)) - spot.cutOff2;
+
+	float intensity = clamp((spot.cutOff2 - theta) / epsilon, 0.0f, 1.0f);
+
 	vec4 color = vec4(0, 0, 0, 0);
 
 
 	if(spot_alfa > spot.cutOff2)
 	{
-		color = Phong(spot.direction2, spot.ambient2, spot.color2, spot.shininess2, spot.specular2);
-		color += (1.0 - (1.0 - spot_alfa) / (1.0 - spot.cutOff2));
+		vec3 null = vec3(0,0,0);
+		color = Phong(light_dir, spot.ambient2, spot.color2, spot.shininess2, spot.specular2, 1);
+		color *= (1.0 - (1.0 - spot_alfa) / (1.0 - spot.cutOff2));
+
+		//color *= intensity;
 	}
 
 	return color;
@@ -274,12 +308,23 @@ void main(){
 
 
 	//float trash = trashcan[0].lightpos.x;
+	float amb = 0;
 
 
-	for(int i = 0; i < pointlightlist_size; i++) {
+	for(int i = 0; i < numDirLights; i++) {
 		lighting += CalcPointlight(pointlightlist[i].lightpos, pointlightlist[i].ambient, pointlightlist[i].specular, pointlightlist[i].shininess, pointlightlist[i].color, pointlightlist[i].constant, pointlightlist[i].linear, pointlightlist[i].quadratic);
 		//lighting = CalcPointlight(lightPos, ambientStrength,specularStrength, shininess, lightcolor, 1.0f, 0.03f, 0.0014f);
+		amb = max(amb, pointlightlist[i].ambient);
 	}
+
+	lighting += amb;
+
+    for(int i = 0; i < numSpotLights; i++) {
+        spotlight element = spotlight(trashcan[i].lightpos2, 0,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,trashcan[i].direction2, cos(radians(trashcan[i].cutOff2)));
+        lighting += NewCalcSpotlight(spotlight(trashcan[i].lightpos2, 0,specularStrength,shininess,trashcan[i].color2,1.0f,0.03f,0.0014f,trashcan[i].direction2, cos(radians(trashcan[i].cutOff2))));
+    }
+
+    //spotlight el = spotlight(trashcan[0].lightpos2, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,trashcan[0].direction2, trashcan[i].cutOff2);
 
 
 
@@ -332,11 +377,15 @@ void main(){
 
 	//spotlight spot = spotlight(camPos, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,camDir, cos(radians(40.5)));
 
-	vec3 p = vec3(1, 1, 1);
-	vec3 d = vec3(0,0,1);
+	vec3 p = vec3(-1, 1, 1);
+	vec3 d = vec3(0,-1,0);
 	//spotlight spot = spotlight(p, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,d, cos(radians(40.5)));
-	spotlight spot = spotlight(camPos, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,camDir, cos(radians(40.5)));
+	spotlight spot = spotlight(camPos, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,camDir, cos(radians(40)));
 	vec4 dog = NewCalcSpotlight(spot);
+
+    spotlight testspot = spotlight(p, ambientStrength,specularStrength,shininess,lightcolora,1.0f,0.03f,0.0014f,d, cos(radians(30)));
+    vec4 car = NewCalcSpotlight(testspot);
+    //lighting += car;
 
 	//lighting += dog;
 

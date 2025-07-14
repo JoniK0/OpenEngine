@@ -120,10 +120,10 @@ public class Map {
 
         object Spotlight = new object("spotlight", spotlightmesh, spotlight.getLightPosition().x(), spotlight.getLightPosition().y(), spotlight.getLightPosition().z(), true, 0, 0, 0, 1);
 
-
         objects.add(secondSphere);
         //objects.add(Skybox);
         objects.add(Sphere);
+
         objects.add(Lightbulb);
         objects.add(Pointlight);
         objects.add(Kubus);

@@ -521,6 +521,29 @@ public class ObjectLoader {
 
     }
 
+    public Mesh screenQuad()
+    {
+        float[] vertices = {
+                -1.0f, 1.0f, 0.0f,
+                -1.0f, -1.0f, 0.0f,
+                1.0f, -1.0f, 0.0f,
+                1.0f, 1.0f, 0.0f
+        };
+        int [] indices = {
+                0, 1, 3,
+                1, 2, 3
+        };
+        float[] uvs = {
+                0, 1.0f,
+                0, 0,
+                1.0f, 0,
+                1.0f, 1.0f
+        };
+        float[] rest = {};
+        Mesh mesh = MeshLoader.createMesh(vertices,uvs, indices, rest, rest,rest, rest);
+        return mesh;
+    }
+
 
     public Mesh createQuad(float s1, float s2, float s3, float texScale) {
 

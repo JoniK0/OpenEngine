@@ -1,5 +1,6 @@
 package org.example.render;
 
+import com.google.errorprone.annotations.Var;
 import imgui.ImGui;
 import org.example.ImGuiLayer;
 import org.example.Main;
@@ -13,10 +14,12 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 public class render {
 
     ShaderTextured shader = new ShaderTextured();
+    ShaderFrameBuffer shaderFrameBuffer = new ShaderFrameBuffer();
     ShaderSky skyShader = new ShaderSky();
     ShadowPass shadowPass = new ShadowPass();
     ShaderColored colorShader = new ShaderColored();
@@ -105,7 +108,14 @@ public class render {
     public int genDepthFBO() {
         //generate depthMap
         int depthMapFBO = 0;
+        int renderBuffer = 0;
         depthMapFBO = GL30.glGenFramebuffers();
+
+        renderBuffer = GL30.glGenRenderbuffers();
+        GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, renderBuffer);
+
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_DEPTH_COMPONENT32, Variables.shadowWidth, Variables.shadowHeight);
+        GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderBuffer);
 
         //generate depthTexture
 
@@ -124,9 +134,9 @@ public class render {
         GL30.glDrawBuffer(0);
         GL30.glReadBuffer(0);
 
-        if(GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE)
+        if(GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE)
         {
-            System.out.println("Framebuffer Error: "+GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER));
+            System.out.println("Framebuffer complete: "+GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER));
         }
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
@@ -136,9 +146,11 @@ public class render {
 
     public void configShadowPass(Matrix4f worldTransform, Matrix4f rotation)
     {
-        Matrix4f ortho = transform.genOrthoMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
-        Matrix4f lightTransform = Camera.CameraTransformation(new Vector3f(30, 10, 35), new Vector3f(-1, -1, 0), new Vector3f(0, 1, 0));
-        lightSpaceMatrix = ortho.mul(lightTransform);
+        //Matrix4f ortho = transform.genOrthoMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+        Matrix4f projection = transform.getProjectionMatrix();
+        //Matrix4f lightTransform = Camera.CameraTransformation(new Vector3f(30, 10, 35), new Vector3f(-1, -1, 0), new Vector3f(0, 1, 0));
+        Matrix4f lightTransform = activeCam.getMatrix();
+        lightSpaceMatrix = projection.mul(lightTransform);
         shadowPass.start();
         shadowPass.setUniform("lightSpaceMatrix", lightSpaceMatrix);
         shadowPass.setUniform("model", worldTransform.mul(rotation));
@@ -154,6 +166,7 @@ public class render {
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
         GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         GL40.glDepthMask(true);
 
@@ -299,7 +312,7 @@ public class render {
             GL13.glActiveTexture(GL13.GL_TEXTURE12);
             GL13.glEnable(GL11.GL_TEXTURE_2D);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthMap);
-            GL13.glActiveTexture(0);
+            //GL13.glActiveTexture(0);
 
              */
 
@@ -307,6 +320,7 @@ public class render {
 
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
+            //GL13.glActiveTexture(0)
             if (GL20.glGetError() != 0) {
                 System.out.println(GL20.glGetError());
             }
@@ -395,15 +409,24 @@ public class render {
         activeCam.keyListener();
     }
 
-    public void test(Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale) {
+    public void shadowPass(ArrayList<Map.object> objects)
+    {        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //GL11.glDepthFunc(GL11.GL_LESS);
+        //GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
+        //GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        //GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-        GL40.glDepthMask(true);
+        //GL40.glDepthMask(true);
 
-        GL11.glEnable(GL11.GL_BLEND);
+        //GL11.glEnable(GL11.GL_BLEND);
+
+        //GL30.glBindVertexArray(mesh.getVaoID());
+
+        GL30.glEnableVertexAttribArray(0);
 
 
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
@@ -426,138 +449,156 @@ public class render {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
+        ////////////////////////////////////////////////////////////////////////////////////
+        //ShadowPass
 
-        GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
-        GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
-        //GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 3);
+        shadowPass.start();
+        //GL30.glBindVertexArray(mesh.getVaoID());
 
-        colorShader.start();
+        GL30.glEnableVertexAttribArray(0);
+        //configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
+        GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilMask(0xFF);
+        for(Map.object object: objects) {
 
-        //GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL30.glBindVertexArray(mesh.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
-        GL20.glEnableVertexAttribArray(2);
-        GL20.glEnableVertexAttribArray(3);
-
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-
-        shader.loadLights(windowmanager.getLightSourceArray());
-        shader.loadSun(windowmanager.getSun());
-
-        shader.setUniform("Projection", transform.getProjectionMatrix());
-        shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
-
-        shader.loadVector("camPos", activeCam.m_pos);
-        shader.loadVector("camDirection", activeCam.m_target);
-
-        shader.loadBoolean("Fullbright", fullbright);
-        shader.loadBoolean("globalFullbright", globalFullbright);
-        shader.loadBoolean("flash", Variables.flashlight);
-
-        shader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
-        shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
-        //shader.setUniform("CameraTransform", transform.getCameraTransformation());
-
-        shader.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
+            GL30.glBindVertexArray(object.element().getVaoID());
+            shadowPass.setUniform("Projection", transform.getProjectionMatrix());
+            shadowPass.setUniform("WorldTransform", transform.getWorldTransformation(object.x(), object.y(), object.z(), 0, object.sizeScale()));
 
 
-        if (mesh.isMultex()) {
+            shadowPass.setUniform("AxisRotation", transform.RotationMatrix(object.rotX(), object.rotY(), object.rotZ()));
+            //shader.setUniform("CameraTransform", transform.getCameraTransformation());
 
-            for (int i = 0; i <= 5; i++) {
-                //shader.loadInt("textureSampler"+Integer.toString(i), i);
-                shader.loadInt("textureSamplers[" + Integer.toString(i) + "]", i);
-            }
-            for (int i = 0; i < mesh.getMultextures().size(); i++) {
+            shadowPass.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
 
-                GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
 
-                GL13.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
+            //GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
+            //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
+            //GL30.glBindVertexArray(mesh.getVaoID());
+            GL20.glEnableVertexAttribArray(0);
+            GL11.glDrawElements(GL11.GL_TRIANGLES, object.element().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-                GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
-                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
-                GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
-            }
 
-            for (int i = 0; i <= 5; i++) {
-                shader.loadInt("normalMaps[" + Integer.toString(i) + "]", i + 6);
-            }
-            for (int i = 0; i < mesh.getNormalMaps().size(); i++) {
-                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
-                GL13.glActiveTexture(GL13.GL_TEXTURE0 + 6 + i);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
-
-            }
-
-            GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
-            if (GL20.glGetError() != 0) {
-                System.out.println(GL20.glGetError());
-            }
-
-        } else {
-            shader.loadInt("textureSampler", 0);
-            shader.loadInt("normalMap0", 6);
-
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
-            GL13.glActiveTexture(GL13.GL_TEXTURE6);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMap());
-            GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
+            //GL30.glBindVertexArray(0);
+            //GL20.glDisableVertexAttribArray(0);
+            //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            //GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+            //GL30.glDeleteFramebuffers(depthMapFBO);
         }
         GL30.glBindVertexArray(0);
+        GL20.glDisableVertexAttribArray(0);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
-        colorShader.stop();
+        shadowPass.stop();
 
+
+    }
+
+    public void frameBuffertest(/*Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale*/)
+    {
         /*
+        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //GL11.glDepthFunc(GL11.GL_LESS);
+        //GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        //GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL13.GL_MULTISAMPLE);
+        //GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-        GL11.glStencilFunc(GL11.GL_NOTEQUAL, 1, 0xFF);
-        GL11.glStencilMask(0x00);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        //GL40.glDepthMask(true);
 
-        colorShader.start();
+        //GL11.glEnable(GL11.GL_BLEND);
+
+        GL30.glBindVertexArray(mesh.getVaoID());
+
+        GL30.glEnableVertexAttribArray(0);
+
+
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        //GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+        //GL11.glStencilMask(0xFF);
+
+
+        //GL40.glBlendEquation(GL40.GL_FUNC_ADD);
+        //GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+
+        GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
+
+        GL11.glCullFace(GL11.GL_BACK);
+
+        //System.out.println(activeCam.yaw);
+
+        if (ImGuiLayer.polygonmode) {
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+        } else {
+            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        //ShadowPass
+
+        shadowPass.start();
+        configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
+        shadowPass.setUniform("Projection", transform.getProjectionMatrix());
+        shadowPass.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
+
+
+        shadowPass.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
+        //shader.setUniform("CameraTransform", transform.getCameraTransformation());
+
+        shadowPass.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
+
+
+        GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
+        GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
         GL30.glBindVertexArray(mesh.getVaoID());
         GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
-        GL20.glEnableVertexAttribArray(2);
-        GL20.glEnableVertexAttribArray(3);
-
-        colorShader.setUniform("Projection", transform.getProjectionMatrix());
-        colorShader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 1, sizeScale*0.7f));
-        colorShader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
-        colorShader.setUniform("CameraTransform", activeCam.getMatrix());
-
         GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-        GL11.glStencilMask(0xFF);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
 
-        colorShader.stop();
+        GL30.glBindVertexArray(0);
+        GL20.glDisableVertexAttribArray(0);
+        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        //GL30.glDeleteFramebuffers(depthMapFBO);
 
-        if(GL20.glGetError() != 0){
-            System.out.println(GL20.glGetError());
-        }
+        shadowPass.stop();
 
-         */
+        */
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        GL11.glViewport(0, 0, WindowManager.width, WindowManager.height);
+
+        GL30.glBindVertexArray(Variables.screenQuad.getVaoID());
+
+        GL30.glEnableVertexAttribArray(0);
+
+        GL30.glEnableVertexAttribArray(1);
+
+        shaderFrameBuffer.start();
+
+        shaderFrameBuffer.loadInt("textureSampler", 12);
+        GL30.glEnable(GL11.GL_TEXTURE_2D);
+        GL30.glActiveTexture(GL13.GL_TEXTURE12);
+        GL40.glBindTexture(GL13.GL_TEXTURE_2D, depthMap);
 
 
-        //System.out.println(GL20.glGetError());
+        GL11.glDrawElements(GL11.GL_TRIANGLES, Variables.screenQuad.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-        GL40.glGetString(GL40.GL_VERSION);
+        shaderFrameBuffer.stop();
 
-        GL11.glDisable(GL11.GL_BLEND);
 
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);
-        //shader.stop();
+
+
     }
 }

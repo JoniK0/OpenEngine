@@ -1,5 +1,6 @@
 package org.example;
 
+import com.google.errorprone.annotations.Var;
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
@@ -604,6 +605,9 @@ public class ImGuiLayer {
         }
         if (ImGui.checkbox("polygonmode", polygonmode)) {
             polygonmode = !polygonmode;
+        }
+        if(ImGui.checkbox("Depthmap", Variables.depthmap)){
+            Variables.depthmap = !Variables.depthmap;
         }
         if (ImGui.checkbox("Flashlight", Variables.flashlight)) {
             Variables.flashlight = !Variables.flashlight;

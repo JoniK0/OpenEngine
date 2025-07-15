@@ -1,19 +1,7 @@
 package org.example;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.nuklear.Nuklear.*;
-import static org.lwjgl.opengl.GL.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
-
-import imgui.ImFont;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.ImGuiStyle;
@@ -21,33 +9,19 @@ import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Vector;
-import javax.swing.*;
 import org.example.render.*;
 import org.example.render.Map.Map;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
-import org.lwjgl.nuklear.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.Platform;
 
 public class WindowManager {
-    Font font = new Font();
     private long window;
     public static int width = 1300;
     public static int height = 900;
     public static double FPS = 1000;
     public render renderer;
-    public LightSource source;
-    public LightSource sourcetwo;
-    public LightSource[] lightSources;
-    public ArrayList<LightSource> lightSourcesList = new ArrayList<LightSource>();
     private double TickHZ = 144;
     private static boolean clicked = false;
 
@@ -65,7 +39,6 @@ public class WindowManager {
 
     public void run() {
         init();
-        // font.initFont();
         renderer = new render();
         renderer.initDepthBuffer();
         map.initMap();
@@ -73,13 +46,6 @@ public class WindowManager {
         loop();
         destroy();
 
-    /*
-    Callbacks.glfwFreeCallbacks(window);
-    GLFW.glfwDestroyWindow(window);
-
-    GLFW.glfwTerminate();
-    GLFW.glfwSetErrorCallback(null).free();
-    */
     }
 
     public void init() {
@@ -87,16 +53,8 @@ public class WindowManager {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
         // Imgui
-    /*
-    initImGui();
-    imGuiGlfw.init(window, true);
-    imGuiGl3.init(glslVersion);
-
-     */
-        //
 
         System.out.println(GLFW.glfwGetVersionString());
-
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!GLFW.glfwInit()) {
@@ -142,28 +100,10 @@ public class WindowManager {
     }
 
     public void loop() {
-        // GL.createCapabilities();
-
-        // int texture = Texture.loadTexture("texture.png");
-        //renderer = new render();
-        ObjectLoader objectLoader = new ObjectLoader();
-        // source = new LightSource(20, 8, 5, 1, 1, 1);
-
-        source = new LightSource("source", 20, 8, 5, 0.0f, 0.0f, 1.0f);
-        sourcetwo = new LightSource("sourcetwo", 0, 0, 0, 1.0f, 0.0f, 0.0f);
-
-        lightSourcesList.add(source);
-        lightSourcesList.add(sourcetwo);
-        // lightSourcesList.add(source);
 
         // map.setSun(new Sun(0.2f, -0.5f, 0.3f, 1, 1, 1));
-
-        float angle = 0.1f;
-
         double lastTime = glfwGetTime();
         int Frames = 0;
-
-        // double TickHZ = 60;
         int tickCounter = 0;
 
         while (!GLFW.glfwWindowShouldClose(window)) {
@@ -178,12 +118,9 @@ public class WindowManager {
                 GLFW.glfwSetWindowTitle(window, "OpenEngine: " + WindowManager.FPS);
             }
 
-            //
-
             renderer.cleanup();
 
             if (map.getSky() != null) {
-                // System.out.println("sky not null");
                 renderer.drawSkybox(map.getSky(), 0, 0, 0, 0);
             }
 
@@ -231,21 +168,11 @@ public class WindowManager {
 
                 }
             }
-            // renderer.drawSkybox(map.getObjects().get(0).element(), 0, 0, 0, 0);
-
-            // renderer.colorShaderFunc(map.getObjects().get(0).element());
-
-            // map.getObjects().removeLast();
 
             if (tickCounter >= (FPS / TickHZ)) {
                 renderer.input();
-                // source.rotate(angle);
-                // map.getLights().getFirst().rotate(angle);
-                angle += 0.01;
-                // System.out.println(tickCounter);
                 tickCounter = 0;
             }
-            // System.out.println(source.getLightPosition());
             tickCounter += 1;
 
             // imgui
@@ -265,15 +192,8 @@ public class WindowManager {
                 ImGui.renderPlatformWindowsDefault();
                 GLFW.glfwMakeContextCurrent(backupWindowPtr);
             }
-
-            // GLFW.glfwSwapBuffers(window);
-            // GLFW.glfwPollEvents();
-
-            //
-
             GLFW.glfwSwapBuffers(window);
             GLFW.glfwPollEvents();
-            // System.out.println("loop");
         }
     }
 
@@ -289,38 +209,11 @@ public class WindowManager {
         return renderer;
     }
 
-    public LightSource getLightSource() {
-        return source;
-    }
-    public ArrayList<Float> getLightSourcesPos() {
-        ArrayList list = new ArrayList<>();
-        for (LightSource lightSource : lightSourcesList) {
-            list.add(lightSource.getLightPosition().x);
-            list.add(lightSource.getLightPosition().y);
-            list.add(lightSource.getLightPosition().z);
-        }
-        return list;
-    }
     public Sun getSun() {
         return map.getSun();
     }
 
-    public ArrayList<Float> getLightSourceColor() {
-        ArrayList list = new ArrayList<>();
-        for (LightSource lightSource : lightSourcesList) {
-            list.add(lightSource.getLightColor().x);
-            list.add(lightSource.getLightColor().y);
-            list.add(lightSource.getLightColor().z);
-        }
-        return list;
-    }
-
     public LightSource[] getLightSourceArray() {
-    /*
-    LightSource[] array = new LightSource[lightSourcesList.size()];
-    return array = lightSourcesList.toArray(array);
-
-     */
         LightSource[] array = new LightSource[map.getLights().size()];
         return array = map.getLights().toArray(array);
     }
@@ -342,18 +235,14 @@ public class WindowManager {
 
     public boolean isKeyClicked(int keycode) {
         if (isKeyPressed(keycode) && !clicked) {
-            // System.out.println(clicked);
             clicked = true;
-            // System.out.println("why");
             return true;
         } else if (isKeyReleased(keycode)) {
-            // System.out.println("lol");
             clicked = false;
             return false;
         } else {
             return false;
         }
-        // return false;
     }
 
     public void destroy() {
@@ -370,8 +259,6 @@ public class WindowManager {
         ImGui.createContext();
         ImGuiIO io = ImGui.getIO();
         
-        //io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
-
         ImGuiStyle style = ImGui.getStyle();
 
         style.setWindowMinSize(160, 20);

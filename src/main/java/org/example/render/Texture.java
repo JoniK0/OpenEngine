@@ -2,13 +2,9 @@ package org.example.render;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -19,7 +15,6 @@ import org.lwjgl.system.MemoryStack;
 public class Texture {
 
     public static HashMap<String, Integer> idMap = new HashMap<String, Integer>();
-    public static String resourceName = "textures";
 
     public static int loadCubemap(String Directory) {
         int id;
@@ -88,14 +83,8 @@ public class Texture {
                 IntBuffer h = stack.mallocInt(1);
                 IntBuffer channels = stack.mallocInt(1);
 
-                //URL url = Texture.class.getResource("res/" + resourceName);
-                //File file = new File("res/textures/" + texture);
-                ClassLoader classLoader = Texture.class.getClassLoader();
-                //File file = new File(classLoader.getResource("../../../textures/"+texture).getFile());
                 File file = new File(Texture.class.getResource("/textures/" + texture).getFile());
-
                 String path = Texture.class.getResource("/textures/" + texture).getPath();
-
 
                 InputStream stream = Texture.class.getResourceAsStream("/textures/" + texture);
                 byte[] streamByte = stream.readAllBytes();
@@ -103,22 +92,6 @@ public class Texture {
                 streamByteBuffer.put(streamByte);
                 streamByteBuffer.flip();
 
-
-                System.out.println("path: " + path);
-                //System.out.println("test: "+test);
-
-                //File file = new File("src/main/java/resources/textures/" + texture);
-                String filepath = file.getAbsolutePath();
-                ;
-
-                System.out.println("absolutepath: " + filepath);
-                System.out.println("file: " + file.toString().replace("file:", "").replace("!", ""));
-
-                //String filepath = String.valueOf(Texture.class.getResource("/textures/"+texture));
-
-                //System.out.println("filepath: "+filepath);
-                //buffer = STBImage.stbi_load(filepath, w, h, channels, 4);
-                //buffer = STBImage.stbi_load(file.toString().replace("file:", "").replace("!", ""), w, h, channels, 4);
                 buffer = STBImage.stbi_load_from_memory(streamByteBuffer, w, h, channels, 4);
 
                 if (buffer == null) {
@@ -130,19 +103,14 @@ public class Texture {
                 int id = GL11.glGenTextures();
                 idMap.put(texture, id);
 
-                //GL11.glEnable(GL11.GL_TEXTURE_2D);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+
                 GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-
                 GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-
                 GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
                 GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
-                //GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 3);
 
-                //GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
                 STBImage.stbi_image_free(buffer);
                 System.out.println("Texture initialized " + id);
                 return id;
@@ -174,14 +142,9 @@ public class Texture {
                 IntBuffer h = stack.mallocInt(1);
                 IntBuffer channels = stack.mallocInt(1);
 
-                //URL url = Texture.class.getResource("res/" + resourceName);
-                File file = new File(Texture.class.getResource(path + "/" + texture).getFile());
-
-                String filepath = file.getAbsolutePath();
-
+                String filepath;
                 filepath = Texture.class.getResource(path + "/" + texture).getPath();
 
-                //System.out.println("filepath: "+filepath);
                 buffer = STBImage.stbi_load(filepath, w, h, channels, 4);
                 if (buffer == null) {
                     throw new Exception("Can't load file" + texture + " " + STBImage.stbi_failure_reason());
@@ -192,10 +155,8 @@ public class Texture {
                 int id = GL11.glGenTextures();
                 idMap.put(texture, id);
 
-                //GL11.glEnable(GL11.GL_TEXTURE_2D);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
                 GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-
                 GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
                 GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);

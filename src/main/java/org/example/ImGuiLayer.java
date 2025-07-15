@@ -1,22 +1,14 @@
 package org.example;
 
-import com.google.errorprone.annotations.Var;
 import imgui.ImGui;
-import imgui.flag.ImGuiConfigFlags;
 import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import imgui.type.ImString;
-
 import java.io.File;
-import java.security.Key;
-import java.util.HashMap;
-
 import org.example.render.*;
 import org.example.render.Map.Map;
-import org.joml.Matrix4f;
 import org.joml.Vector2d;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.glfw.*;
 
 public class ImGuiLayer {
@@ -32,16 +24,11 @@ public class ImGuiLayer {
     private boolean colorpicker = false;
     Map.object selected = null;
     LightSource selected_source;
-    LightSource deleteSource;
     String selected_texture;
     int index;
     int lightIndex;
-
-    ImFloat FOV = new ImFloat(Transformations.FOV);
     boolean remove = false;
-
     int removeIndex = -1;
-
     private final float[] flt = new float[1];
 
     ImString name;
@@ -104,37 +91,18 @@ public class ImGuiLayer {
         this.windowmanager = Main.getWindowManager();
         selectedCam = render.activeCam;
         map = windowmanager.getMap();
-    /*
-    Map.object selected = Map.objects.get(0);
-    ImFloat PosX = new ImFloat(selected.x());
-    ImFloat PosY = new ImFloat(selected.y());
-    ImFloat PosZ = new ImFloat(selected.z());
-
-    ImFloat RotX = new ImFloat(selected.rotX());
-    ImFloat RotY = new ImFloat(selected.rotY());
-    ImFloat RotZ = new ImFloat(selected.rotZ());
-
-     */
 
         ImGui.begin("DevConsole");
 
         if (texture_selection) {
             ImGui.begin("textures");
-            // File Directory = new File("src/main/java/resources/textures");
             File Directory =
                     new File(ImGuiLayer.class.getResource("/textures").getFile());
             File[] textures = Directory.listFiles();
 
-      /*
-      for(File texture : textures){
-          System.out.println(texture.getName());
-      }
-
-       */
             int numTextures = 1;
             int id;
 
-            // System.out.println("doggo");
             for (File texture : textures) {
                 if (!texture.getName().equals("models")
                         && !texture.getName().equals("Sky")) {
@@ -145,7 +113,6 @@ public class ImGuiLayer {
                         if (selected != null) {
                             selected.element().setMulTextureAtInd(
                                     faceindex.get(), texture.getName());
-                            // selected.element().addTexture(texture.getName());
                             texture_selection = false;
                         }
                     }
@@ -170,14 +137,6 @@ public class ImGuiLayer {
             ImGui.inputFloat("rotation", texRot);
             ImGui.inputFloat("scale", texScale);
 
-            // System.out.println("doggo");
-
-            float[] test = new float[72];
-            // MeshLoader.subData(selected.element(), 2,
-            // ObjectLoader.offsetUVs(selected.element().getUvs(), uOffset.get(),
-            // vOffset.get(), texRot.get(), texScale.get()));
-            // MeshLoader.subData(selected.element(), 1, test);
-
             if (ImGui.button("texture")) {
                 texture_selection = true;
             }
@@ -195,13 +154,10 @@ public class ImGuiLayer {
         ImGui.text("");
 
         for (Map.object object : Map.objects) {
-            // ImGui.text(object.name());
             String buttonName = object.name();
             if (buttonName.equals("")) {
                 buttonName = "?";
             }
-
-            // System.out.println(buttonName);
 
             if (ImGui.button(buttonName)) {
                 selected = object;
@@ -242,9 +198,6 @@ public class ImGuiLayer {
         }
 
         if (showChange) {
-            // float[] flt = new float[1];
-            // float empty = 0;
-            // flt[0] = empty;
 
             ImGui.text("");
             ImGui.text("selected:" + selected.name());
@@ -253,7 +206,6 @@ public class ImGuiLayer {
             ImGui.inputText("name: ", name);
 
             if (ImGui.button("texture")) {
-                // texture_selection = true;
                 texture_viewer = true;
             }
 
@@ -261,18 +213,9 @@ public class ImGuiLayer {
             ImGui.inputFloat("Y", PosY);
             ImGui.inputFloat("Z", PosZ);
 
-            // ImGui.sliderFloat("PosX", flt, -1000, 1000);
-
-            // ImGui.inputFloat("RotX", RotX);
-            // ImGui.inputFloat("RotY", RotY);
-            // ImGui.inputFloat("RotZ", RotZ);
-
-            // Rot_X[0] = selected.rotX();
             ImGui.sliderFloat("RotX: ", Rot_X, 0, 360);
             ImGui.sliderFloat("RotY: ", Rot_Y, 0, 360);
             ImGui.sliderFloat("RotZ: ", Rot_Z, 0, 360);
-
-            // Rot_X[0] = (float) Math.toRadians(Rot_X[0]);
 
             ImGui.sliderFloat(
                     "Scale: ", scale, Math.max(0, scale[0] - 10), scale[0] + 10);
@@ -297,12 +240,9 @@ public class ImGuiLayer {
 
         if (removeIndex != -1) {
             showChange = false;
-            // System.out.println("pre: "+ Map.lights);
             map.getObjects().remove(removeIndex);
-            // Map.lights.remove(deleteSource);
             System.out.println(removeIndex);
             removeIndex = -1;
-            // System.out.println("post: " + Map.lights);
         }
 
         ImGui.text("");
@@ -358,7 +298,6 @@ public class ImGuiLayer {
                     remove = true;
                     selected_source = light;
                     lightIndex = Map.lights.indexOf(light);
-                    // System.out.println(lightIndex);
 
                     lightName = new ImString(selected_source.getName());
 
@@ -397,10 +336,6 @@ public class ImGuiLayer {
             ImGui.inputFloat("PosX", ColPosX);
             ImGui.inputFloat("PosY", ColPosY);
             ImGui.inputFloat("PosZ", ColPosZ);
-
-            // ImGui.inputFloat("R",R);
-            // ImGui.inputFloat("G",G);
-            // ImGui.inputFloat("B",B);
 
             if (ImGui.button("Color")) {
                 colorpicker = true;
@@ -443,12 +378,9 @@ public class ImGuiLayer {
 
         if (removeIndex != -1) {
             spotlightchange = false;
-            // System.out.println("pre: "+ Map.lights);
             map.lights.remove(removeIndex);
-            // Map.lights.remove(deleteSource);
             System.out.println(removeIndex);
             removeIndex = -1;
-            // System.out.println("post: " + Map.lights);
         }
 
         ImGui.text("");
@@ -503,13 +435,8 @@ public class ImGuiLayer {
             ImGui.inputFloat("PosY", ColPosY);
             ImGui.inputFloat("PosZ", ColPosZ);
 
-            // ImGui.inputFloat("R",R);
-            // ImGui.inputFloat("G",G);
-            // ImGui.inputFloat("B",B);
-
             if (ImGui.button("Color")) {
                 colorpicker = true;
-                // ImGui.colorPicker3("R: ", colorR);
             }
 
             if (colorpicker) {
@@ -534,12 +461,8 @@ public class ImGuiLayer {
         }
         if (removeIndex != -1) {
             showSourceChange = false;
-            // System.out.println("pre: "+ Map.lights);
             map.lights.remove(removeIndex);
-            // Map.lights.remove(deleteSource);
-            // System.out.println(removeIndex);
             removeIndex = -1;
-            // System.out.println("post: " + Map.lights);
         }
 
         ImGui.text("");
@@ -612,10 +535,6 @@ public class ImGuiLayer {
         if (ImGui.checkbox("Flashlight", Variables.flashlight)) {
             Variables.flashlight = !Variables.flashlight;
         }
-
-        // ImGui.inputFloat("FOV:", FOV);
-        // Transformations.FOV = FOV.get();
-        // System.out.println("haii");
 
         flt[0] = Transformations.FOV;
         ImGui.sliderFloat("FOV", flt, 10, 170);

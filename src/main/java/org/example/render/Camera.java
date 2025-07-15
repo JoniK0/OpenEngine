@@ -1,6 +1,5 @@
 package org.example.render;
 
-import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.Map.Map;
@@ -8,16 +7,6 @@ import org.example.render.shader.MouseInput;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Math;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.glfw.Callbacks;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.example.render.shader.MouseInput;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Camera {
@@ -61,8 +50,6 @@ public class Camera {
     }
 
     public static Matrix4f CameraTransformation(Vector3f Pos, Vector3f Target, Vector3f Up) {
-        //System.out.println(m_up);
-
         Vector3f N = new Vector3f(Target);
         N.normalize();
 
@@ -92,7 +79,6 @@ public class Camera {
         return Camera;
     }
 
-
     public Matrix4f getMatrix() {
         return CameraTransformation(this.m_pos, this.m_target, this.m_up);
     }
@@ -104,15 +90,6 @@ public class Camera {
             Map.objects.remove(0);
             Map.objects.addFirst(obj);
         }
-        /*if(windowmanager.isKeyClicked(GLFW_KEY_T))
-        {
-            Mesh def = objectLoader.createCube(1).addTexture("white.jpg");
-            Map.object cube = new Map.object("cube",def, this.m_pos.x-this.m_target.x*3, this.m_pos.y-this.m_target.y*3,this.m_pos.z-this.m_target.z*3, false, 0,0,0, 1);
-            windowmanager.getMap().getObjects().add(cube);
-            clicked = true;
-        }
-
-         */
 
         if (windowmanager.isKeyClicked(GLFW_KEY_X)) {
             LightSource light = new LightSource("source", this.m_pos.x, this.m_pos.y, this.m_pos.z, 1.0f, 1.0f, 1.0f);
@@ -148,25 +125,6 @@ public class Camera {
             Right.mul(this.m_speed);
             this.m_pos.add(Right);
         }
-
-        if (windowmanager.isKeyPressed(GLFW_KEY_D)) {
-
-            //yaw += 3;
-            TargetVectorTransformation();
-        }
-        if (windowmanager.isKeyPressed(GLFW_KEY_A)) {
-
-            //yaw -= 3;
-            TargetVectorTransformation();
-        }
-        if (windowmanager.isKeyPressed(GLFW_KEY_W) && this.pitch > -89.9) {
-            //pitch -= 3;
-            TargetVectorTransformation();
-        }
-        if (windowmanager.isKeyPressed(GLFW_KEY_S) && this.pitch < 89.9) {
-            //pitch += 3;
-            TargetVectorTransformation();
-        }
         if (windowmanager.isKeyPressed(GLFW_KEY_KP_ADD)) {
             this.m_speed += 0.1;
             System.out.println("Current speed: " + this.m_speed);
@@ -181,46 +139,20 @@ public class Camera {
         if (windowmanager.isKeyPressed(GLFW_KEY_G)) {
             render.globalFullbright = false;
         }
-        if (windowmanager.isKeyPressed(GLFW_KEY_P)) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-        }
-        if (windowmanager.isKeyPressed(GLFW_KEY_O)) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        }
         if (windowmanager.isKeyPressed(GLFW_KEY_K)) {
             isMouseEscape = false;
             glfwSetInputMode(windowmanager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
-
-
         if (windowmanager.isKeyPressed(GLFW_KEY_L)) {
             isMouseEscape = true;
             glfwSetInputMode(windowmanager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
-
         if (windowmanager.isKeyPressed(GLFW_KEY_1)) {
             render.activeCam = render.cam;
         }
         if (windowmanager.isKeyPressed(GLFW_KEY_2)) {
             render.activeCam = render.cam2;
         }
-
-
-
-        /*
-        if(windowmanager.isKeyClicked(GLFW_KEY_L)){
-            isMouseEscape = !isMouseEscape;
-            clicked = true;
-            if(isMouseEscape){
-                GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
-            else{
-                GLFW.glfwSetInputMode(windowmanager.getWindow(), GLFW.GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            }
-        }
-
-         */
-
 
         mouseInput.input();
         render.activeCam.TargetVectorTransformation();

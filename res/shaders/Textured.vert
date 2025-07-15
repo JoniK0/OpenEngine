@@ -7,70 +7,34 @@ layout (location = 3) in float texUnit;
 layout (location = 4) in vec3 tangent;
 layout (location = 5) in vec3 bitangent;
 
-
 layout (location = 0) out vec2 pass_uvs;
 layout (location = 1) out vec3 Normals;
 layout (location = 2) out vec3 FragPos;
 layout (location = 3) out vec3 campos;
-layout (location = 4) out int fullbright;
-layout (location = 5) out int globalFull;
 layout (location = 6) out vec4 FragPosLightSpace;
-layout (location = 7) out vec3 LightColor;
-layout (location = 8) out vec3 camDir;
-
-layout (location = 9) out float[] LightPos;
-layout (location = 10) out float[] LightCols;
 
 layout (location = 11) out float pass_texUnit;
 layout (location = 12) out mat3 TBN;
-
-//layout (location = 13) out int Flashlight;
 
 uniform mat4 Projection;
 uniform mat4 Translation;
 uniform mat4 Rotation;
 
-uniform mat4 Final;
 uniform mat4 WorldTransform;
 uniform mat4 CameraTransform;
 uniform mat4 lightSpaceMatrix;
 
-uniform vec3 camPos;
-uniform vec3 camDirection;
-uniform int Fullbright;
-
-uniform int globalFullbright;
 uniform vec3 lightSource;
 uniform mat4 AxisRotation;
 
-uniform vec3 lightColor;
-//uniform int flash;
-
-uniform float[] LightPositions;
-uniform float[] LightColors;
 
 void main(){
-	//gl_Position = Projection * CameraTransform * AxisRotation * WorldTransform * vec4(position.x, position.y, position.z , 1.0);
 	gl_Position = Projection * CameraTransform * WorldTransform * AxisRotation * vec4(position.x, position.y, position.z , 1.0);
-	//gl_Position = Projection * CameraTransform * WorldTransform * vec4(normal.x, normal.y, normal.z , 1.0);
-	//FragPos = vec3(AxisRotation * WorldTransform * vec4(position.x, position.y, position.z, 1.0));
 	FragPos = vec3(WorldTransform * AxisRotation * vec4(position.x, position.y, position.z, 1.0));
 
 	pass_uvs = uvs;
-	//vec4 norm = vec4(AxisRotation * vec4(normal.x, normal.y, normal.z, 1.0));
 	Normals = normalize(mat3(transpose(inverse(WorldTransform * AxisRotation))) * vec3(normal.x, normal.y, normal.z));
-	//Normals = normal;
-	campos = camPos;
-	fullbright = Fullbright;
-	globalFull = globalFullbright;
-	LightColor = lightColor;
-	camDir = -camDirection;
-
-	LightPos = LightPositions;
-	LightCols = LightColors;
-
 	pass_texUnit = texUnit;
-
 	FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0f);
 
 	mat4 model = WorldTransform * AxisRotation;

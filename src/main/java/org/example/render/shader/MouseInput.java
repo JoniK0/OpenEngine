@@ -10,7 +10,6 @@ import org.lwjgl.glfw.GLFW;
 public class MouseInput {
     public Vector2d prevPos, curPos;
     private final Vector2f displVec;
-    private boolean inWindow = false;
     public static float Sensitivity = 0.2f;
 
     public MouseInput(){
@@ -36,12 +35,10 @@ public class MouseInput {
             y = curPos.y - prevPos.y;
         }
 
-
-            curPos.x = WindowManager.width/2;
-            curPos.y = WindowManager.height/2;
+        curPos.x = WindowManager.width/2;
+        curPos.y = WindowManager.height/2;
 
         if(!Camera.isMouseEscape){
-            //System.out.println("input");
             render.activeCam.yaw += x * Sensitivity;
             render.activeCam.pitch += y * Sensitivity;
             GLFW.glfwSetCursorPos(Main.getWindowManager().getWindow(), WindowManager.width/2, WindowManager.height/2);

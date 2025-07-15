@@ -74,8 +74,6 @@ public class Mesh {
     public Mesh setMulTextureAtInd(int index, String texture) {
         this.multex = true;
         this.multextures.set(index, Texture.loadTexture(texture));
-        //System.out.println("setmultex");
-        //System.out.println(multex);
         return this;
     }
 

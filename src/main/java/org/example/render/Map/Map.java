@@ -1,8 +1,6 @@
 package org.example.render.Map;
-
 import org.example.render.*;
 import org.joml.Vector3f;
-
 import java.util.ArrayList;
 
 public class Map {
@@ -16,16 +14,9 @@ public class Map {
     }
 
     ObjectLoader objectLoader = new ObjectLoader();
-    MeshLoader meshLoader = new MeshLoader();
-
     public static ArrayList<object> objects = new ArrayList<object>();
     public static ArrayList<model> models = new ArrayList<>();
     public static ArrayList<LightSource> lights = new ArrayList<>();
-    public static ArrayList<Spotlight> spotlights = new ArrayList<>();
-
-    public static int numDirLights = 0;
-    public static int numSpotLights = 0;
-
 
     //initializes static objects
     LightSource source = new LightSource("source", 12, 20, 20, 1.0f, 1.0f, 1.0f);
@@ -36,36 +27,19 @@ public class Map {
 
     public void initMap() {
 
-        Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
-
-
         try {
             Mesh[] model = StaticModelLoader.load("blacksmith");
             Mesh[] axe = StaticModelLoader.load("fire_axe");
-            int i = 0;
             models.add(new model("blacksmith", model, 10, 1, 14, false, 0, 0, 0, 0.05f));
             models.add(new model("fire_axe", axe, 15, 1, 14, false, 0, 0, 0, 0.05f));
-            for (Mesh mesh : model) {
 
-                //objects.add(new object("fireaxe", mesh, 10, 1, 14, false, 0, 0, 0, 0.05f));
-                if (mesh == null) {
-                    System.out.println("stooopid");
-                }
-            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-
-        String[] skytextures = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
-
         Sky = objectLoader.createCube(500f).addSky("Sky");
-        //Mesh test = objectLoader.createCube(10);
 
-
-        //Mesh SkyBox = objectLoader.createSkyBox(800f, "SkyBox.png");
         Mesh sphere = objectLoader.Sphere(5, 50, 50).addTexture("white.jpg");//
-        //Mesh lightbulb = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
         Mesh pointlight = objectLoader.Sphere(0.5f, 30, 30).addTexture("white.jpg");
         Mesh Cube = objectLoader.createCube(1).addTexture("white.jpg");//
         Mesh cube = objectLoader.createCube(5).addTexture("ctexture.png");
@@ -82,8 +56,6 @@ public class Map {
 
         sphere.setNormalMapAtInd(0, "Brickwall2_normal.jpg");
         sphere.setNormalMaps(new String[]{"Brickwall2_normal.jpg", "Brickwall2_normal.jpg", "Brickwall2_normal.jpg", "Brickwall2_normal.jpg", "Brickwall2_normal.jpg", "Brickwall2_normal.jpg",});
-        //quad.setNormalMaps(new String[]{"Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg","Brickwall2_normal.jpg",});
-        //wall.setNormalMapAtInd(0, "Brickwall2_normal.jpg");
 
         System.out.println("heyho: " + multiCube.getVaoID());
 
@@ -101,11 +73,6 @@ public class Map {
         //
         //
 
-        ////LightSource source = new LightSource(20, 8, 5, 0.0f, 0.0f, 1.0f);
-        //LightSource sourcetwo = new LightSource(0, 0, 0, 1.0f, 0.0f, 0.0f);
-
-
-        object Skybox = new object("SkyBox", SkyBox, 0, 0, 0, true, 0, 0, 0, 1);
         object Sphere = new object("sphere", sphere, -2, -5, 10, false, 0, 0, 0, 1);
         object secondSphere = new object("sphere2", sphere, 0.0f, 0.0f, -15f, false, 0, 0, 0, 1);
         object Lightbulb = new object("lightbulb", lightbulb, source.getLightPosition().x, source.getLightPosition().y, source.getLightPosition().z, true, 0, 0, 0, 1);

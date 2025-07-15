@@ -1,17 +1,13 @@
 package org.example.render;
 
-import com.google.errorprone.annotations.Var;
-import imgui.ImGui;
 import org.example.ImGuiLayer;
 import org.example.Main;
 import org.example.WindowManager;
 import org.example.render.Map.Map;
 import org.example.render.shader.*;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryStack;
-
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -22,7 +18,6 @@ public class render {
     ShaderFrameBuffer shaderFrameBuffer = new ShaderFrameBuffer();
     ShaderSky skyShader = new ShaderSky();
     ShadowPass shadowPass = new ShadowPass();
-    ShaderColored colorShader = new ShaderColored();
     Transformations transform = new Transformations();
     public static Camera cam = new Camera(0, 0, -1);
     public static Camera cam2 = new Camera(0, 0, -100);
@@ -54,9 +49,6 @@ public class render {
             GL11.glGetIntegerv(GL11.GL_CULL_FACE_MODE, oldCullFaceMode);
             GL11.glGetIntegerv(GL11.GL_DEPTH_FUNC, oldDepthFunc);
 
-
-            //GL11.glGetIntegerv(GL11.GL_CULL_FACE_MODE, oldCullFaceMode);
-
             GL11.glCullFace(GL11.GL_FRONT);
             GL11.glDepthFunc(GL11.GL_LEQUAL);
             GL11.glEnable(GL40.GL_DEPTH_CLAMP);
@@ -87,8 +79,7 @@ public class render {
             GL30.glBindVertexArray(0);
 
             if (GL20.glGetError() != 0) {
-                //System.out.println(GL20.glGetError());
-                //System.out.println("error");
+                System.out.println(GL20.glGetError());
             }
             GL11.glDepthFunc(oldDepthFunc.get());
             GL11.glCullFace(oldCullFaceMode.get());
@@ -171,21 +162,9 @@ public class render {
         GL40.glDepthMask(true);
 
         GL11.glEnable(GL11.GL_BLEND);
-
-
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-        //GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        //GL11.glStencilMask(0xFF);
-
-
-        //GL40.glBlendEquation(GL40.GL_FUNC_ADD);
-        //GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-
         GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
-
         GL11.glCullFace(GL11.GL_BACK);
 
-        //System.out.println(activeCam.yaw);
 
         if (ImGuiLayer.polygonmode) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -193,41 +172,10 @@ public class render {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////
-        //ShadowPass
-
-        /*
-
-        configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
-        GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
-        GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-
-        GL30.glBindVertexArray(mesh.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
-
-        GL30.glBindVertexArray(0);
-        GL20.glDisableVertexAttribArray(0);
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        //GL30.glDeleteFramebuffers(depthMapFBO);
-
-        shadowPass.stop();
-
-         */
-
-
-
-        /////////////////////////////////////////////////////////////////////////////////////
-
         GL11.glViewport(0, 0, WindowManager.width, WindowManager.height);
-
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL14.GL_REPEAT);
 
         GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR_MIPMAP_LINEAR);
         GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
-        //GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 3);
 
         if (windowmanager.getMap().getLights().size() != numLoadedLights) {
             numLoadedLights = windowmanager.getMap().getLights().size();
@@ -237,59 +185,32 @@ public class render {
 
         shader.start();
 
-
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilMask(0xFF);
-
-        //GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL30.glBindVertexArray(mesh.getVaoID());
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);
         GL20.glEnableVertexAttribArray(2);
         GL20.glEnableVertexAttribArray(3);
 
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-
         shader.loadLights(windowmanager.getLightSourceArray());
-        //System.out.println(windowmanager.getLightSourceArray().length);
         shader.loadSun(windowmanager.getSun());
-
         shader.setUniform("Projection", transform.getProjectionMatrix());
         shader.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
-        //shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-
         shader.loadVector("camPos", activeCam.m_pos);
         shader.loadVector("camDirection", activeCam.m_target);
-
         shader.loadBoolean("Fullbright", fullbright);
         shader.loadBoolean("globalFullbright", globalFullbright);
         shader.loadBoolean("flash", Variables.flashlight);
-
         shader.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
-        shader.loadVector("lightColor", windowmanager.getLightSource().getLightColor());
-        //shader.setUniform("CameraTransform", transform.getCameraTransformation());
-
         shader.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
-
-
         shader.loadInt("shadowMap", 12);
-
-
-
-
 
         if (mesh.isMultex()) {
 
             for (int i = 0; i <= 5; i++) {
-                //shader.loadInt("textureSampler"+Integer.toString(i), i);
                 shader.loadInt("textureSamplers[" + Integer.toString(i) + "]", i);
             }
             for (int i = 0; i < mesh.getMultextures().size(); i++) {
-
                 GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-
-                GL13.glEnable(GL11.GL_TEXTURE_2D);
-
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getMultextures().get(i));
 
                 GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
@@ -301,147 +222,57 @@ public class render {
                 shader.loadInt("normalMaps[" + Integer.toString(i) + "]", i + 6);
             }
             for (int i = 0; i < mesh.getNormalMaps().size(); i++) {
-                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
                 GL13.glActiveTexture(GL13.GL_TEXTURE0 + 6 + i);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMaps().get(i));
 
             }
 
-
-            /*
-            GL13.glActiveTexture(GL13.GL_TEXTURE12);
-            GL13.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthMap);
-            //GL13.glActiveTexture(0);
-
-             */
-
-
-
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
-            //GL13.glActiveTexture(0)
-            if (GL20.glGetError() != 0) {
-                System.out.println(GL20.glGetError());
-            }
 
         } else {
             shader.loadInt("textureSampler", 0);
             shader.loadInt("normalMap0", 6);
 
-
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getTexture());
             GL13.glActiveTexture(GL13.GL_TEXTURE6);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, mesh.getNormalMap());
+
             GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-
-
         }
-        GL30.glBindVertexArray(0);
 
         shader.stop();
 
-
-        //System.out.println(GL20.glGetError());
-
-        GL40.glGetString(GL40.GL_VERSION);
+        if (GL20.glGetError() != 0) {
+            System.out.println(GL20.glGetError());
+        }
 
         GL11.glDisable(GL11.GL_BLEND);
 
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);
-        //shader.stop();
     }
 
-    public void colorShaderFunc(Mesh mesh) {
-
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL13.GL_MULTISAMPLE);
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-
-        GL40.glDepthMask(true);
-
-        GL11.glEnable(GL11.GL_BLEND);
-
-
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-        //GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        //GL11.glStencilMask(0xFF);
-
-
-        //GL40.glBlendEquation(GL40.GL_FUNC_ADD);
-        //GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-
-        GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
-
-        GL11.glCullFace(GL11.GL_BACK);
-
-        //System.out.println(activeCam.yaw);
-
-        if (ImGuiLayer.polygonmode) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-        } else {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        }
-
-
-        colorShader.start();
-        GL30.glBindVertexArray(mesh.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-
-        shader.setUniform("Projection", transform.getProjectionMatrix());
-        shader.setUniform("WorldTransform", transform.getWorldTransformation(0, 0, 0, 0, 0));
-
-        shader.setUniform("AxisRotation", transform.RotationMatrix(0, 0, 0));
-        //shader.setUniform("CameraTransform", transform.getCameraTransformation());
-
-        shader.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
-
-        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-        GL30.glBindVertexArray(0);
-        colorShader.stop();
-    }
 
     public void input() {
         activeCam.keyListener();
     }
 
     public void shadowPass(ArrayList<Map.object> objects)
-    {        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+    {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
-        //GL11.glDepthFunc(GL11.GL_LESS);
-        //GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
-        //GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL13.GL_MULTISAMPLE);
-        //GL11.glEnable(GL11.GL_STENCIL_TEST);
 
         //GL40.glDepthMask(true);
 
-        //GL11.glEnable(GL11.GL_BLEND);
-
-        //GL30.glBindVertexArray(mesh.getVaoID());
-
         GL30.glEnableVertexAttribArray(0);
 
-
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-        //GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        //GL11.glStencilMask(0xFF);
-
-
-        //GL40.glBlendEquation(GL40.GL_FUNC_ADD);
-        //GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-
         GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
-
         GL11.glCullFace(GL11.GL_BACK);
-
-        //System.out.println(activeCam.yaw);
 
         if (ImGuiLayer.polygonmode) {
             GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -453,8 +284,6 @@ public class render {
         //ShadowPass
 
         shadowPass.start();
-        //GL30.glBindVertexArray(mesh.getVaoID());
-
         GL30.glEnableVertexAttribArray(0);
         //configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
@@ -466,27 +295,14 @@ public class render {
             shadowPass.setUniform("Projection", transform.getProjectionMatrix());
             shadowPass.setUniform("WorldTransform", transform.getWorldTransformation(object.x(), object.y(), object.z(), 0, object.sizeScale()));
 
-
             shadowPass.setUniform("AxisRotation", transform.RotationMatrix(object.rotX(), object.rotY(), object.rotZ()));
-            //shader.setUniform("CameraTransform", transform.getCameraTransformation());
-
             shadowPass.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
 
-
             GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
-            //GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
-            //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-            //GL30.glBindVertexArray(mesh.getVaoID());
             GL20.glEnableVertexAttribArray(0);
             GL11.glDrawElements(GL11.GL_TRIANGLES, object.element().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
-
-            //GL30.glBindVertexArray(0);
-            //GL20.glDisableVertexAttribArray(0);
-            //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-            //GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-            //GL30.glDeleteFramebuffers(depthMapFBO);
         }
         GL30.glBindVertexArray(0);
         GL20.glDisableVertexAttribArray(0);
@@ -497,89 +313,12 @@ public class render {
 
     }
 
-    public void frameBuffertest(/*Mesh mesh, float transformX, float transformY, float transformZ, boolean fullbright, float rotX, float rotY, float rotZ, float sizeScale*/)
+    public void frameBuffertest()
     {
-        /*
-        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        //GL11.glDepthFunc(GL11.GL_LESS);
-        //GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        //GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL13.GL_MULTISAMPLE);
-        //GL11.glEnable(GL11.GL_STENCIL_TEST);
-
-        //GL40.glDepthMask(true);
-
-        //GL11.glEnable(GL11.GL_BLEND);
-
-        GL30.glBindVertexArray(mesh.getVaoID());
-
-        GL30.glEnableVertexAttribArray(0);
-
-
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-        //GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        //GL11.glStencilMask(0xFF);
-
-
-        //GL40.glBlendEquation(GL40.GL_FUNC_ADD);
-        //GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-
-        GL30.glGenerateMipmap(GL30.GL_TEXTURE_2D);
-
-        GL11.glCullFace(GL11.GL_BACK);
-
-        //System.out.println(activeCam.yaw);
-
-        if (ImGuiLayer.polygonmode) {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-        } else {
-            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////
-        //ShadowPass
-
-        shadowPass.start();
-        configShadowPass(transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale), transform.RotationMatrix(rotX, rotY, rotZ));
-        shadowPass.setUniform("Projection", transform.getProjectionMatrix());
-        shadowPass.setUniform("WorldTransform", transform.getWorldTransformation(transformX, transformY, transformZ, 0, sizeScale));
-
-
-        shadowPass.setUniform("AxisRotation", transform.RotationMatrix(rotX, rotY, rotZ));
-        //shader.setUniform("CameraTransform", transform.getCameraTransformation());
-
-        shadowPass.setUniform("CameraTransform", activeCam.getMatrix()); /////////////////////////////////////
-
-
-        GL11.glViewport(0, 0, Variables.shadowWidth, Variables.shadowHeight);
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, depthMapFBO);
-        GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-
-        GL30.glBindVertexArray(mesh.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-
-
-        GL30.glBindVertexArray(0);
-        GL20.glDisableVertexAttribArray(0);
-        //GL30.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        //GL30.glDeleteFramebuffers(depthMapFBO);
-
-        shadowPass.stop();
-
-        */
-        /////////////////////////////////////////////////////////////////////////////////////
 
         GL11.glViewport(0, 0, WindowManager.width, WindowManager.height);
-
         GL30.glBindVertexArray(Variables.screenQuad.getVaoID());
-
         GL30.glEnableVertexAttribArray(0);
-
         GL30.glEnableVertexAttribArray(1);
 
         shaderFrameBuffer.start();
@@ -588,7 +327,6 @@ public class render {
         GL30.glEnable(GL11.GL_TEXTURE_2D);
         GL30.glActiveTexture(GL13.GL_TEXTURE12);
         GL40.glBindTexture(GL13.GL_TEXTURE_2D, depthMap);
-
 
         GL11.glDrawElements(GL11.GL_TRIANGLES, Variables.screenQuad.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 
